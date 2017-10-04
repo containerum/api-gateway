@@ -11,6 +11,10 @@ var flags = []cli.Flag{
 		Name:   "debug, d",
 		Usage:  "start the server in debug mode",
 	},
+	cli.BoolFlag{
+		Name:  "migrate, m",
+		Usage: "start the server in migration mode",
+	},
 	cli.StringFlag{
 		EnvVar: "PG_USER",
 		Name:   "pg-user",
@@ -39,13 +43,13 @@ var flags = []cli.Flag{
 
 const usageText = `Awesome Golang API Gateway.
 
-	Migrations! This program runs command on the db. Supported commands are:
-  - init - creates gopg_migrations table.
-  - up - runs all available migrations.
-  - down - reverts last migration.
-  - reset - reverts all migrations.
-  - version - prints current db version.
-  - set_version [version] - sets db version without running migrations.
+	 Migrations runs only migrate mode! Supported commands are:
+   - init - creates gopg_migrations table.
+   - up - runs all available migrations.
+   - down - reverts last migration.
+   - reset - reverts all migrations.
+   - version - prints current db version.
+   - set_version [version] - sets db version without running migrations.
 `
 
 func server(c *cli.Context) error {

@@ -8,6 +8,8 @@ import (
 )
 
 type Store interface {
+	Migrate(arg ...string) (string, error)
+
 	//TestSelect create simple query in DB for check connection
 	TestSelect() error
 
@@ -16,6 +18,10 @@ type Store interface {
 
 	//GetRoutesList gets all active routes
 	GetRoutesList() ([]*model.Router, error)
+}
+
+func Migrate(c context.Context, arg ...string) (string, error) {
+	return FromContext(c).Migrate(arg...)
 }
 
 //TestSelect create simple query in DB for check connection
