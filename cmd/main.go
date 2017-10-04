@@ -11,9 +11,9 @@ import (
 func main() {
 	app := cli.NewApp()
 	app.Name = "ch-gateway"
-	app.Usage = "Awesome Golang API Gateway"
 	app.Version = version.String()
 	app.Flags = flags
+	app.Usage = usageText
 	app.Action = server
 
 	if err := app.Run(os.Args); err != nil {
