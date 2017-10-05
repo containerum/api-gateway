@@ -3,13 +3,12 @@ package datastore
 import (
 	"fmt"
 
-	"github.com/go-pg/migrations"
-	"github.com/go-pg/pg"
-
 	log "github.com/Sirupsen/logrus"
+	"github.com/go-pg/pg"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
 	"bitbucket.org/exonch/ch-gateway/pkg/store"
+	migrate "bitbucket.org/exonch/ch-gateway/pkg/store/datastore/migrations"
 )
 
 // datastore is an implementation of a model.Store
@@ -29,7 +28,7 @@ func New(config model.DatabaseConfig) store.Store {
 
 func (db *datastore) Migrate(arg ...string) (string, error) {
 	var answer string
-	oldVersion, newVersion, err := migrations.Run(db, arg...)
+	oldVersion, newVersion, err := migrate.RunMigration(db.DB, arg...)
 	if err != nil {
 		log.WithField("err", err.Error()).Fatal("Migration failed")
 		return "", err
