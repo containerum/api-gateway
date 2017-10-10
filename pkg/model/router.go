@@ -8,9 +8,19 @@ import (
 
 //Router is struct for keep user proxy task
 type Router struct {
-	ID    uuid.UUID `sql:"type:uuid"`
-	Group string
+	ID uuid.UUID `sql:"type:uuid"`
 
-	Active  bool
+	Group *Group
+	Roles []uint8
+
+	OAuth  bool
+	Active bool
+
 	Created time.Time
+}
+
+//Group struct ident router group
+type Group struct {
+	ID   int
+	Name string `sql:"type:varchar(32)"`
 }
