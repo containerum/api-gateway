@@ -1,6 +1,9 @@
 package main
 
 import (
+	"net/http"
+	"net/http/httputil"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -68,7 +71,19 @@ func server(c *cli.Context) error {
 		"PG_DATABASE": c.String("pg-database"),
 		"PG_ADDRESS":  c.String("pg-address"),
 	}).Debug("Setup DB connection")
-	setupStore(c)
+	// setupStore(c)
 
-	return nil
+	//Run HTTP server
+	handler := &httputil.ReverseProxy{
+		Director: func(req *http.Request) {
+			req.URL.Scheme = "http"
+			req.URL.Host = "google.com"
+		},
+	}
+	return listenAndServe(handler)
+}
+
+func listenAndServe(handler http.Handler) error {
+	server := &http.Server{Addr: ":8081", Handler: handler}
+	return server.ListenAndServe()
 }
