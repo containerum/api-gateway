@@ -2,7 +2,9 @@ package main
 
 import (
 	"net/http"
-	"net/http/httputil"
+	"time"
+
+	"bitbucket.org/exonch/ch-gateway/pkg/router"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -61,7 +63,8 @@ func server(c *cli.Context) error {
 		log.SetLevel(log.DebugLevel)
 		log.Debug("Application running in Debug mode")
 	} else {
-		log.SetLevel(log.WarnLevel)
+		log.SetFormatter(&log.JSONFormatter{})
+		log.SetLevel(log.InfoLevel)
 	}
 
 	//Setup store
@@ -73,14 +76,24 @@ func server(c *cli.Context) error {
 	}).Debug("Setup DB connection")
 	// setupStore(c)
 
-	//Run HTTP server
-	handler := &httputil.ReverseProxy{
-		Director: func(req *http.Request) {
-			req.URL.Scheme = "http"
-			req.URL.Host = "google.com"
-		},
-	}
-	return listenAndServe(handler)
+	r := router.CreateRouter()
+
+	go func(r *router.Router) {
+		time.Sleep(time.Second * 10)
+		r.AddRoute("x1")
+	}(r)
+
+	go func(r *router.Router) {
+		time.Sleep(time.Second * 20)
+		r.AddRoute("x2")
+	}(r)
+
+	go func(r *router.Router) {
+		time.Sleep(time.Second * 30)
+		r.AddRoute("x3")
+	}(r)
+
+	return listenAndServe(r)
 }
 
 func listenAndServe(handler http.Handler) error {
