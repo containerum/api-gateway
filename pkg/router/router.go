@@ -23,7 +23,11 @@ func CreateRouter() *Router {
 	router := &Router{r, make(map[string]*http.HandlerFunc, 0), &sync.Mutex{}}
 
 	//Init middlewares
+	router.Use(middleware.ClearXHeaders)
 	router.Use(middleware.Logger)
+	router.Use(middleware.RequestID)
+	// TODO: Add compression middleare
+
 	//Init Not Found page handler
 	router.NotFound(noRouteHandler())
 	//Init root route handler
@@ -35,10 +39,15 @@ func CreateRouter() *Router {
 //AddRoute append new http route
 func (r *Router) AddRoute(id string) {
 	r.Lock()
-	r.Get(fmt.Sprintf("/%v", id), func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("X1"))
-	})
+	r.addGetRoute(id)
 	r.Unlock()
+}
+
+func (r *Router) addGetRoute(id string) {
+	fmt.Print("X1")
+	r.Get(fmt.Sprintf("/%v", id), func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(id))
+	})
 }
 
 func noRouteHandler() http.HandlerFunc {
