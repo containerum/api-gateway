@@ -2,9 +2,9 @@ package main
 
 import (
 	"net/http"
-	"time"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/router"
+	"bitbucket.org/exonch/ch-gateway/pkg/router/middleware"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -67,36 +67,22 @@ func server(c *cli.Context) error {
 		log.SetLevel(log.InfoLevel)
 	}
 
-	//Setup store
+	//Write store logs
 	log.WithFields(log.Fields{
 		"PG_USER":     c.String("pg-user"),
 		"PG_PASSWORD": c.String("pg-password"),
 		"PG_DATABASE": c.String("pg-database"),
 		"PG_ADDRESS":  c.String("pg-address"),
 	}).Debug("Setup DB connection")
-	// setupStore(c)
+	//Setup store
+	setupStore(c)
 
 	r := router.CreateRouter()
-
-	go func(r *router.Router) {
-		time.Sleep(time.Second * 10)
-		r.AddRoute("x1")
-	}(r)
-
-	go func(r *router.Router) {
-		time.Sleep(time.Second * 20)
-		r.AddRoute("x2")
-	}(r)
-
-	go func(r *router.Router) {
-		time.Sleep(time.Second * 30)
-		r.AddRoute("x3")
-	}(r)
-
 	return listenAndServe(r)
 }
 
 func listenAndServe(handler http.Handler) error {
-	server := &http.Server{Addr: ":8081", Handler: handler}
+	c := middleware.Cors()
+	server := &http.Server{Addr: ":8080", Handler: c.Handler(handler)}
 	return server.ListenAndServe()
 }
