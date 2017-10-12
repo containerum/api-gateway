@@ -3,24 +3,31 @@ package model
 import (
 	"time"
 
-	uuid "github.com/satori/go.uuid"
+	"github.com/satori/go.uuid"
 )
 
 //Router is struct for keep user proxy task
 type Router struct {
-	ID uuid.UUID `sql:"type:uuid"`
+	tableName struct{} `sql:"routers,alias:router"`
 
-	Group *Group
-	Roles []uint8
+	ID     string    `sql:"type:uuid"`
+	IDuuid uuid.UUID `sql:"-"`
 
-	OAuth  bool
-	Active bool
+	Group   *Group
+	GroupID string
 
+	Roles   []string
+	OAuth   bool
+	Active  bool
 	Created time.Time
 }
 
-//Group struct ident router group
-type Group struct {
-	ID   int
-	Name string `sql:"type:varchar(32)"`
+//BeforeInsert set GroupID
+func (r *Router) BeforeInsert() {
+	if r.GroupID == "" {
+		r.GroupID = r.Group.ID
+	}
+	if r.ID == "" {
+		r.ID = r.IDuuid.String()
+	}
 }

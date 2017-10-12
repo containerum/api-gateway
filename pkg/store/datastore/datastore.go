@@ -27,27 +27,27 @@ func New(config model.DatabaseConfig) store.Store {
 		config: &config,
 	}
 
-	err := st.DB.CreateTable(&model.Router{}, nil)
-	if err != nil {
-		log.Error(err)
+	rg := model.Group{
+		ID: "550e8400-e29b-41d4-a716-446655440000",
 	}
 
-	err = st.DB.CreateTable(&model.Group{}, nil)
+	err := st.Model(&rg).Select()
 	if err != nil {
-		log.Error(err)
+		fmt.Printf("Select err: %v", err)
 	}
 
 	r := &model.Router{
-		ID: uuid.NewV1(),
-		Group: &model.Group{
-			ID:   1,
-			Name: "Kube",
-		},
+		ID:      uuid.NewV4().String(),
+		Group:   &rg,
 		OAuth:   true,
 		Active:  true,
 		Created: time.Now(),
 	}
-	err = st.Insert(r)
+
+	_, err = st.Model(r).Insert()
+	if err != nil {
+		fmt.Printf("Insert err: %v", err)
+	}
 
 	return st
 }

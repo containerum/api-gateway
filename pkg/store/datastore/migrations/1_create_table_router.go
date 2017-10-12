@@ -8,12 +8,21 @@ import (
 
 func init() {
 	migrations.Register(func(db migrations.DB) error {
-		fmt.Println("creating table router")
-		_, err := db.Exec(`CREATE TABLE IF NOT EXISTS router`)
+		fmt.Println("Creating table: Routers")
+		_, err := db.Exec(`
+			CREATE TABLE IF NOT EXISTS routers (
+				id uuid PRIMARY KEY,
+				group_id uuid NOT NULL,
+				roles text[],
+				o_auth boolean DEFAULT true,
+				active boolean DEFAULT true,
+				created timestamp with time zone DEFAULT current_timestamp
+			)
+		`)
 		return err
 	}, func(db migrations.DB) error {
-		fmt.Println("dropping table router")
-		_, err := db.Exec(`DROP TABLE router`)
+		fmt.Println("Dropping table: Routers")
+		_, err := db.Exec(`DROP TABLE routers`)
 		return err
 	})
 }
