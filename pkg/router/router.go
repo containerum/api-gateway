@@ -6,8 +6,10 @@ import (
 	"sync"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
+	"bitbucket.org/exonch/ch-gateway/pkg/proxy"
 	"bitbucket.org/exonch/ch-gateway/pkg/router/middleware"
 	"bitbucket.org/exonch/ch-gateway/pkg/store"
+	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/go-chi/chi"
 
 	log "github.com/Sirupsen/logrus"
@@ -21,14 +23,16 @@ type Router struct {
 }
 
 var st *store.Store
+var statter *statsd.Statter
 
 //CreateRouter create and return HTTP handle router
-func CreateRouter(s *store.Store) *Router {
+func CreateRouter(s *store.Store, std *statsd.Statter) *Router {
 	r := chi.NewRouter()
 	router := &Router{r, &sync.Mutex{}, s}
-	st = s
+	st, statter = s, std
 
 	//Init middlewares
+	middleware.Statter = std
 	router.Use(middleware.ClearXHeaders)
 	router.Use(middleware.Logger)
 	router.Use(middleware.RequestID)
@@ -61,5 +65,6 @@ func (r *Router) AddRoute(target *model.Router) {
 }
 
 func buildRoute(target *model.Router, method string, w http.ResponseWriter, req *http.Request) {
-
+	p := proxy.CreateProxy(target)
+	p.ServeHTTP(w, req)
 }

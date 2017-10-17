@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 
+	"bitbucket.org/exonch/ch-gateway/pkg/model"
 	"bitbucket.org/exonch/ch-gateway/pkg/router"
 	"bitbucket.org/exonch/ch-gateway/pkg/router/middleware"
 
@@ -44,6 +45,22 @@ var flags = []cli.Flag{
 		Usage:  "Postgres address",
 		Value:  "x1.containerum.io:36519",
 	},
+	cli.StringFlag{
+		EnvVar: "STATSD_ADDRESS",
+		Name:   "statsd-address",
+		Usage:  "Statsd address",
+		Value:  "213.239.208.25:8125",
+	},
+	cli.StringFlag{
+		Name:  "statsd-prefix",
+		Usage: "Statsd prefix",
+		Value: "ch-gateway",
+	},
+	cli.IntFlag{
+		Name:  "statsd-buffer-time",
+		Usage: "Statsd buffer time",
+		Value: 300,
+	},
 }
 
 const usageText = `Awesome Golang API Gateway.
@@ -77,13 +94,16 @@ func server(c *cli.Context) error {
 
 	//Setup store
 	s := setupStore(c)
+	std := setupStatsd(c)
 
 	//Create routers
-	r := router.CreateRouter(&s)
-	// m := model.CreateDefaultRouter()
-	// m.ListenPath = "/xx"
-	// m.Methods = []string{"get"}
-	// r.AddRoute(m)
+	r := router.CreateRouter(&s, &std)
+
+	m := model.CreateDefaultRouter()
+	m.UpstreamURL = "https://web.containerum.io"
+	m.ListenPath = "/xx"
+	m.Methods = []string{"get"}
+	r.AddRoute(m)
 
 	return listenAndServe(r)
 }

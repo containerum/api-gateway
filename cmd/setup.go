@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"os"
+	"time"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
 	"bitbucket.org/exonch/ch-gateway/pkg/store"
 	"bitbucket.org/exonch/ch-gateway/pkg/store/datastore"
+	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/urfave/cli"
 
 	log "github.com/Sirupsen/logrus"
@@ -31,7 +32,6 @@ func setupStore(c *cli.Context) store.Store {
 	if c.Bool("migrate") {
 		answer, err := st.Migrate(c.Args()...)
 		if err != nil {
-			fmt.Print(err.Error())
 			log.WithField("Error", err.Error()).Error("Migration failed")
 		} else {
 			log.WithField("Answer", answer).Info("Migration ok")
@@ -40,4 +40,24 @@ func setupStore(c *cli.Context) store.Store {
 	}
 
 	return st
+}
+
+func setupStatsd(c *cli.Context) statsd.Statter {
+	std, err := statsd.NewBufferedClient(
+		c.String("statsd-address"),
+		c.String("statsd-prefix"),
+		time.Microsecond*time.Duration(c.Int("statsd-buffer-time")),
+		0,
+	)
+
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Err":         err,
+			"Address":     c.String("statsd-address"),
+			"Prefix":      c.String("statsd-prefix"),
+			"Buffer-Time": c.Int("statsd-buffer-time"),
+		}).Warning("Setup Statsd failed")
+	}
+
+	return std
 }
