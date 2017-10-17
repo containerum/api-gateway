@@ -9,6 +9,7 @@ import (
 	"github.com/cactus/go-statsd-client/statsd"
 )
 
+//Statter connection with Statsd
 var Statter *statsd.Statter
 
 //Logger write main logs
