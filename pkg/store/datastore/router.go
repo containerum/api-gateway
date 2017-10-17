@@ -18,9 +18,12 @@ func (db *datastore) GetRoutesList() (*[]model.Router, error) {
 	return &rs, err
 }
 
-//GetRoutesListActivation return list of all routers
-func (db *datastore) GetRoutesListByActivation(active bool) ([]*model.Router, error) {
-	return nil, nil
+//GetRoutesListByActivation return list of all routers
+func (db *datastore) GetRoutesListByActivation(active bool) (*[]model.Router, error) {
+	var rs []model.Router
+	r := &model.Router{Active: active}
+	err := db.Model(&rs).Select(r)
+	return &rs, err
 }
 
 //AddRouter create new router

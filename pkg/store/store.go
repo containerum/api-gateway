@@ -17,6 +17,9 @@ type Store interface {
 
 	//GetRoutesList gets all active routes
 	GetRoutesList() (*[]model.Router, error)
+
+	//GetRoutesListActivation return list of all routers
+	GetRoutesListByActivation(active bool) (*[]model.Router, error)
 }
 
 func Migrate(c context.Context, arg ...string) (string, error) {
@@ -36,4 +39,9 @@ func GetRouter(c context.Context, id string) (*model.Router, error) {
 //GetRoutesList gets all active routes
 func GetRoutesList(c context.Context) (*[]model.Router, error) {
 	return FromContext(c).GetRoutesList()
+}
+
+//GetRoutesListByActivation return list of all routers
+func GetRoutesListByActivation(c context.Context, active bool) (*[]model.Router, error) {
+	return FromContext(c).GetRoutesListByActivation(active)
 }
