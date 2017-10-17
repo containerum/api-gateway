@@ -2,17 +2,20 @@ package datastore
 
 import (
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
-	uuid "github.com/satori/go.uuid"
 )
 
 //GetRouter return router by UUID
-func (db *datastore) GetRouter(uuid.UUID) (*model.Router, error) {
-	return nil, nil
+func (db *datastore) GetRouter(id string) (*model.Router, error) {
+	r := &model.Router{ID: id}
+	err := db.Select(r)
+	return r, err
 }
 
 //GetRoutesList return list of all routers
-func (db *datastore) GetRoutesList() ([]*model.Router, error) {
-	return nil, nil
+func (db *datastore) GetRoutesList() (*[]model.Router, error) {
+	var rs []model.Router
+	err := db.Model(&rs).Select()
+	return &rs, err
 }
 
 //GetRoutesListActivation return list of all routers

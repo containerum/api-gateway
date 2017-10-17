@@ -74,10 +74,17 @@ func server(c *cli.Context) error {
 		"PG_DATABASE": c.String("pg-database"),
 		"PG_ADDRESS":  c.String("pg-address"),
 	}).Debug("Setup DB connection")
-	//Setup store
-	setupStore(c)
 
-	r := router.CreateRouter()
+	//Setup store
+	s := setupStore(c)
+
+	//Create routers
+	r := router.CreateRouter(&s)
+	// m := model.CreateDefaultRouter()
+	// m.ListenPath = "/xx"
+	// m.Methods = []string{"get"}
+	// r.AddRoute(m)
+
 	return listenAndServe(r)
 }
 

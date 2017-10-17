@@ -1,26 +1,32 @@
 package router
 
 import (
-	"fmt"
 	"net/http"
+	"strings"
 	"sync"
-	"time"
 
+	"bitbucket.org/exonch/ch-gateway/pkg/model"
 	"bitbucket.org/exonch/ch-gateway/pkg/router/middleware"
+	"bitbucket.org/exonch/ch-gateway/pkg/store"
 	"github.com/go-chi/chi"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 //Router keeps all http routes
 type Router struct {
 	*chi.Mux
-	handlers map[string]*http.HandlerFunc
 	*sync.Mutex
+	store *store.Store
 }
 
+var st *store.Store
+
 //CreateRouter create and return HTTP handle router
-func CreateRouter() *Router {
+func CreateRouter(s *store.Store) *Router {
 	r := chi.NewRouter()
-	router := &Router{r, make(map[string]*http.HandlerFunc, 0), &sync.Mutex{}}
+	router := &Router{r, &sync.Mutex{}, s}
+	st = s
 
 	//Init middlewares
 	router.Use(middleware.ClearXHeaders)
@@ -32,34 +38,28 @@ func CreateRouter() *Router {
 	router.NotFound(noRouteHandler())
 	//Init root route handler
 	router.HandleFunc("/", rootRouteHandler())
+	//Init manage handlers
+	router.Mount("/manage", CreateManageRouter())
 
 	return router
 }
 
 //AddRoute append new http route
-func (r *Router) AddRoute(id string) {
+func (r *Router) AddRoute(target *model.Router) {
 	r.Lock()
-	r.addGetRoute(id)
+	for _, method := range target.Methods {
+		method = strings.ToUpper(method)
+		r.MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
+			buildRoute(target, method, w, req)
+		})
+		log.WithFields(log.Fields{
+			"ListenPath": target.ListenPath,
+			"Method":     method,
+		}).Debug("Route builded")
+	}
 	r.Unlock()
 }
 
-func (r *Router) addGetRoute(id string) {
-	fmt.Print("X1")
-	r.Get(fmt.Sprintf("/%v", id), func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(id))
-	})
-}
+func buildRoute(target *model.Router, method string, w http.ResponseWriter, req *http.Request) {
 
-func noRouteHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		time.Sleep(time.Second * 2)
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte("No route"))
-	}
-}
-
-func rootRouteHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello! I am API Gateway."))
-	}
 }

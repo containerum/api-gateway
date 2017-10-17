@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
-	uuid "github.com/satori/go.uuid"
 )
 
 type Store interface {
@@ -14,10 +13,10 @@ type Store interface {
 	TestSelect() error
 
 	//GetRouter gets router by unique uuid
-	GetRouter(uuid.UUID) (*model.Router, error)
+	GetRouter(string) (*model.Router, error)
 
 	//GetRoutesList gets all active routes
-	GetRoutesList() ([]*model.Router, error)
+	GetRoutesList() (*[]model.Router, error)
 }
 
 func Migrate(c context.Context, arg ...string) (string, error) {
@@ -30,11 +29,11 @@ func TestSelect(c context.Context) error {
 }
 
 //GetRouter gets router by unique uuid
-func GetRouter(c context.Context, id uuid.UUID) (*model.Router, error) {
+func GetRouter(c context.Context, id string) (*model.Router, error) {
 	return FromContext(c).GetRouter(id)
 }
 
 //GetRoutesList gets all active routes
-func GetRoutesList(c context.Context) ([]*model.Router, error) {
+func GetRoutesList(c context.Context) (*[]model.Router, error) {
 	return FromContext(c).GetRoutesList()
 }

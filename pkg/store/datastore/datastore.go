@@ -2,11 +2,9 @@ package datastore
 
 import (
 	"fmt"
-	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/go-pg/pg"
-	uuid "github.com/satori/go.uuid"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
 	"bitbucket.org/exonch/ch-gateway/pkg/store"
@@ -22,34 +20,10 @@ type datastore struct {
 // New creates a database connection for the given driver and datasource
 // and returns a new Store.
 func New(config model.DatabaseConfig) store.Store {
-	st := &datastore{
+	return &datastore{
 		DB:     open(&config),
 		config: &config,
 	}
-
-	rg := model.Group{
-		ID: "550e8400-e29b-41d4-a716-446655440000",
-	}
-
-	err := st.Model(&rg).Select()
-	if err != nil {
-		fmt.Printf("Select err: %v", err)
-	}
-
-	r := &model.Router{
-		ID:      uuid.NewV4().String(),
-		Group:   &rg,
-		OAuth:   true,
-		Active:  true,
-		Created: time.Now(),
-	}
-
-	_, err = st.Model(r).Insert()
-	if err != nil {
-		fmt.Printf("Insert err: %v", err)
-	}
-
-	return st
 }
 
 func (db *datastore) Migrate(arg ...string) (string, error) {
