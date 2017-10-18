@@ -100,8 +100,8 @@ func server(c *cli.Context) error {
 	r := router.CreateRouter(&s, &std)
 
 	m := model.CreateDefaultRouter()
-	m.UpstreamURL = "https://web.containerum.io"
-	m.ListenPath = "/xx"
+	m.UpstreamURL = "http://localhost"
+	m.ListenPath = "/xx/*"
 	m.Methods = []string{"get"}
 	r.AddRoute(m)
 
