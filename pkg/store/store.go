@@ -20,8 +20,12 @@ type Store interface {
 
 	//GetRoutesListActivation return list of all routers
 	GetRoutesListByActivation(active bool) (*[]model.Router, error)
+
+	//AddRouter create new router
+	AddRouter(r *model.Router) error
 }
 
+//Migrate run migrations
 func Migrate(c context.Context, arg ...string) (string, error) {
 	return FromContext(c).Migrate(arg...)
 }
@@ -44,4 +48,9 @@ func GetRoutesList(c context.Context) (*[]model.Router, error) {
 //GetRoutesListByActivation return list of all routers
 func GetRoutesListByActivation(c context.Context, active bool) (*[]model.Router, error) {
 	return FromContext(c).GetRoutesListByActivation(active)
+}
+
+//AddRouter create new router
+func AddRouter(c context.Context, r *model.Router) error {
+	return FromContext(c).AddRouter(r)
 }

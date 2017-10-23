@@ -2,6 +2,7 @@ package router
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
@@ -49,7 +50,7 @@ func getAllRouter(w http.ResponseWriter, r *http.Request) {
 		log.WithFields(log.Fields{
 			"Status": http.StatusInternalServerError,
 			"Err":    err,
-		}).Debug("getAllRouter bad answer")
+		}).Error("getAllRouter error")
 		return
 	}
 
@@ -57,6 +58,7 @@ func getAllRouter(w http.ResponseWriter, r *http.Request) {
 	for _, rr := range *rs {
 		w.Write([]byte(rr.ID))
 	}
+
 	// TODO: Write answer in log
 	log.WithFields(log.Fields{
 		"Status": http.StatusOK,
@@ -74,7 +76,19 @@ func getRouter(w http.ResponseWriter, r *http.Request) {
 }
 
 func addRouter(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Create route"))
+	buf, _ := ioutil.ReadAll(r.Body)
+	route, err := model.CreateRouterFromJSON(buf)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	//Add new router in DB
+	if err = (*st).AddRouter(route); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	w.Write(route.ConvertToJSON())
 }
 
 func updateRouter(w http.ResponseWriter, r *http.Request) {

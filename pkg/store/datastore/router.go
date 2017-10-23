@@ -2,6 +2,8 @@ package datastore
 
 import (
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 //GetRouter return router by UUID
@@ -28,6 +30,17 @@ func (db *datastore) GetRoutesListByActivation(active bool) (*[]model.Router, er
 
 //AddRouter create new router
 func (db *datastore) AddRouter(r *model.Router) error {
+	r.BeforeInsert()
+	if err := db.Insert(r); err != nil {
+		log.WithFields(log.Fields{
+			"Router": string(r.ConvertToJSON()),
+			"Err":    err,
+		}).Error("AddRouter error")
+		return err
+	}
+	log.WithFields(log.Fields{
+		"Router": string(r.ConvertToJSON()),
+	}).Debug("AddRouter success")
 	return nil
 }
 
