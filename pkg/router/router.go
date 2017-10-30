@@ -31,12 +31,12 @@ func CreateRouter(s *store.Store, std *statsd.Statter) *Router {
 	router := &Router{r, &sync.Mutex{}, s}
 	st, statter = s, std
 
-	//Init middlewares
+	//Init middleware
 	middleware.Statter = std
 	router.Use(middleware.ClearXHeaders)
 	router.Use(middleware.Logger)
 	router.Use(middleware.RequestID)
-	// TODO: Add compression middleare
+	// TODO: Add compression middleware
 
 	//Init Not Found page handler
 	router.NotFound(noRouteHandler())
@@ -59,7 +59,7 @@ func (r *Router) AddRoute(target *model.Router) {
 		log.WithFields(log.Fields{
 			"ListenPath": target.ListenPath,
 			"Method":     method,
-		}).Debug("Route builded")
+		}).Debug("Route build")
 	}
 	r.Unlock()
 }

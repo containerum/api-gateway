@@ -10,6 +10,7 @@ import (
 	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/urfave/cli"
 
+	"bitbucket.org/exonch/ch-gateway/pkg/router"
 	log "github.com/Sirupsen/logrus"
 )
 
@@ -40,6 +41,18 @@ func setupStore(c *cli.Context) store.Store {
 	}
 
 	return st
+}
+
+func setupRouters(r *router.Router, s store.Store) {
+	routeList, err := s.GetRoutesList()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Err": err,
+		}).Error("GetRouteList failed id setupRouters")
+	}
+	for _, m := range *routeList {
+		r.AddRoute(&m)
+	}
 }
 
 func setupStatsd(c *cli.Context) statsd.Statter {

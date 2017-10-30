@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 
-	"bitbucket.org/exonch/ch-gateway/pkg/model"
 	"bitbucket.org/exonch/ch-gateway/pkg/router"
 	"bitbucket.org/exonch/ch-gateway/pkg/router/middleware"
 
@@ -96,14 +95,13 @@ func server(c *cli.Context) error {
 	s := setupStore(c)
 	std := setupStatsd(c)
 
+	_, err := s.GetRoutesList()
+	log.Error(err)
+
 	//Create routers
 	r := router.CreateRouter(&s, &std)
-
-	m := model.CreateDefaultRouter()
-	m.UpstreamURL = "http://localhost"
-	m.ListenPath = "/xx/*"
-	m.Methods = []string{"get"}
-	r.AddRoute(m)
+	//Setup routers
+	setupRouters(r, s)
 
 	return listenAndServe(r)
 }

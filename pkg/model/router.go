@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"fmt"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -41,9 +42,10 @@ func (r *Router) ConvertToJSON() []byte {
 }
 
 //CreateDefaultRouter return default Router
-func CreateDefaultRouter() *Router {
+func CreateDefaultRouter(name string) *Router {
 	return &Router{
 		ID:        uuid.NewV4().String(),
+		Name:      name,
 		Active:    false,
 		OAuth:     true,
 		Roles:     []string{"user"},
@@ -55,7 +57,7 @@ func CreateDefaultRouter() *Router {
 
 //CreateRouterFromJSON return Router from JSON
 func CreateRouterFromJSON(js []byte) (*Router, error) {
-	r := CreateDefaultRouter()
+	r := CreateDefaultRouter("default")
 	if err := json.Unmarshal(js, r); err != nil {
 		return r, err
 	}
@@ -65,6 +67,7 @@ func CreateRouterFromJSON(js []byte) (*Router, error) {
 //BeforeInsert set GroupID
 func (r *Router) BeforeInsert() {
 	if r.Group != nil {
+		fmt.Print(r.Group)
 		r.GroupID = r.Group.ID
 	}
 }
