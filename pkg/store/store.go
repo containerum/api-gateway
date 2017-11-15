@@ -9,8 +9,9 @@ import (
 type Store interface {
 	Migrate(arg ...string) (string, error)
 
+
 	//TestSelect create simple query in DB for check connection
-	TestSelect() error
+	TestSelect() error //TODO: Remove
 
 	//GetRouter gets router by unique uuid
 	GetRouter(string) (*model.Router, error)
