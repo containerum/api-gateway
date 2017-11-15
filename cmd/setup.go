@@ -55,6 +55,7 @@ func setupRouters(r *router.Router, s store.Store) {
 	}
 }
 
+//TODO: Make statsd client Own interface and move it to Store statsd package
 func setupStatsd(c *cli.Context) statsd.Statter {
 	std, err := statsd.NewBufferedClient(
 		c.String("statsd-address"),

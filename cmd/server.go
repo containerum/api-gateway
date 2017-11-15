@@ -93,13 +93,13 @@ func server(c *cli.Context) error {
 
 	//Setup store
 	s := setupStore(c)
-	std := setupStatsd(c)
 
-	_, err := s.GetRoutesList()
-	log.Error(err)
+	//Setup Statsd connection
+	std := setupStatsd(c)
 
 	//Create routers
 	r := router.CreateRouter(&s, &std)
+
 	//Setup routers
 	setupRouters(r, s)
 
