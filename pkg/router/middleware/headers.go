@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"net/http/httptest"
 	"regexp"
 
 	log "github.com/Sirupsen/logrus"
@@ -10,6 +11,26 @@ import (
 var (
 	xHeaderRegexp, _ = regexp.Compile("^X-[a-zA-Z0-9]+")
 )
+
+type ModifierMiddleware struct {
+	handler http.Handler
+}
+
+func (m *ModifierMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	rec := httptest.NewRecorder()
+	// passing a ResponseRecorder instead of the original RW
+	m.handler.ServeHTTP(rec, r)
+	// we copy the original headers and remove X-headers from response
+	for k, v := range rec.Header() {
+		if xHeaderRegexp.MatchString(k) {
+			log.WithField("Header", k).Debug("Header deleted from response")
+			continue
+		}
+		w.Header()[k] = v
+	}
+	//Write Body
+	w.Write(rec.Body.Bytes())
+}
 
 //ClearXHeaders remove all requested X-Headers and remove all responsed X-Headers
 func ClearXHeaders(next http.Handler) http.Handler {
@@ -21,13 +42,7 @@ func ClearXHeaders(next http.Handler) http.Handler {
 				log.WithField("Header", header).Debug("Header deleted from request")
 			}
 		}
-		next.ServeHTTP(w, r)
-		//Clear response headers
-		for header := range w.Header() {
-			if xHeaderRegexp.MatchString(header) {
-				w.Header().Del(header)
-				log.WithField("Header", header).Debug("Header deleted from response")
-			}
-		}
+		x := ModifierMiddleware{next}
+		x.ServeHTTP(w, r)
 	})
 }
