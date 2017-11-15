@@ -27,14 +27,16 @@ var statter *statsd.Statter
 
 //CreateRouter create and return HTTP handle router
 func CreateRouter(s *store.Store, std *statsd.Statter) *Router {
+	st, statter = s, std
+
+	//Create default router
 	r := chi.NewRouter()
 	router := &Router{r, &sync.Mutex{}, s}
-	st, statter = s, std
 
 	//Init middleware
 	middleware.Statter = std
-	router.Use(middleware.ClearXHeaders)
 	router.Use(middleware.Logger)
+	router.Use(middleware.ClearXHeaders)
 	router.Use(middleware.RequestID)
 	// TODO: Add compression middleware
 
@@ -50,21 +52,28 @@ func CreateRouter(s *store.Store, std *statsd.Statter) *Router {
 
 //AddRoute append new http route
 func (r *Router) AddRoute(target *model.Router) {
+	// TODO: Add rate limit
 	r.Lock()
 	for _, method := range target.Methods {
 		method = strings.ToUpper(method)
 		r.MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
-			buildRoute(target, method, w, req)
+			buildRoute(target, w, req)
 		})
 		log.WithFields(log.Fields{
 			"ListenPath": target.ListenPath,
 			"Method":     method,
+			"Roles": target.Roles,
+			"Active": target.Active,
+			"Name": target.Name,
+			"UpstreamURL": target.UpstreamURL,
 		}).Debug("Route build")
 	}
 	r.Unlock()
 }
 
-func buildRoute(target *model.Router, method string, w http.ResponseWriter, req *http.Request) {
+func buildRoute(target *model.Router, w http.ResponseWriter, req *http.Request) {
 	p := proxy.CreateProxy(target)
+	// TODO: Run before plugins
 	p.ServeHTTP(w, req)
+	// TODO: Run after plugins
 }
