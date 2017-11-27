@@ -51,14 +51,16 @@ var flags = []cli.Flag{
 		Value:  "213.239.208.25:8125",
 	},
 	cli.StringFlag{
-		Name:  "statsd-prefix",
-		Usage: "Statsd prefix",
-		Value: "ch-gateway",
+		EnvVar: "STATSD-PREFIX",
+		Name:   "statsd-prefix",
+		Usage:  "Statsd prefix",
+		Value:  "ch-gateway",
 	},
 	cli.IntFlag{
-		Name:  "statsd-buffer-time",
-		Usage: "Statsd buffer time",
-		Value: 300,
+		EnvVar: "STATSD-BUFFER-TIME",
+		Name:   "statsd-buffer-time",
+		Usage:  "Statsd buffer time",
+		Value:  300,
 	},
 }
 
@@ -95,10 +97,10 @@ func server(c *cli.Context) error {
 	s := setupStore(c)
 
 	//Setup Statsd connection
-	std := setupStatsd(c)
+	// std := setupStatsd(c)
 
 	//Create routers
-	r := router.CreateRouter(&s, &std)
+	r := router.CreateRouter(&s, nil)
 
 	//Setup routers
 	setupRouters(r, s)
