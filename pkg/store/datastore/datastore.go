@@ -33,6 +33,8 @@ func (db *datastore) Migrate(arg ...string) (string, error) {
 		log.WithField("err", err.Error()).Fatal("Migration failed")
 		return "", err
 	}
+
+	// BUG: Wrong answer when migration current equels new
 	if newVersion != oldVersion {
 		answer = fmt.Sprintf("migrated from version %d to %d", oldVersion, newVersion)
 	} else {
