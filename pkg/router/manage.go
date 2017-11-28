@@ -7,19 +7,23 @@ import (
 
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
 
-	"github.com/go-chi/chi"
-
 	log "github.com/Sirupsen/logrus"
+	"github.com/go-chi/chi"
 )
+
+// TODO: move to sub-package
+// TODO: rename router to gateway
 
 //CreateManageRouter return manage handlers
 func CreateManageRouter() http.Handler {
 	r := chi.NewRouter()
-	r.Get("/", getAllRouter)
-	r.Post("/", addRouter)
-	r.Get("/{id}", getRouter)
-	r.Put("/{id}", updateRouter)
-	r.Delete("/{id}", removeRouter)
+	// Router headers
+	r.Get("/route", getAllRouter)
+	r.Get("/route/{id}", getRouter)
+	r.Put("/route/{id}", updateRouter)
+	r.Delete("/route/{id}", removeRouter)
+	r.Get("/group/{group-id}/route", getAllRouter)
+	r.Post("/group/{group-id}/route", addRouter)
 	return r
 }
 
