@@ -44,6 +44,8 @@ func CreateRouter(s *store.Store, std *statsd.Statter) *Router {
 	router.NotFound(noRouteHandler())
 	//Init root route handler
 	router.HandleFunc("/", rootRouteHandler())
+	//Init status pahe handler
+	router.HandleFunc("/status", statusHandler())
 	//Init manage handlers
 	router.Mount("/manage", CreateManageRouter())
 
@@ -54,21 +56,22 @@ func CreateRouter(s *store.Store, std *statsd.Statter) *Router {
 func (r *Router) AddRoute(target *model.Router) {
 	// TODO: Add rate limit
 	r.Lock()
+	defer r.Unlock()
+
 	for _, method := range target.Methods {
 		method = strings.ToUpper(method)
 		r.MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
 			buildRoute(target, w, req)
 		})
 		log.WithFields(log.Fields{
-			"ListenPath": target.ListenPath,
-			"Method":     method,
-			"Roles": target.Roles,
-			"Active": target.Active,
-			"Name": target.Name,
+			"ListenPath":  target.ListenPath,
+			"Method":      method,
+			"Roles":       target.Roles,
+			"Active":      target.Active,
+			"Name":        target.Name,
 			"UpstreamURL": target.UpstreamURL,
 		}).Debug("Route build")
 	}
-	r.Unlock()
 }
 
 func buildRoute(target *model.Router, w http.ResponseWriter, req *http.Request) {

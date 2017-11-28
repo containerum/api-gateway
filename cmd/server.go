@@ -111,5 +111,6 @@ func server(c *cli.Context) error {
 func listenAndServe(handler http.Handler) error {
 	c := middleware.Cors()
 	server := &http.Server{Addr: ":8080", Handler: c.Handler(handler)}
+
 	return server.ListenAndServe()
 }
