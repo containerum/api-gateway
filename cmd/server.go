@@ -10,6 +10,9 @@ import (
 	"github.com/urfave/cli"
 )
 
+//Version keeps curent app version
+var Version string
+
 var flags = []cli.Flag{
 	cli.BoolFlag{
 		EnvVar: "GATEWAY_DEBUG",
@@ -108,9 +111,17 @@ func server(c *cli.Context) error {
 	return listenAndServe(r)
 }
 
+//GetVersion return app version
+func GetVersion() string {
+	if Version == "" {
+		return "1.0.0-dev"
+	}
+	return Version
+}
+
 func listenAndServe(handler http.Handler) error {
+	//TODO: Move Cors to middleware
 	c := middleware.Cors()
 	server := &http.Server{Addr: ":8080", Handler: c.Handler(handler)}
-
 	return server.ListenAndServe()
 }
