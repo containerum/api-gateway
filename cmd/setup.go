@@ -7,6 +7,7 @@ import (
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
 	"bitbucket.org/exonch/ch-gateway/pkg/store"
 	"bitbucket.org/exonch/ch-gateway/pkg/store/datastore"
+	"bitbucket.org/exonch/ch-gateway/pkg/storex"
 	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/urfave/cli"
 
@@ -16,18 +17,24 @@ import (
 
 //setup DB and migration imp. in Store
 func setupStore(c *cli.Context) store.Store {
-	st := datastore.New(model.DatabaseConfig{
+
+	_, err := storex.New(model.DatabaseConfig{
 		User:     c.String("pg-user"),
 		Password: c.String("pg-password"),
 		Database: c.String("pg-database"),
 		Address:  c.String("pg-address"),
+		Port:     c.String("pg-port"),
 	})
 
-	if c.Bool("debug") {
-		err := st.TestSelect()
-		if err != nil {
-			log.WithField("Error", err.Error()).Error("Test select failed")
-		}
+	st := datastore.New(model.DatabaseConfig{
+		User:     c.String("pg-user"),
+		Password: c.String("pg-password"),
+		Database: c.String("pg-database"),
+		Address:  c.String("pg-address") + ":" + c.String("pg-port"),
+	})
+
+	if err != nil {
+		panic(err)
 	}
 
 	if c.Bool("migrate") {
