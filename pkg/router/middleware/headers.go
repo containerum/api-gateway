@@ -29,6 +29,7 @@ func (m *ModifierMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header()[k] = v
 	}
 	//Write Body
+	w.WriteHeader(rec.Code)
 	w.Write(rec.Body.Bytes())
 }
 
