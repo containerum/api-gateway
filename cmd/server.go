@@ -45,7 +45,13 @@ var flags = []cli.Flag{
 		EnvVar: "PG_ADDRESS",
 		Name:   "pg-address",
 		Usage:  "Postgres address",
-		Value:  "x1.containerum.io:36519",
+		Value:  "x1.containerum.io",
+	},
+	cli.StringFlag{
+		EnvVar: "PG_PORT",
+		Name:   "pg-port",
+		Usage:  "Postgres port",
+		Value:  "36519",
 	},
 	cli.StringFlag{
 		EnvVar: "STATSD_ADDRESS",
