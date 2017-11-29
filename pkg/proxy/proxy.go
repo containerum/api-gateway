@@ -11,14 +11,14 @@ import (
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
 )
 
-func CreateProxy(target *model.Router) *httputil.ReverseProxy {
+func CreateProxy(target *model.Listener) *httputil.ReverseProxy {
 	direct := createDirector(target)
 	return &httputil.ReverseProxy{
 		Director: direct,
 	}
 }
 
-func createDirector(target *model.Router) func(r *http.Request) {
+func createDirector(target *model.Listener) func(r *http.Request) {
 	return func(r *http.Request) {
 		targetURL, _ := url.Parse(target.UpstreamURL)
 		r.URL.Scheme = targetURL.Scheme

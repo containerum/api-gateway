@@ -7,13 +7,18 @@ import (
 	"github.com/urfave/cli"
 )
 
+//Version keeps curent app version
+var Version string
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "ch-gateway"
 	app.Version = GetVersion()
 	app.Flags = flags
+	app.Commands = commands
 	app.Usage = usageText
-	app.Action = server
+	app.Action = runServer
+	app.Before = setLogFormat
 
 	if err := app.Run(os.Args); err != nil {
 		fmt.Fprintln(os.Stderr, err)

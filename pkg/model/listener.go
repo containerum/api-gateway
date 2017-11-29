@@ -1,26 +1,21 @@
 package model
 
+import "github.com/lib/pq"
+
+//Listener keeps proxy-router configs
 type Listener struct {
 	DefaultModel
 	Name string `gorm:"not null"`
 
-	Roles  []Role
+	Roles []Role
+	//TODO: Add Group
 	OAuth  bool
 	Active bool
 
 	StripPath   bool
-	ListenPath  string `gorm:"not null"`
-	UpstreamURL string `gorm:"not null"`
-	//Methods     []string `gorm:"type:varchar[]"`
+	ListenPath  string         `gorm:"not null"`
+	UpstreamURL string         `gorm:"not null"`
+	Methods     pq.StringArray `gorm:"type:varchar(16)[]"`
 
-	//BeforePlugins []string `gorm:"type:varchar[]"`
-	//AfterPlugins  []string `gorm:"type:varchar[]"`
-
-	//TODO: Add Group
-}
-
-type Role struct {
-	ID         uint   `gorm:"primary_key"`
-	ListenerID string `gorm:"type:uuid;not null"`
-	Name       string `gorm:"not null"`
+	Plugins []Plugin
 }

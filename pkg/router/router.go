@@ -47,13 +47,13 @@ func CreateRouter(s *store.Store, std *statsd.Statter) *Router {
 	//Init status pahe handler
 	router.HandleFunc("/status", statusHandler())
 	//Init manage handlers
-	router.Mount("/manage", CreateManageRouter())
+	// router.Mount("/manage", CreateManageRouter())
 
 	return router
 }
 
 //AddRoute append new http route
-func (r *Router) AddRoute(target *model.Router) {
+func (r *Router) AddRoute(target *model.Listener) {
 	// TODO: Add rate limit
 	r.Lock()
 	defer r.Unlock()
@@ -74,7 +74,7 @@ func (r *Router) AddRoute(target *model.Router) {
 	}
 }
 
-func buildRoute(target *model.Router, w http.ResponseWriter, req *http.Request) {
+func buildRoute(target *model.Listener, w http.ResponseWriter, req *http.Request) {
 	p := proxy.CreateProxy(target)
 	// TODO: Run before plugins
 	p.ServeHTTP(w, req)

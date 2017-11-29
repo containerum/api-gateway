@@ -4,11 +4,13 @@ import "time"
 
 //DatabaseConfig containts DB config
 type DatabaseConfig struct {
-	User     string
-	Password string
-	Database string
-	Address  string
-	Port     string
+	User          string
+	Password      string
+	Database      string
+	Address       string
+	Port          string
+	SafeMigration bool
+	Debug         bool
 }
 
 //DefaultModel embedded struct in each Gorm Model

@@ -20,18 +20,6 @@
   version = "v3.3.0"
 
 [[projects]]
-  name = "github.com/go-pg/migrations"
-  packages = ["."]
-  revision = "028363216d88cc2c24fbb2f38279457a38b55e2b"
-  version = "v6.0.4"
-
-[[projects]]
-  name = "github.com/go-pg/pg"
-  packages = [".","internal","internal/parser","internal/pool","orm","types"]
-  revision = "7d77324e5a031dbddae4716ecae22540ad8bf9dd"
-  version = "v6.6.5"
-
-[[projects]]
   name = "github.com/jinzhu/gorm"
   packages = [".","dialects/postgres"]
   revision = "5174cc5c242a728b435ea2be8a2f7f998e15429b"
@@ -82,6 +70,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5a8e007960cfb3a61a7becd8ed5cf772ce4a12c5e80b799b83eee2accc554ea5"
+  inputs-digest = "dadb3b997f95912b72eb9d11ab9325cc74fcc20e5c75305b714b66ff42babca2"
   solver-name = "gps-cdcl"
   solver-version = 1

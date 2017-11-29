@@ -10,98 +10,19 @@ import (
 	"github.com/urfave/cli"
 )
 
-//Version keeps curent app version
-var Version string
-
-var flags = []cli.Flag{
-	cli.BoolFlag{
-		EnvVar: "GATEWAY_DEBUG",
-		Name:   "debug, d",
-		Usage:  "start the server in debug mode",
-	},
-	cli.BoolFlag{
-		Name:  "migrate, m",
-		Usage: "start the server in migration mode",
-	},
-	cli.StringFlag{
-		EnvVar: "PG_USER",
-		Name:   "pg-user",
-		Usage:  "Postgres user",
-		Value:  "pg",
-	},
-	cli.StringFlag{
-		EnvVar: "PG_PASSWORD",
-		Name:   "pg-password",
-		Usage:  "Postgres user password",
-		Value:  "123456789",
-	},
-	cli.StringFlag{
-		EnvVar: "PG_DATABASE",
-		Name:   "pg-database",
-		Usage:  "Postgres database",
-		Value:  "postgres",
-	},
-	cli.StringFlag{
-		EnvVar: "PG_ADDRESS",
-		Name:   "pg-address",
-		Usage:  "Postgres address",
-		Value:  "x1.containerum.io",
-	},
-	cli.StringFlag{
-		EnvVar: "PG_PORT",
-		Name:   "pg-port",
-		Usage:  "Postgres port",
-		Value:  "36519",
-	},
-	cli.StringFlag{
-		EnvVar: "STATSD_ADDRESS",
-		Name:   "statsd-address",
-		Usage:  "Statsd address",
-		Value:  "213.239.208.25:8125",
-	},
-	cli.StringFlag{
-		EnvVar: "STATSD-PREFIX",
-		Name:   "statsd-prefix",
-		Usage:  "Statsd prefix",
-		Value:  "ch-gateway",
-	},
-	cli.IntFlag{
-		EnvVar: "STATSD-BUFFER-TIME",
-		Name:   "statsd-buffer-time",
-		Usage:  "Statsd buffer time",
-		Value:  300,
-	},
-}
-
-const usageText = `Awesome Golang API Gateway.
-
-	 Migrations runs only migrate mode! Supported commands are:
-   - init - creates gopg_migrations table.
-   - up - runs all available migrations.
-   - down - reverts last migration.
-   - reset - reverts all migrations.
-   - version - prints current db version.
-   - set_version [version] - sets db version without running migrations.
-`
-
-func server(c *cli.Context) error {
-	// debug level if requested by user
-	if c.Bool("debug") {
-		log.SetLevel(log.DebugLevel)
-		log.Debug("Application running in Debug mode")
-	} else {
-		log.SetFormatter(&log.JSONFormatter{})
-		log.SetLevel(log.InfoLevel)
-	}
-
+func runServer(c *cli.Context) error {
+	//Set log format
+	setLogFormat(c)
 	//Write store logs
 	log.WithFields(log.Fields{
-		"PG_USER":     c.String("pg-user"),
-		"PG_PASSWORD": c.String("pg-password"),
-		"PG_DATABASE": c.String("pg-database"),
-		"PG_ADDRESS":  c.String("pg-address"),
+		"PG_USER":       c.String("pg-user"),
+		"PG_PASSWORD":   c.String("pg-password"),
+		"PG_DATABASE":   c.String("pg-database"),
+		"PG_ADDRESS":    c.String("pg-address"),
+		"PG_PORT":       c.String("pg-port"),
+		"PG_DEBUG":      c.Bool("pg-debug"),
+		"PG_SAFE_DEBUG": c.Bool("pg-safe-migration"),
 	}).Debug("Setup DB connection")
-
 	//Setup store
 	s := setupStore(c)
 
@@ -112,17 +33,59 @@ func server(c *cli.Context) error {
 	r := router.CreateRouter(&s, nil)
 
 	//Setup routers
-	setupRouters(r, s)
+	// setupRouters(r, s)
 
 	return listenAndServe(r)
 }
 
+func initMigration(c *cli.Context) error {
+	s := setupStore(c)
+	if err := s.Init(); err != nil {
+		log.WithField("Error", err.Error()).Error("Migration table creation is failed")
+	}
+	log.Info("Migration table is successfully created")
+	return nil
+}
+
+func getMigrationVersion(c *cli.Context) error {
+	s := setupStore(c)
+	if v, err := s.Version(); err != nil {
+		log.WithField("Error", err.Error()).Error("Unable to get migration version")
+	} else {
+		log.Infof("Migration version is %v", v)
+	}
+	return nil
+}
+
+func upMigration(c *cli.Context) error {
+	s := setupStore(c)
+	if err := s.Up(); err != nil {
+		log.WithField("Error", err.Error()).Error("Unable to get migration version")
+	} else {
+		log.Infof("Migration version is")
+	}
+	return nil
+}
+
 //GetVersion return app version
 func GetVersion() string {
+	//IDEA: add go-generate commit hash
 	if Version == "" {
 		return "1.0.0-dev"
 	}
 	return Version
+}
+
+func setLogFormat(c *cli.Context) error {
+	if c.Bool("debug") {
+		log.SetFormatter(&log.TextFormatter{})
+		log.SetLevel(log.DebugLevel)
+		log.Debug("Application running in Debug mode")
+	} else {
+		log.SetFormatter(&log.JSONFormatter{})
+		log.SetLevel(log.InfoLevel)
+	}
+	return nil
 }
 
 func listenAndServe(handler http.Handler) error {

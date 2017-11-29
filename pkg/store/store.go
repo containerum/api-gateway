@@ -4,54 +4,63 @@ import (
 	"context"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
+	"bitbucket.org/exonch/ch-gateway/pkg/store/datastore"
+
+	_ "github.com/jinzhu/gorm/dialects/postgres" //Gorm postgres driver
 )
 
+const key = "store"
+
+//Store impl functions for working with data
 type Store interface {
-	Migrate(arg ...string) (string, error)
-
-
-	//TestSelect create simple query in DB for check connection
-	TestSelect() error //TODO: Remove
-
-	//GetRouter gets router by unique uuid
-	GetRouter(string) (*model.Router, error)
-
-	//GetRoutesList gets all active routes
-	GetRoutesList() (*[]model.Router, error)
-
-	//GetRoutesListActivation return list of all routers
-	GetRoutesListByActivation(active bool) (*[]model.Router, error)
-
-	//AddRouter create new router
-	AddRouter(r *model.Router) error
+	/*Migration */
+	Init() error
+	Version() (int, error)
+	Up() error
+	/* Listener */
+	GetListener(id string) (*model.Listener, error)
+	FindListener(l *model.Listener) (*model.Listener, error)
+	GetListenerList(l *model.Listener) (*[]model.Listener, error)
 }
 
-//Migrate run migrations
-func Migrate(c context.Context, arg ...string) (string, error) {
-	return FromContext(c).Migrate(arg...)
+//New create new Store interface for working with data
+func New(config model.DatabaseConfig) (Store, error) {
+	//IDEA Connection pool
+	db, err := newConnection(config)
+	if config.Debug {
+		db.LogMode(true)
+	}
+	if config.SafeMigration {
+		db.AutoMigrate(&model.Role{}, &model.Group{}, &model.Plugin{}, &model.Listener{}) //"Safety" migrations
+	}
+	return datastore.New(db).(Store), err
 }
 
-//TestSelect create simple query in DB for check connection
-func TestSelect(c context.Context) error {
-	return FromContext(c).TestSelect()
+// FromContext returns the Store associated with this context.
+func FromContext(c context.Context) Store {
+	return c.Value(key).(Store)
 }
 
-//GetRouter gets router by unique uuid
-func GetRouter(c context.Context, id string) (*model.Router, error) {
-	return FromContext(c).GetRouter(id)
+func GetListener(c context.Context, id string) (*model.Listener, error) {
+	return FromContext(c).GetListener(id)
 }
 
-//GetRoutesList gets all active routes
-func GetRoutesList(c context.Context) (*[]model.Router, error) {
-	return FromContext(c).GetRoutesList()
+func FindListener(c context.Context, l *model.Listener) (*model.Listener, error) {
+	return FromContext(c).FindListener(l)
 }
 
-//GetRoutesListByActivation return list of all routers
-func GetRoutesListByActivation(c context.Context, active bool) (*[]model.Router, error) {
-	return FromContext(c).GetRoutesListByActivation(active)
+func GetListenerList(c context.Context, l *model.Listener) (*[]model.Listener, error) {
+	return FromContext(c).GetListenerList(l)
 }
 
-//AddRouter create new router
-func AddRouter(c context.Context, r *model.Router) error {
-	return FromContext(c).AddRouter(r)
+func Init(c context.Context) error {
+	return FromContext(c).Init()
+}
+
+func Version(c context.Context) (int, error) {
+	return FromContext(c).Version()
+}
+
+func Up(c context.Context) error {
+	return FromContext(c).Up()
 }
