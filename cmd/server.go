@@ -59,10 +59,20 @@ func getMigrationVersion(c *cli.Context) error {
 
 func upMigration(c *cli.Context) error {
 	s := setupStore(c)
-	if err := s.Up(); err != nil {
-		log.WithField("Error", err.Error()).Error("Unable to get migration version")
+	if v, err := s.Up(); err != nil {
+		log.WithField("Error", err.Error()).Error("Migration failed")
 	} else {
-		log.Infof("Migration version is")
+		log.Infof("Migration is Up, Version is: %v", v)
+	}
+	return nil
+}
+
+func downMigration(c *cli.Context) error {
+	s := setupStore(c)
+	if v, err := s.Down(); err != nil {
+		log.WithField("Error", err.Error()).Error("Migration failed")
+	} else {
+		log.Infof("Migration is Down, Version is: %v", v)
 	}
 	return nil
 }

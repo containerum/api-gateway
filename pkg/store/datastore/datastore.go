@@ -16,7 +16,27 @@ func New(db *gorm.DB) interface{} {
 
 //Init Create migration table
 func (d *datastore) Init() error {
-	// return d.AutoMigrate(&migrations.Migration{}).Error
+	//Create table
+	err := d.AutoMigrate(&migrations.Migration{}).Error
+	if err != nil {
+		return err
+	}
+	//Write first record if not exists
+	var m migrations.Migration
+	err = d.First(&m).Error
+	if err != nil {
+		if err.Error() == "record not found" {
+			m.Dirty = false
+			m.Version = 0
+			d.NewRecord(&m)
+			if err = d.Create(&m).Error; err != nil {
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -30,10 +50,18 @@ func (d *datastore) Version() (int, error) {
 	return m.Version, nil
 }
 
-//Init Create migration table
-func (d *datastore) Up() error {
-	migrations.RunMigrations(d.DB)
-	return nil
+//Up run all migration
+func (d *datastore) Up() (int, error) {
+	return migrations.RunMigrations(d.DB)
+}
+
+//Down run last down migration
+func (d *datastore) Down() (int, error) {
+	v, err := d.Version()
+	if err != nil {
+		return 0, err
+	}
+	return migrations.RunMigrationsDown(v, d.DB)
 }
 
 //NOTE: Example work with gorm

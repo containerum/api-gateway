@@ -108,5 +108,6 @@ var migrationCommands = []cli.Command{
 		Usage:  "Reverts last migration",
 		Flags:  flags,
 		Before: setLogFormat,
+		Action: downMigration,
 	},
 }

@@ -16,7 +16,8 @@ type Store interface {
 	/*Migration */
 	Init() error
 	Version() (int, error)
-	Up() error
+	Up() (int, error)
+	Down() (int, error)
 	/* Listener */
 	GetListener(id string) (*model.Listener, error)
 	FindListener(l *model.Listener) (*model.Listener, error)
@@ -28,6 +29,7 @@ func New(config model.DatabaseConfig) (Store, error) {
 	//IDEA Connection pool
 	db, err := newConnection(config)
 	if config.Debug {
+		db.Debug()
 		db.LogMode(true)
 	}
 	if config.SafeMigration {
@@ -61,6 +63,10 @@ func Version(c context.Context) (int, error) {
 	return FromContext(c).Version()
 }
 
-func Up(c context.Context) error {
+func Up(c context.Context) (int, error) {
 	return FromContext(c).Up()
+}
+
+func Down(c context.Context) (int, error) {
+	return FromContext(c).Down()
 }
