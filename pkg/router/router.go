@@ -9,6 +9,10 @@ import (
 	"bitbucket.org/exonch/ch-gateway/pkg/proxy"
 	"bitbucket.org/exonch/ch-gateway/pkg/router/middleware"
 	"bitbucket.org/exonch/ch-gateway/pkg/store"
+
+	"git.containerum.net/ch/grpc-proto-files/auth"
+	"git.containerum.net/ch/ratelimiter"
+
 	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/go-chi/chi"
 
@@ -19,41 +23,79 @@ import (
 type Router struct {
 	*chi.Mux
 	*sync.Mutex
-	store *store.Store
+	store       *store.Store
+	authClient  *auth.AuthClient
+	statsClient *statsd.Statter
+	rateClient  **ratelimiter.PerIPLimiter
 }
 
 var st *store.Store
 var statter *statsd.Statter
 
 //CreateRouter create and return HTTP handle router
-func CreateRouter(s *store.Store, std *statsd.Statter) *Router {
-	st, statter = s, std
-
+func CreateRouter() *Router {
 	//Create default router
 	r := chi.NewRouter()
-	router := &Router{r, &sync.Mutex{}, s}
+	x := &Router{
+		Mux:        r,
+		Mutex:      &sync.Mutex{},
+		rateClient: new(*ratelimiter.PerIPLimiter),
+	}
 
 	//Init middleware
-	middleware.Statter = std
-	router.Use(middleware.Logger)
-	router.Use(middleware.ClearXHeaders)
-	router.Use(middleware.RequestID)
+	r.Use(middleware.ClearXHeaders)
+	r.Use(middleware.Logger)
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Rate(x.rateClient))
 	// TODO: Add compression middleware
 
-	//Init Not Found page handler
-	router.NotFound(noRouteHandler())
-	//Init root route handler
-	router.HandleFunc("/", rootRouteHandler())
-	//Init status pahe handler
-	router.HandleFunc("/status", statusHandler())
+	r.NotFound(noRouteHandler())          //Init Not Found page handler
+	r.HandleFunc("/", rootRouteHandler()) //Init root route handler
+	// //Init status pahe handler
+	// router.HandleFunc("/status", statusHandler())
 	//Init manage handlers
 	// router.Mount("/manage", CreateManageRouter())
 
-	return router
+	return x
 }
 
-//AddRoute append new http route
-func (r *Router) AddRoute(target *model.Listener) {
+//RegisterStore registre store interface in router
+func (r *Router) RegisterStore(s *store.Store) {
+	r.store = s
+}
+
+//RegisterAuth registre auth interface in router
+func (r *Router) RegisterAuth(c *auth.AuthClient) {
+	r.authClient = c
+}
+
+//RegisterStatsd registre statsd interface in router
+func (r *Router) RegisterStatsd(s *statsd.Statter) {
+	r.statsClient = s
+}
+
+//RegisterRatelimiter registre statsd interface in router
+func (r *Router) RegisterRatelimiter(l *ratelimiter.PerIPLimiter) {
+	*(r.rateClient) = l
+}
+
+//Start init all active routes
+func (r *Router) Start() {
+	st := *r.store
+	listeners, err := st.GetListenerList(&model.Listener{Active: true})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Err": err,
+		}).Error("GetListenerList failed in router.Start")
+	} else {
+		for _, l := range *listeners {
+			r.addRoute(&l)
+		}
+	}
+}
+
+//addRoute append new http route
+func (r *Router) addRoute(target *model.Listener) {
 	// TODO: Add rate limit
 	r.Lock()
 	defer r.Unlock()

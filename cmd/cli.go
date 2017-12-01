@@ -72,6 +72,30 @@ var flags = []cli.Flag{
 		Usage:  "Statsd buffer time",
 		Value:  300,
 	},
+	cli.StringFlag{
+		EnvVar: "GRPC_AUTH_ADDRESS",
+		Name:   "grpc-auth-address",
+		Usage:  "GRPC Auth service address",
+		Value:  "192.168.88.200",
+	},
+	cli.StringFlag{
+		EnvVar: "GRPC_AUTH_PORT",
+		Name:   "grpc-auth-port",
+		Usage:  "GRPC Auth service port",
+		Value:  "1112",
+	},
+	cli.StringFlag{
+		EnvVar: "REDIS_ADDRESS",
+		Name:   "redis-address",
+		Usage:  "Redis service address",
+		Value:  "192.168.88.200:6379",
+	},
+	cli.StringFlag{
+		EnvVar: "REDIS_PASSWORD",
+		Name:   "redis-password",
+		Usage:  "Redis service password",
+		Value:  "",
+	},
 }
 
 var commands = []cli.Command{

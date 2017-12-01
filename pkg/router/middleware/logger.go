@@ -9,7 +9,6 @@ import (
 	"github.com/cactus/go-statsd-client/statsd"
 )
 
-
 //TODO: Move Statter to another file
 //Statter connection with Statsd
 var Statter *statsd.Statter
@@ -60,9 +59,7 @@ func Logger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		lw := NewLoggerResponseWritter(w)
-
 		next.ServeHTTP(lw, r)
-		
 		latency := time.Now().Sub(start)
 
 		//Set status in Statsd

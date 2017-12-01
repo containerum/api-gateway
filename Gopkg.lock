@@ -2,6 +2,18 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "git.containerum.net/ch/grpc-proto-files"
+  packages = ["auth","common"]
+  revision = "a37cf53c18640c19d94263e11ddd4735fa79c9fe"
+
+[[projects]]
+  branch = "master"
+  name = "git.containerum.net/ch/ratelimiter"
+  packages = ["."]
+  revision = "c71f27bc1d5491ffb0cd2f313458459f1f689f17"
+
+[[projects]]
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
   revision = "f006c2ac4710855cf0f916dd6b77acf6b048dc6e"
@@ -18,6 +30,18 @@
   packages = ["."]
   revision = "f7c66f685bcab06bcce78ac212c5f3553c063d19"
   version = "v3.3.0"
+
+[[projects]]
+  name = "github.com/go-redis/redis"
+  packages = [".","internal","internal/consistenthash","internal/hashtag","internal/pool","internal/proto"]
+  revision = "e5e021257bfc6d5fbf0beac33e30194311fb189f"
+  version = "v6.7.4"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/golang/protobuf"
+  packages = ["proto","ptypes","ptypes/any","ptypes/duration","ptypes/empty","ptypes/timestamp"]
+  revision = "1e59b77b52bf8e4b449a57e6f79f21226d571845"
 
 [[projects]]
   name = "github.com/jinzhu/gorm"
@@ -63,13 +87,37 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/net"
+  packages = ["context","http2","http2/hpack","idna","internal/timeseries","lex/httplex","trace"]
+  revision = "a8b9294777976932365dabb6640cf1468d95c70f"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix","windows"]
   revision = "661970f62f5897bc0cd5fdca7e087ba8a98a8fa1"
 
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/text"
+  packages = ["collate","collate/build","internal/colltab","internal/gen","internal/tag","internal/triegen","internal/ucd","language","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable"]
+  revision = "75cc3cad82b5f47d3fb229ddda8c5167da14f294"
+
+[[projects]]
+  branch = "master"
+  name = "google.golang.org/genproto"
+  packages = ["googleapis/rpc/status"]
+  revision = "7f0da29060c682909f650ad8ed4e515bd74fa12a"
+
+[[projects]]
+  name = "google.golang.org/grpc"
+  packages = [".","balancer","balancer/roundrobin","codes","connectivity","credentials","encoding","grpclb/grpc_lb_v1/messages","grpclog","internal","keepalive","metadata","naming","peer","resolver","resolver/dns","resolver/passthrough","stats","status","tap","transport"]
+  revision = "5a9f7b402fe85096d2e1d0383435ee1876e863d0"
+  version = "v1.8.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dadb3b997f95912b72eb9d11ab9325cc74fcc20e5c75305b714b66ff42babca2"
+  inputs-digest = "eb468eb8b2f11e7198a6cd6ca741ee005c0dbf1d20c1f0547d38af989c342d16"
   solver-name = "gps-cdcl"
   solver-version = 1

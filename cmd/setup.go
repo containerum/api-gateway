@@ -1,18 +1,24 @@
 package main
 
 import (
+	"fmt"
 	"time"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
 	"bitbucket.org/exonch/ch-gateway/pkg/store"
+
+	"git.containerum.net/ch/grpc-proto-files/auth"
+	rate "git.containerum.net/ch/ratelimiter"
+
 	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/urfave/cli"
+	"google.golang.org/grpc"
 
 	log "github.com/Sirupsen/logrus"
 )
 
 //setup DB and migration imp. in Store
-func setupStore(c *cli.Context) store.Store {
+func setupStore(c *cli.Context) *store.Store {
 	st, err := store.New(model.DatabaseConfig{
 		User:          c.String("pg-user"),
 		Password:      c.String("pg-password"),
@@ -26,20 +32,57 @@ func setupStore(c *cli.Context) store.Store {
 	if err != nil {
 		panic(err)
 	}
-	return st
+	return &st
 }
 
-// func setupRouters(r *router.Router, s store.Store) {
-// 	routeList, err := s.GetRoutesList()
-// 	if err != nil {
-// 		log.WithFields(log.Fields{
-// 			"Err": err,
-// 		}).Error("GetRouteList failed id setupRouters")
-// 	}
-// 	for _, m := range *routeList {
-// 		r.AddRoute(&m)
-// 	}
-// }
+func setupAuth(c *cli.Context) *auth.AuthClient {
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+	addr := fmt.Sprintf("%s:%s", c.String("grpc-auth-address"), c.String("grpc-auth-port"))
+
+	con, err := grpc.Dial(addr, opts...)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Err": err,
+		}).Error("Dial to auth grpc failed")
+	}
+
+	client := auth.NewAuthClient(con)
+
+	// res, err := client.CreateToken(context.Background(), &auth.CreateTokenRequest{
+	// 	UserAgent:   "Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0",
+	// 	Fingerprint: "550e8400-e29b-41d4-a716-446655440000",
+	// 	UserId:      &common.UUID{Value: "550e8400-e29b-41d4-a716-446655440000"},
+	// 	UserIp:      "127.0.0.1",
+	// 	UserRole:    auth.Role_USER,
+	// 	RwAccess:    true,
+	// 	Access:      &auth.ResourcesAccess{},
+	// })
+	// if err != nil {
+	// 	log.WithFields(log.Fields{
+	// 		"Err": grpc.ErrorDesc(err),
+	// 	}).Error("CreateToken error")
+	// }
+	// fmt.Print(res)
+
+	return &client
+}
+
+func setupRatelimiter(c *cli.Context) *rate.PerIPLimiter {
+	ratelimiter, err := rate.NewPerIPLimiter(&rate.PerIPLimiterConfig{
+		RedisAddress:  c.String("redis-address"),
+		RedisPassword: c.String("redis-password"),
+		RedisDB:       1,
+		Timeout:       time.Second,
+		RateLimit:     3,
+	})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Err": err,
+		}).Error("Connection redis limiter failed")
+	}
+	return ratelimiter
+}
 
 //TODO: Make statsd client Own interface and move it to Store statsd package
 func setupStatsd(c *cli.Context) statsd.Statter {
@@ -61,3 +104,28 @@ func setupStatsd(c *cli.Context) statsd.Statter {
 
 	return std
 }
+
+// _, err = client.CheckToken(context.Background(), &auth.CheckTokenRequest{
+// 	AccessToken: "sss",
+// 	UserAgent:   "chrome",
+// 	FingerPrint: "x1x2",
+// 	UserIp:      "192.168.0.1",
+// })
+// if err != nil {
+// 	log.WithFields(log.Fields{
+// 		"Err": grpc.ErrorDesc(err),
+// 	}).Error("CheckToken error")
+// }
+
+// res, err := client.CreateToken(context.Background(), &auth.CreateTokenRequest{
+// 	UserAgent:   "Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0",
+// 	Fingerprint: "550e8400-e29b-41d4-a716-446655440000",
+// 	UserId:      &common.UUID{Value: "550e8400-e29b-41d4-a716-446655440000"},
+// 	UserIp:      "127.0.0.1",
+// 	UserRole:    auth.Role_USER,
+// })
+// if err != nil {
+// 	log.WithFields(log.Fields{
+// 		"Err": grpc.ErrorDesc(err),
+// 	}).Error("CreateToken error")
+// }

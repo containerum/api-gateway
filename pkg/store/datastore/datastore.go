@@ -36,7 +36,6 @@ func (d *datastore) Init() error {
 			return err
 		}
 	}
-
 	return nil
 }
 

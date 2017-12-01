@@ -4,16 +4,13 @@ import (
 	"net/http"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/router"
-	"bitbucket.org/exonch/ch-gateway/pkg/router/middleware"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
 func runServer(c *cli.Context) error {
-	//Set log format
-	setLogFormat(c)
-	//Write store logs
+	setLogFormat(c) //Set log format
 	log.WithFields(log.Fields{
 		"PG_USER":       c.String("pg-user"),
 		"PG_PASSWORD":   c.String("pg-password"),
@@ -22,24 +19,21 @@ func runServer(c *cli.Context) error {
 		"PG_PORT":       c.String("pg-port"),
 		"PG_DEBUG":      c.Bool("pg-debug"),
 		"PG_SAFE_DEBUG": c.Bool("pg-safe-migration"),
-	}).Debug("Setup DB connection")
-	//Setup store
-	s := setupStore(c)
+	}).Debug("Setup DB connection") //Write store logs
 
-	//Setup Statsd connection
-	// std := setupStatsd(c)
-
-	//Create routers
-	r := router.CreateRouter(&s, nil)
-
-	//Setup routers
-	// setupRouters(r, s)
+	//Create router and register all extensions
+	r := router.CreateRouter()
+	r.RegisterStore(setupStore(c))
+	r.RegisterAuth(setupAuth(c))
+	r.RegisterRatelimiter(setupRatelimiter(c))
+	r.Start()
 
 	return listenAndServe(r)
 }
 
+//Initialize migration table
 func initMigration(c *cli.Context) error {
-	s := setupStore(c)
+	s := *setupStore(c)
 	if err := s.Init(); err != nil {
 		log.WithField("Error", err.Error()).Error("Migration table creation is failed")
 	}
@@ -47,8 +41,9 @@ func initMigration(c *cli.Context) error {
 	return nil
 }
 
+//Print migration version
 func getMigrationVersion(c *cli.Context) error {
-	s := setupStore(c)
+	s := *setupStore(c)
 	if v, err := s.Version(); err != nil {
 		log.WithField("Error", err.Error()).Error("Unable to get migration version")
 	} else {
@@ -57,8 +52,9 @@ func getMigrationVersion(c *cli.Context) error {
 	return nil
 }
 
+//Run all migrations
 func upMigration(c *cli.Context) error {
-	s := setupStore(c)
+	s := *setupStore(c)
 	if v, err := s.Up(); err != nil {
 		log.WithField("Error", err.Error()).Error("Migration failed")
 	} else {
@@ -67,8 +63,9 @@ func upMigration(c *cli.Context) error {
 	return nil
 }
 
+//Run curent version down migration
 func downMigration(c *cli.Context) error {
-	s := setupStore(c)
+	s := *setupStore(c)
 	if v, err := s.Down(); err != nil {
 		log.WithField("Error", err.Error()).Error("Migration failed")
 	} else {
@@ -79,7 +76,6 @@ func downMigration(c *cli.Context) error {
 
 //GetVersion return app version
 func GetVersion() string {
-	//IDEA: add go-generate commit hash
 	if Version == "" {
 		return "1.0.0-dev"
 	}
@@ -100,7 +96,7 @@ func setLogFormat(c *cli.Context) error {
 
 func listenAndServe(handler http.Handler) error {
 	//TODO: Move Cors to middleware
-	c := middleware.Cors()
-	server := &http.Server{Addr: ":8080", Handler: c.Handler(handler)}
+	// c := middleware.Cors()
+	server := &http.Server{Addr: ":8080", Handler: handler}
 	return server.ListenAndServe()
 }
