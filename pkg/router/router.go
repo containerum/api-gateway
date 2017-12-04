@@ -167,9 +167,16 @@ func (r *Router) addRoute(target *model.Listener) {
 	method := strings.ToUpper(target.Method)
 	log.Debug(method)
 	log.Debug(target)
-	r.MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
-		buildProxy(target, w, req)
-	})
+
+	if target.OAuth {
+		r.With(middleware.CheckAuthToken(r.authClient)).MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
+			buildProxy(target, w, req)
+		})
+	} else {
+		r.MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
+			buildProxy(target, w, req)
+		})
+	}
 	r.listeners[target.ID] = target
 
 	log.WithFields(log.Fields{
@@ -179,6 +186,7 @@ func (r *Router) addRoute(target *model.Listener) {
 		"Active":      target.Active,
 		"Name":        target.Name,
 		"UpstreamURL": target.UpstreamURL,
+		"Auth":        target.OAuth,
 	}).Debug("New route builded")
 }
 

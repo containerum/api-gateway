@@ -2,11 +2,13 @@ package proxy
 
 import (
 	"fmt"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"regexp"
 	"strings"
+	"time"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
 )
@@ -15,6 +17,12 @@ func CreateProxy(target *model.Listener) *httputil.ReverseProxy {
 	direct := createDirector(target)
 	return &httputil.ReverseProxy{
 		Director: direct,
+		Transport: &http.Transport{
+			Dial: (&net.Dialer{
+				Timeout:   5 * time.Second, //TODO: Get it from ENV
+				KeepAlive: 30 * time.Second,
+			}).Dial,
+		},
 	}
 }
 
