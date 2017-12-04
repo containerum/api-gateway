@@ -13,7 +13,7 @@ const key = "store"
 
 //Store impl functions for working with data
 type Store interface {
-	/*Migration */
+	/*Migrations */
 	Init() error
 	Version() (int, error)
 	Up() (int, error)

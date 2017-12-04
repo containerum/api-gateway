@@ -1,7 +1,5 @@
 package model
 
-import "github.com/lib/pq"
-
 //Listener keeps proxy-router configs
 type Listener struct {
 	DefaultModel
@@ -13,9 +11,9 @@ type Listener struct {
 	Active bool
 
 	StripPath   bool
-	ListenPath  string         `gorm:"not null"`
-	UpstreamURL string         `gorm:"not null"`
-	Methods     pq.StringArray `gorm:"type:varchar(16)[]"`
+	ListenPath  string `gorm:"not null"`
+	UpstreamURL string `gorm:"not null"`
+	Method      string `gorm:"not null"`
 
 	Plugins []Plugin
 }

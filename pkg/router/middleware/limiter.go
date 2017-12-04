@@ -15,12 +15,11 @@ func Rate(limiter **rate.PerIPLimiter) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			if *limiter != nil {
 				host, _, _ := net.SplitHostPort(r.RemoteAddr)
-				ok, err := (*limiter).Limit(host)
+				ok, _ := (*limiter).Limit(host)
 				log.WithFields(log.Fields{
-					"Host": host,
-					"OK":   ok,
-					"Err":  err,
-				}).Debug("rate")
+					"Host":   host,
+					"Status": ok,
+				}).Debug("Rate limit")
 				if !ok {
 					w.WriteHeader(http.StatusTooManyRequests)
 					return

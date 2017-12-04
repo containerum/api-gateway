@@ -16,10 +16,4 @@ func newConnection(config model.DatabaseConfig) (*gorm.DB, error) {
 		config.Database,
 		config.Password,
 	))
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	//db.AutoMigrate(&model.Role{}, &model.Group{}, &model.Plugin{}, &model.Listener{}) //"Safety" migrations
-	// return db, nil
 }

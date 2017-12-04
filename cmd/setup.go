@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
@@ -69,12 +70,19 @@ func setupAuth(c *cli.Context) *auth.AuthClient {
 }
 
 func setupRatelimiter(c *cli.Context) *rate.PerIPLimiter {
+	maxRate, err := strconv.Atoi(c.String("rate-limit"))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Err": err,
+		}).Error("Rate limit parse error")
+	}
+
 	ratelimiter, err := rate.NewPerIPLimiter(&rate.PerIPLimiterConfig{
 		RedisAddress:  c.String("redis-address"),
 		RedisPassword: c.String("redis-password"),
 		RedisDB:       1,
 		Timeout:       time.Second,
-		RateLimit:     3,
+		RateLimit:     maxRate,
 	})
 	if err != nil {
 		log.WithFields(log.Fields{

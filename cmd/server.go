@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/router"
 
@@ -12,13 +13,13 @@ import (
 func runServer(c *cli.Context) error {
 	setLogFormat(c) //Set log format
 	log.WithFields(log.Fields{
-		"PG_USER":       c.String("pg-user"),
-		"PG_PASSWORD":   c.String("pg-password"),
-		"PG_DATABASE":   c.String("pg-database"),
-		"PG_ADDRESS":    c.String("pg-address"),
-		"PG_PORT":       c.String("pg-port"),
-		"PG_DEBUG":      c.Bool("pg-debug"),
-		"PG_SAFE_DEBUG": c.Bool("pg-safe-migration"),
+		"PG_USER":           c.String("pg-user"),
+		"PG_PASSWORD":       c.String("pg-password"),
+		"PG_DATABASE":       c.String("pg-database"),
+		"PG_ADDRESS":        c.String("pg-address"),
+		"PG_PORT":           c.String("pg-port"),
+		"PG_DEBUG":          c.Bool("pg-debug"),
+		"PG_SAFE_MIGRATION": c.Bool("pg-safe-migration"),
 	}).Debug("Setup DB connection") //Write store logs
 
 	//Create router and register all extensions
@@ -26,7 +27,8 @@ func runServer(c *cli.Context) error {
 	r.RegisterStore(setupStore(c))
 	r.RegisterAuth(setupAuth(c))
 	r.RegisterRatelimiter(setupRatelimiter(c))
-	r.Start()
+	r.InitRoutes()
+	r.Start(time.Second * 5)
 
 	return listenAndServe(r)
 }

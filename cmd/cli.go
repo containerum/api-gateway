@@ -96,6 +96,12 @@ var flags = []cli.Flag{
 		Usage:  "Redis service password",
 		Value:  "",
 	},
+	cli.StringFlag{
+		EnvVar: "RATE_LIMIT",
+		Name:   "rate-limit",
+		Usage:  "Limit requests per second",
+		Value:  "3",
+	},
 }
 
 var commands = []cli.Command{
