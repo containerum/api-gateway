@@ -89,7 +89,7 @@ func (r *Router) Start(syncPeriod time.Duration) {
 		}).Error("GetListenerList failed in router.Start")
 	} else {
 		for _, listener := range *listeners {
-			r.addRoute(&listener)
+			r.addRoute(listener)
 		}
 	}
 
@@ -159,7 +159,7 @@ func WriteJSON(w http.ResponseWriter, obj interface{}) error {
 }
 
 //addRoute append new http route
-func (r *Router) addRoute(target *model.Listener) {
+func (r *Router) addRoute(target model.Listener) {
 	r.Lock()
 	defer r.Unlock()
 
@@ -170,14 +170,14 @@ func (r *Router) addRoute(target *model.Listener) {
 
 	if target.OAuth {
 		r.With(middleware.CheckAuthToken(r.authClient)).MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
-			buildProxy(target, w, req)
+			buildProxy(&target, w, req)
 		})
 	} else {
 		r.MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
-			buildProxy(target, w, req)
+			buildProxy(&target, w, req)
 		})
 	}
-	r.listeners[target.ID] = target
+	r.listeners[target.ID] = &target
 
 	log.WithFields(log.Fields{
 		"ListenPath":  target.ListenPath,
@@ -196,7 +196,7 @@ func (r *Router) updateRoutes(listenersNew *map[string]model.Listener, listeners
 	if len(*listenersUpdate) == 0 && len(*listenersDelete) == 0 {
 		for _, listener := range *listenersNew {
 			if ok := r.Match(chi.NewRouteContext(), listener.Method, listener.ListenPath); !ok {
-				r.addRoute(&listener)
+				r.addRoute(listener)
 			} else {
 				log.Debug(listener)
 			}
@@ -212,13 +212,13 @@ func (r *Router) updateRoutes(listenersNew *map[string]model.Listener, listeners
 
 	for _, listener := range *listenersNew {
 		if ok := r.Match(chi.NewRouteContext(), listener.Method, listener.ListenPath); !ok {
-			r.addRoute(&listener)
+			r.addRoute(listener)
 			delete(*listenersNew, listener.ID)
 		}
 	}
 	for _, listener := range *listenersUpdate {
 		if ok := r.Match(chi.NewRouteContext(), listener.Method, listener.ListenPath); !ok {
-			r.addRoute(&listener)
+			r.addRoute(listener)
 			delete(*listenersUpdate, listener.ID)
 		}
 	}

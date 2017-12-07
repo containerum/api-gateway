@@ -3,6 +3,8 @@ package router
 import (
 	"net/http"
 
+	"bitbucket.org/exonch/ch-gateway/pkg/model"
+
 	"github.com/go-chi/chi"
 )
 
@@ -18,8 +20,10 @@ func CreateManageRouter(router *Router) http.Handler {
 
 func getAllRouter(router *Router) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		st := *router.store
+		listners, _ := st.GetListenerList(&model.Listener{})
 		w.WriteHeader(http.StatusOK)
-		WriteJSON(w, router.listeners)
+		WriteJSON(w, listners)
 	}
 }
 

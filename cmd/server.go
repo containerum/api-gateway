@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/router"
+	"bitbucket.org/exonch/ch-gateway/pkg/router/middleware"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -98,7 +99,7 @@ func setLogFormat(c *cli.Context) error {
 
 func listenAndServe(handler http.Handler) error {
 	//TODO: Move Cors to middleware
-	// c := middleware.Cors()
-	server := &http.Server{Addr: ":8080", Handler: handler}
+	c := middleware.Cors()
+	server := &http.Server{Addr: ":8081", Handler: c.Handler(handler)}
 	return server.ListenAndServe()
 }

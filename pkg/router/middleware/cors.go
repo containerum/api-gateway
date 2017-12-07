@@ -12,7 +12,7 @@ func Cors() *cors.Cors {
 	return cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
-		AllowedMethods:   []string{"POST"},
+		AllowedMethods:   []string{"GET", "POST"},
 		Debug:            true,
 	})
 }
