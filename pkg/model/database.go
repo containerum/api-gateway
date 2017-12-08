@@ -1,9 +1,9 @@
 package model
 
 import (
-	"bytes"
-	"fmt"
 	"time"
+
+	"github.com/fatih/structs"
 )
 
 //DatabaseConfig containts DB config
@@ -17,28 +17,24 @@ type DatabaseConfig struct {
 	Debug         bool
 }
 
-//JSONTime return special format in output JSON
-type JSONTime time.Time
-
-func (t JSONTime) MarshalJSON() ([]byte, error) {
-	//do your serializing here
-	stamp := fmt.Sprintf("\"%s\"", time.Time(t).Format("Monday, 02 Jan 2006 15:04:05 MST"))
-	return []byte(stamp), nil
-}
+const timeFormat = "Monday, 02 Jan 2006 15:04:05 MST"
 
 //DefaultModel embedded struct in each Gorm Model
 type DefaultModel struct {
-	ID        string `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt *time.Time
+	ID        string     `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" structs:"id"`
+	CreatedAt time.Time  `structs:"-"`
+	UpdatedAt time.Time  `structs:"-"`
+	DeletedAt *time.Time `structs:"-"`
 }
 
-func (dm *DefaultModel) MarshalJSON() ([]byte, error) {
-	buffer := bytes.NewBufferString("{")
-
-	// buffer.WriteString(fmt.Sprintf("\"%s\":%s", "id", dm.ID))
-
-	buffer.WriteString("}")
-	return buffer.Bytes(), nil
+func (dm DefaultModel) getMap() map[string]interface{} {
+	model := structs.Map(dm)
+	model["created_at"] = dm.CreatedAt.Format(timeFormat)
+	model["updated_at"] = dm.UpdatedAt.Format(timeFormat)
+	if dm.DeletedAt != nil {
+		model["deleted_at"] = dm.DeletedAt.Format(timeFormat)
+	} else {
+		model["deleted_at"] = "null"
+	}
+	return model
 }
