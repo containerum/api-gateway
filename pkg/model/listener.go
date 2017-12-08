@@ -1,5 +1,7 @@
 package model
 
+import "fmt"
+
 //Listener keeps proxy-router configs
 type Listener struct {
 	DefaultModel
@@ -16,4 +18,9 @@ type Listener struct {
 	Method      string `gorm:"not null"`
 
 	Plugins []Plugin
+}
+
+func (lm *Listener) BeforeUpdate() (err error) {
+	fmt.Printf("\nUpdate: %v\n", lm.UpdatedAt)
+	return
 }

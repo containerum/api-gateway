@@ -24,3 +24,8 @@ func (d *datastore) GetListenerList(l *model.Listener) (*[]model.Listener, error
 	err := d.Where(l).Find(&listeners).Error
 	return &listeners, err
 }
+
+//UpdateListener updates model in DB
+func (d *datastore) UpdateListener(l *model.Listener) error {
+	return d.Save(l).Error
+}
