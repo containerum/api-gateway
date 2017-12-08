@@ -26,6 +26,12 @@
   version = "v3.1.0"
 
 [[projects]]
+  name = "github.com/fatih/structs"
+  packages = ["."]
+  revision = "a720dfa8df582c51dee1b36feabb906bde1588bd"
+  version = "v1.0"
+
+[[projects]]
   name = "github.com/go-chi/chi"
   packages = ["."]
   revision = "f7c66f685bcab06bcce78ac212c5f3553c063d19"
@@ -118,6 +124,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "eb468eb8b2f11e7198a6cd6ca741ee005c0dbf1d20c1f0547d38af989c342d16"
+  inputs-digest = "3020917dc3bffeb14cdda13004ea47fa18d404fcc0749b6c48e1015fdaa8b533"
   solver-name = "gps-cdcl"
   solver-version = 1
