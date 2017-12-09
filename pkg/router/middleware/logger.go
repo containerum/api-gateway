@@ -9,10 +9,6 @@ import (
 	"github.com/cactus/go-statsd-client/statsd"
 )
 
-//TODO: Move Statter to another file
-//Statter connection with Statsd
-var Statter *statsd.Statter
-
 type LoggerResponseWritter interface {
 	http.ResponseWriter
 	Status() int
@@ -54,32 +50,40 @@ func (lw *loggerWritter) BytesWritten() int {
 	return lw.bytes
 }
 
-//Logger write main logs
-func Logger(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		lw := NewLoggerResponseWritter(w)
-		next.ServeHTTP(lw, r)
-		latency := time.Now().Sub(start)
+func Logger(stats *statsd.Statter) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			start := time.Now()
+			lw := NewLoggerResponseWritter(w)
+			next.ServeHTTP(lw, r)
+			latency := time.Now().Sub(start)
 
-		//Set status in Statsd
-		if Statter != nil {
-			statusCall := fmt.Sprintf("call.status.%v", lw.Status())
-			methodCall := fmt.Sprintf("call.method.%v", r.Method)
-			(*Statter).Inc("call.status.all", 1, 1.0)
-			(*Statter).Inc(statusCall, 1, 1.0)
-			(*Statter).Inc(methodCall, 1, 1.0)
-		}
+			//Set status in Statsd
+			if stats != nil {
+				statusCall := fmt.Sprintf("call.status.%v", lw.Status())
+				methodCall := fmt.Sprintf("call.method.%v", r.Method)
+				reqName := w.Header().Get("X-Request-Name")
+				if reqName == "" {
+					reqName = "system"
+				}
+				statusCallNamed := fmt.Sprintf("call.route.%v.status.%v", reqName, lw.Status())
+				s := *stats
+				s.Inc("call.status.all", 1, 1.0)
+				s.Inc(statusCall, 1, 1.0)
+				s.Inc(methodCall, 1, 1.0)
+				s.Inc(statusCallNamed, 1, 1.0)
+			}
 
-		//Write log after
-		log.WithFields(log.Fields{
-			"Method":       r.Method,
-			"Path":         r.RequestURI,
-			"Latency":      fmt.Sprintf("%v", latency),
-			"Status":       lw.Status(),
-			"RequestID":    w.Header().Get("X-Request-ID"),
-			"ResponseSize": lw.BytesWritten(),
-			"RequestSize":  r.ContentLength,
-		}).Info("Request")
-	})
+			//Write log after
+			log.WithFields(log.Fields{
+				"Method":       r.Method,
+				"Path":         r.RequestURI,
+				"Latency":      fmt.Sprintf("%v", latency),
+				"Status":       lw.Status(),
+				"RequestID":    w.Header().Get("X-Request-ID"),
+				"ResponseSize": lw.BytesWritten(),
+				"RequestSize":  r.ContentLength,
+			}).Info("Request")
+		})
+	}
 }

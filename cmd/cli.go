@@ -58,7 +58,7 @@ var flags = []cli.Flag{
 		EnvVar: "STATSD_ADDRESS",
 		Name:   "statsd-address",
 		Usage:  "Statsd address",
-		Value:  "213.239.208.25:8125",
+		Value:  "192.168.88.200:8125",
 	},
 	cli.StringFlag{
 		EnvVar: "STATSD-PREFIX",

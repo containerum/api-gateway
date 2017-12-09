@@ -92,15 +92,13 @@ func setupRatelimiter(c *cli.Context) *rate.PerIPLimiter {
 	return ratelimiter
 }
 
-//TODO: Make statsd client Own interface and move it to Store statsd package
-func setupStatsd(c *cli.Context) statsd.Statter {
+func setupStatsd(c *cli.Context) *statsd.Statter {
 	std, err := statsd.NewBufferedClient(
 		c.String("statsd-address"),
 		c.String("statsd-prefix"),
 		time.Microsecond*time.Duration(c.Int("statsd-buffer-time")),
 		0,
 	)
-
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Err":         err,
@@ -109,8 +107,7 @@ func setupStatsd(c *cli.Context) statsd.Statter {
 			"Buffer-Time": c.Int("statsd-buffer-time"),
 		}).Warning("Setup Statsd failed")
 	}
-
-	return std
+	return &std
 }
 
 // _, err = client.CheckToken(context.Background(), &auth.CheckTokenRequest{

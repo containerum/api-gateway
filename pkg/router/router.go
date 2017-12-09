@@ -17,6 +17,7 @@ import (
 
 	"github.com/cactus/go-statsd-client/statsd"
 	"github.com/go-chi/chi"
+	chimid "github.com/go-chi/chi/middleware"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -48,9 +49,10 @@ func CreateRouter() *Router {
 func (r *Router) InitRoutes() {
 	//Init middleware
 	r.Use(middleware.ClearXHeaders)
-	r.Use(middleware.Logger)
+	r.Use(middleware.Logger(r.statsClient))
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Rate(r.rateClient))
+	r.Use(chimid.Recoverer)
 	// TODO: Add compression middleware
 
 	r.NotFound(noRouteHandler())              //Init Not Found page handler
@@ -170,10 +172,12 @@ func (r *Router) addRoute(target model.Listener) {
 
 	if target.OAuth {
 		r.With(middleware.CheckAuthToken(r.authClient)).MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
+			w.Header().Set("X-Request-Name", target.GetSnakeName())
 			buildProxy(&target, w, req)
 		})
 	} else {
 		r.MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
+			w.Header().Set("X-Request-Name", target.GetSnakeName())
 			buildProxy(&target, w, req)
 		})
 	}
