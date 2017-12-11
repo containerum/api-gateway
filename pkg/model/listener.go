@@ -2,14 +2,21 @@ package model
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 	"unicode"
 
 	"github.com/fatih/structs"
 )
 
+const (
+	minNameLenght       = 3
+	minListenPathLenght = 3
+)
+
 //Listener keeps proxy-router configs
 type Listener struct {
-	DefaultModel `structs:"-"`
+	DefaultModel `structs:"-" json:"-"`
 	Name         string `gorm:"not null" structs:"name"`
 	nameSnake    string
 
@@ -38,13 +45,24 @@ func (l *Listener) GetSnakeName() string {
 	return l.nameSnake
 }
 
-// func (lm *Listener) BeforeUpdate() (err error) {
-// 	fmt.Printf("\nUpdate: %v\n", lm.UpdatedAt)
-// 	return
-// }
-
 func (l *Listener) AfterFind() (err error) {
 	l.nameSnake = toSnake(l.Name)
+	return nil
+}
+
+func (l *Listener) Valid() (err error) {
+	if len(l.Name) < minNameLenght {
+		return fmt.Errorf("Route name is too short. Min lenght: %d", minNameLenght)
+	}
+	if len(l.ListenPath) < minListenPathLenght {
+		return fmt.Errorf("ListenPath is too short. Min lenght: %d", minListenPathLenght)
+	}
+	switch strings.ToLower(l.Method) {
+	case "get", "post", "delete", "path", "options", "put":
+		break
+	default:
+		return fmt.Errorf("Unsupported method: %s", l.Method)
+	}
 	return nil
 }
 

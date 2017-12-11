@@ -212,6 +212,9 @@ func (r *Router) updateRoutes(listenersNew *map[string]model.Listener, listeners
 	r.stopSync <- struct{}{} //Stop sync
 	route := CreateRouter()
 	route.RegisterStore(r.store)
+	route.RegisterRatelimiter(*r.rateClient)
+	route.RegisterAuth(r.authClient)
+	route.RegisterStatsd(r.statsClient)
 	route.InitRoutes()
 
 	for _, listener := range *listenersNew {

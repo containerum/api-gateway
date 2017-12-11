@@ -2,6 +2,7 @@ package router
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"bitbucket.org/exonch/ch-gateway/pkg/model"
@@ -14,6 +15,7 @@ func CreateManageRouter(router *Router) http.Handler {
 	r := chi.NewRouter()
 	// Router headers
 	r.Get("/route", getAllRouter(router))
+	r.Post("/route", createRouter(router))
 	r.Get("/route/{id}", getRouter(router))
 	r.Put("/route/{id}", updateRouter(router))
 	r.Get("/group/{group-id}/route", getAllRouter(router))
@@ -39,6 +41,38 @@ func getRouter(router *Router) http.HandlerFunc {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
+	}
+}
+
+func createRouter(router *Router) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		st := *router.store
+		errAnswer := make(map[string]interface{}, 1)
+		decoder := json.NewDecoder(r.Body)
+
+		var listenerNew model.Listener
+		if err := decoder.Decode(&listenerNew); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			WriteJSON(w, err)
+			return
+		}
+
+		if err := listenerNew.Valid(); err != nil {
+			errAnswer["Error"] = err.Error()
+			w.WriteHeader(http.StatusBadRequest)
+			WriteJSON(w, errAnswer)
+			return
+		}
+
+		listenerSaved, err := st.CreateListener(&listenerNew)
+		if err != nil {
+			errAnswer["Error"] = fmt.Errorf("Can not add record: Listener: %v", listenerNew)
+			w.WriteHeader(http.StatusInternalServerError)
+			WriteJSON(w, errAnswer)
+		}
+
+		w.WriteHeader(http.StatusOK)
+		WriteJSON(w, listenerSaved)
 	}
 }
 

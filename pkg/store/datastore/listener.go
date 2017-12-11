@@ -29,3 +29,9 @@ func (d *datastore) GetListenerList(l *model.Listener) (*[]model.Listener, error
 func (d *datastore) UpdateListener(l *model.Listener) error {
 	return d.Save(l).Error
 }
+
+//CreateListener create new listener in DB
+func (d *datastore) CreateListener(l *model.Listener) (*model.Listener, error) {
+	d.NewRecord(l)
+	return l, d.Save(l).Error
+}

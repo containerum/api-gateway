@@ -7,7 +7,8 @@ COPY . .
 RUN CGO_ENABLED=0 go build -v -o /bin/ch-gateway -ldflags "-X bitbucket.org/exonch/ch-gateway/main.version=${APP_VERSION}" cmd/*
 
 #### Run Step ####
-FROM scratch
+# FROM scratch
+FROM ubuntu
 
 # Copy bin
 COPY --from=builder /bin/ch-gateway /
@@ -33,4 +34,4 @@ ENV GATEWAY_DEBUG=false \
 # run app
 ENTRYPOINT ["/ch-gateway"]
 
-EXPOSE 8080
+EXPOSE 8081
