@@ -3,7 +3,7 @@ stages:
   - deploy
 
 .create_tag: &prepare
-  before_script:
+  script:
     - export DATE=$(date +"%Y-%m-%d")
     - export TAG="${DATE}-${CI_COMMIT_SHA:0:8}"
 
