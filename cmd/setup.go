@@ -49,23 +49,6 @@ func setupAuth(c *cli.Context) *auth.AuthClient {
 	}
 
 	client := auth.NewAuthClient(con)
-
-	// res, err := client.CreateToken(context.Background(), &auth.CreateTokenRequest{
-	// 	UserAgent:   "Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0",
-	// 	Fingerprint: "550e8400-e29b-41d4-a716-446655440000",
-	// 	UserId:      &common.UUID{Value: "550e8400-e29b-41d4-a716-446655440000"},
-	// 	UserIp:      "127.0.0.1",
-	// 	UserRole:    auth.Role_USER,
-	// 	RwAccess:    true,
-	// 	Access:      &auth.ResourcesAccess{},
-	// })
-	// if err != nil {
-	// 	log.WithFields(log.Fields{
-	// 		"Err": grpc.ErrorDesc(err),
-	// 	}).Error("CreateToken error")
-	// }
-	// fmt.Print(res)
-
 	return &client
 }
 
