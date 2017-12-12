@@ -12,19 +12,15 @@ stages:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
 
 build-master:
+  <<: *prepare
+  <<: *login
   services:
     - docker:dind
   image: docker:latest
-  <<: *login
-  <<: *prepare
   stage: build
   tags:
     - m1s
   script:
-    - echo "${CI_REGISTRY_IMAGE}"
-    - echo "${CI_COMMIT_SHA:0:8}"
-    - echo "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA:0:8}"
-    - echo "${TAG}"
     - docker build --pull -t ${CI_REGISTRY_IMAGE}:${TAG} .
     - docker push "${CI_REGISTRY_IMAGE}:${TAG}"
 
@@ -35,7 +31,6 @@ test:
   tags:
     - m1s
   script:
-    - echo "${TAG}"
     - export IMAGE="$CI_REGISTRY_IMAGE:${TAG}"
     - echo $SANDBOX_KUBE_CONFIG | base64 -d > admin.conf
     - cat deploy-template.yaml | envsubst > deploy.yaml
