@@ -24,7 +24,7 @@ test:
   image: mastanggt/kubectl:latest
   stage: deploy
   tags:
-    - kube-python
+    - m1s
   script:
     - export IMAGE="$CI_REGISTRY_IMAGE:${CI_COMMIT_SHA:0:8}"
     - echo $KUBE_CONFIG | base64 -d > admin.conf
