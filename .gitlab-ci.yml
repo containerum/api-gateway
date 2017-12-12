@@ -14,11 +14,14 @@ build-master:
   tags:
     - m1s
   script:
+    - export DATE=$(date +"%Y-%m-%d")
+    - export TAG="${DATE}-${CI_COMMIT_SHA:0:8}"
     - echo "${CI_REGISTRY_IMAGE}"
     - echo "${CI_COMMIT_SHA:0:8}"
     - echo "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA:0:8}"
-    - docker build --pull -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA:0:8} .
-    - docker push "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA:0:8}"
+    - echo "${TAG}"
+    - docker build --pull -t ${CI_REGISTRY_IMAGE}:${TAG} .
+    - docker push "${CI_REGISTRY_IMAGE}:${TAG}"
 
 test:
   image: mastanggt/kubectl:latest
@@ -26,7 +29,8 @@ test:
   tags:
     - m1s
   script:
-    - export IMAGE="$CI_REGISTRY_IMAGE:${CI_COMMIT_SHA:0:8}"
-    - echo $KUBE_CONFIG | base64 -d > admin.conf
+    - echo "${TAG}"
+    - export IMAGE="$CI_REGISTRY_IMAGE:${TAG}"
+    - echo $SANDBOX_KUBE_CONFIG | base64 -d > admin.conf
     - cat deploy-template.yaml | envsubst > deploy.yaml
     - kubectl --kubeconfig=admin.conf replace -f deploy.yaml 
