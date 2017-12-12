@@ -9,10 +9,10 @@ stages:
 .docker_login: &login
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
-    - *create_tag
+    - <<: *create_tag
 
 build-master:
-  <<: *create_tag
+  <<: *login
   services:
     - docker:dind
   image: docker:latest
