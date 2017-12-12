@@ -1,7 +1,7 @@
 package datastore
 
 import (
-	"bitbucket.org/exonch/ch-gateway/pkg/store/migrations"
+	"git.containerum.net/ch/api-gateway/pkg/store/migrations"
 	"github.com/jinzhu/gorm"
 )
 

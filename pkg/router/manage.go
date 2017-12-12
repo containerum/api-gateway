@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"bitbucket.org/exonch/ch-gateway/pkg/model"
+	"git.containerum.net/ch/api-gateway/pkg/model"
 
 	"github.com/go-chi/chi"
 )

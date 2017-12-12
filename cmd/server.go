@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"bitbucket.org/exonch/ch-gateway/pkg/router"
-	"bitbucket.org/exonch/ch-gateway/pkg/router/middleware"
+	"git.containerum.net/ch/api-gateway/pkg/router"
+	"git.containerum.net/ch/api-gateway/pkg/router/middleware"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"

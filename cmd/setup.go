@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"bitbucket.org/exonch/ch-gateway/pkg/model"
-	"bitbucket.org/exonch/ch-gateway/pkg/store"
+	"git.containerum.net/ch/api-gateway/pkg/model"
+	"git.containerum.net/ch/api-gateway/pkg/store"
 
 	"git.containerum.net/ch/grpc-proto-files/auth"
 	rate "git.containerum.net/ch/ratelimiter"
