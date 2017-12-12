@@ -1,0 +1,32 @@
+stages:
+  - build
+  - deploy
+.docker_login: &login
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
+
+build-master:
+  services:
+    - docker:dind
+  image: docker:latest
+  <<: *login
+  stage: build
+  tags:
+    - m1s
+  script:
+    - echo "${CI_REGISTRY_IMAGE}"
+    - echo "${CI_COMMIT_SHA:0:8}"
+    - echo "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA:0:8}"
+    - docker build --pull -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA:0:8} .
+    - docker push "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHA:0:8}"
+
+test:
+  image: mastanggt/kubectl:latest
+  stage: deploy
+  tags:
+    - kube-python
+  script:
+    - export IMAGE="$CI_REGISTRY_IMAGE:${CI_COMMIT_SHA:0:8}"
+    - echo $KUBE_CONFIG | base64 -d > admin.conf
+    - cat deploy-template.yaml | envsubst > deploy.yaml
+    - kubectl --kubeconfig=admin.conf replace -f deploy.yaml 

@@ -1,0 +1,57 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: "ch-gateway"
+    access: "true"
+    group: local
+  name: ch-gateway
+  namespace: hosting
+spec:
+  strategy:
+    type: RollingUpdate
+  replicas: 1
+  selector:
+    matchLabels:
+      app: "ch-gateway"
+      access: "true"
+      group: local
+  template:
+    metadata:
+      labels:
+        app: "ch-gateway"
+        access: "true"
+        group: local
+    spec:
+      containers:
+      - image: ${IMAGE}
+        name: ch-gateway
+        env:
+        - name: PG_USER
+          value: '${PG_USER}'
+        - name: PG_PASSWORD
+          value: '${PG_PASSWORD}'
+        - name: PG_DATABASE
+          value: '${PG_DATABASE}'
+        - name: PG_ADDRESS
+          value: '${PG_ADDRESS}'
+        - name: PG_PORT
+          value: '${PG_PORT}'
+        - name: PG_DEBUG
+          value: '${PG_DEBUG}'
+        - name: STATSD_ADDRESS
+          value: '${STATSD_ADDRESS}'
+        - name: REDIS_ADDRESS
+          value: '${REDIS_ADDRESS}'
+        - name: STATSD_PREFIX
+          value: '${STATSD_PREFIX}'
+        - name: STATSD_BUFFER_TIME
+          value: '${STATSD_BUFFER_TIME}'
+        - name: GATEWAY_DEBUG
+          value: '${GATEWAY_DEBUG}'
+      nodeSelector:
+        role: master
+      imagePullSecrets:
+      - name: regsecret
+
