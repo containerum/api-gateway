@@ -7,10 +7,6 @@ stages:
     - export DATE=$(date +"%Y-%m-%d")
     - export TAG="${DATE}-${CI_COMMIT_SHA:0:8}"
 
-.docker_login: &login
-  before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
-
 build-master:
   <<: *create_tag
   services:
@@ -20,7 +16,7 @@ build-master:
   tags:
     - m1s
   script:
-     << *login
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
     - docker build --pull -t ${CI_REGISTRY_IMAGE}:${TAG} .
     - docker push "${CI_REGISTRY_IMAGE}:${TAG}"
 
@@ -34,5 +30,4 @@ test:
     - export IMAGE="$CI_REGISTRY_IMAGE:${TAG}"
     - echo $SANDBOX_KUBE_CONFIG | base64 -d > admin.conf
     - cat deploy-template.yaml | envsubst > deploy.yaml
-    - kubectl --kubeconfig=admin.conf replace -f deploy.yaml 
-
+    - kubectl --kubeconfig=admin.conf replace -f deploy.yaml
