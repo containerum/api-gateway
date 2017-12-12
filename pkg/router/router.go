@@ -7,10 +7,10 @@ import (
 	"sync"
 	"time"
 
-	"bitbucket.org/exonch/ch-gateway/pkg/model"
-	"bitbucket.org/exonch/ch-gateway/pkg/proxy"
-	"bitbucket.org/exonch/ch-gateway/pkg/router/middleware"
-	"bitbucket.org/exonch/ch-gateway/pkg/store"
+	"git.containerum.net/ch/api-gateway/pkg/model"
+	"git.containerum.net/ch/api-gateway/pkg/proxy"
+	"git.containerum.net/ch/api-gateway/pkg/router/middleware"
+	"git.containerum.net/ch/api-gateway/pkg/store"
 
 	"git.containerum.net/ch/grpc-proto-files/auth"
 	"git.containerum.net/ch/ratelimiter"

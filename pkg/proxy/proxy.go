@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"bitbucket.org/exonch/ch-gateway/pkg/model"
+	"git.containerum.net/ch/api-gateway/pkg/model"
 )
 
 func CreateProxy(target *model.Listener) *httputil.ReverseProxy {

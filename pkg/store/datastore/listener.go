@@ -1,7 +1,7 @@
 package datastore
 
 import (
-	"bitbucket.org/exonch/ch-gateway/pkg/model"
+	"git.containerum.net/ch/api-gateway/pkg/model"
 )
 
 //GetListener find Listener by ID

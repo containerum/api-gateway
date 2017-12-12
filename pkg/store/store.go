@@ -3,8 +3,8 @@ package store
 import (
 	"context"
 
-	"bitbucket.org/exonch/ch-gateway/pkg/model"
-	"bitbucket.org/exonch/ch-gateway/pkg/store/datastore"
+	"git.containerum.net/ch/api-gateway/pkg/model"
+	"git.containerum.net/ch/api-gateway/pkg/store/datastore"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres" //Gorm postgres driver
 )

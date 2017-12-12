@@ -1,10 +1,10 @@
 #### Build Step ####
 FROM golang:1.9-alpine as builder
 
-WORKDIR src/bitbucket.org/exonch/ch-gateway
+WORKDIR src/git.containerum.net/ch/api-gateway
 COPY . .
 
-RUN CGO_ENABLED=0 go build -v -o /bin/ch-gateway -ldflags "-X bitbucket.org/exonch/ch-gateway/main.version=${APP_VERSION}" cmd/*
+RUN CGO_ENABLED=0 go build -v -o /bin/ch-gateway -ldflags "-X git.containerum.net/ch/api-gateway/main.version=${APP_VERSION}" cmd/*
 
 #### Run Step ####
 # FROM scratch
