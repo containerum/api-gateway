@@ -12,8 +12,7 @@ stages:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
 
 build-master:
-  <<: *prepare
-  <<: *login
+  <<: [*prepare, *login]
   services:
     - docker:dind
   image: docker:latest
