@@ -2,8 +2,8 @@ stages:
   - build
   - deploy
 
-.create_tag: &prepare
-  script:
+.create_tag: &create_tag
+  before_script:
     - export DATE=$(date +"%Y-%m-%d")
     - export TAG="${DATE}-${CI_COMMIT_SHA:0:8}"
 
@@ -12,7 +12,7 @@ stages:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
 
 build-master:
-  <<: [*prepare, *login]
+  <<: [ *create_tag, *login ]
   services:
     - docker:dind
   image: docker:latest
@@ -24,7 +24,7 @@ build-master:
     - docker push "${CI_REGISTRY_IMAGE}:${TAG}"
 
 test:
-  <<: *prepare
+  <<: *create_tag
   image: mastanggt/kubectl:latest
   stage: deploy
   tags:
