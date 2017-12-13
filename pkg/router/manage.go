@@ -18,7 +18,8 @@ func CreateManageRouter(router *Router) http.Handler {
 	r.Post("/route", createRouter(router))
 	r.Get("/route/{id}", getRouter(router))
 	r.Put("/route/{id}", updateRouter(router))
-	r.Get("/group/{group-id}/route", getAllRouter(router))
+	r.Delete("/route/{id}", deleteRouter(router))
+	// r.Get("/group/{group-id}/route", getAllRouter(router))
 	return r
 }
 
@@ -76,6 +77,7 @@ func createRouter(router *Router) http.HandlerFunc {
 	}
 }
 
+//TODO: update all listeners, but not only active
 func updateRouter(router *Router) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		st := *router.store
@@ -96,5 +98,17 @@ func updateRouter(router *Router) http.HandlerFunc {
 			w.WriteHeader(http.StatusNoContent)
 			return
 		}
+	}
+}
+
+func deleteRouter(router *Router) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		st := *router.store
+		id := chi.URLParam(r, "id")
+		if err := st.DeleteListener(id); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 	}
 }

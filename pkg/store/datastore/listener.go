@@ -35,3 +35,8 @@ func (d *datastore) CreateListener(l *model.Listener) (*model.Listener, error) {
 	d.NewRecord(l)
 	return l, d.Save(l).Error
 }
+
+//DeleteListener delete listener in DB by ID
+func (d *datastore) DeleteListener(id string) error {
+	return d.Where("id = ?", id).Delete(&model.Listener{}).Error
+}
