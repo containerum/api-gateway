@@ -83,20 +83,24 @@ func updateRouter(router *Router) http.HandlerFunc {
 		st := *router.store
 		decoder := json.NewDecoder(r.Body)
 		id := chi.URLParam(r, "id")
-		if listener, ok := router.listeners[id]; ok {
+		if listener, err := st.GetListener(id); err != nil {
+			w.WriteHeader(http.StatusNoContent)
+		} else {
 			var listenerNew model.Listener
 			if err := decoder.Decode(&listenerNew); err != nil {
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
-			listener.Method = listenerNew.Method
-			if err := st.UpdateListener(listener); err != nil {
+			if listenerNew.Valid() != nil {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+
+			listenerNew.ID = listener.ID
+			if err := st.UpdateListener(&listenerNew); err != nil {
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-		} else {
-			w.WriteHeader(http.StatusNoContent)
-			return
 		}
 	}
 }
