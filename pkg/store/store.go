@@ -24,6 +24,7 @@ type Store interface {
 	GetListenerList(l *model.Listener) (*[]model.Listener, error)
 	UpdateListener(l *model.Listener) error
 	CreateListener(l *model.Listener) (*model.Listener, error)
+	DeleteListener(id string) error
 }
 
 //New create new Store interface for working with data
@@ -63,6 +64,10 @@ func UpdateListener(c context.Context, l *model.Listener) error {
 
 func CreateListener(c context.Context, l *model.Listener) (*model.Listener, error) {
 	return FromContext(c).CreateListener(l)
+}
+
+func DeleteListener(c context.Context, id string) error {
+	return FromContext(c).DeleteListener(id)
 }
 
 func Init(c context.Context) error {
