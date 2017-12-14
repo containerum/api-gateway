@@ -50,6 +50,10 @@ spec:
           value: '${STATSD_BUFFER_TIME}'
         - name: GATEWAY_DEBUG
           value: '${GATEWAY_DEBUG}'
+        - name: GRPC_AUTH_ADDRESS
+          value: '${GRPC_AUTH_ADDRESS}'
+        - name: GRPC_AUTH_PORT
+          value: '${GRPC_AUTH_PORT}'
       nodeSelector:
         role: master
       imagePullSecrets:
