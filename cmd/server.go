@@ -29,6 +29,7 @@ func runServer(c *cli.Context) error {
 	r.RegisterAuth(setupAuth(c))
 	r.RegisterRatelimiter(setupRatelimiter(c))
 	r.RegisterStatsd(setupStatsd(c))
+	r.RegisterClickhouseLogger(setupClickhouseLogger(c))
 	r.InitRoutes()
 	r.Start(time.Second * 5)
 

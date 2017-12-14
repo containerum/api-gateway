@@ -8,6 +8,7 @@ import (
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	"git.containerum.net/ch/api-gateway/pkg/store"
 
+	clickhouse "git.containerum.net/ch/api-gateway/pkg/utils/clickhouselog"
 	"git.containerum.net/ch/grpc-proto-files/auth"
 	rate "git.containerum.net/ch/ratelimiter"
 
@@ -91,6 +92,16 @@ func setupStatsd(c *cli.Context) *statsd.Statter {
 		}).Warning("Setup Statsd failed")
 	}
 	return &std
+}
+
+func setupClickhouseLogger(c *cli.Context) *clickhouse.LogClient {
+	client, err := clickhouse.OpenConenction("88.99.160.131:7777")
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Err": err,
+		}).Warning("Setup Clickhouse Logger failed")
+	}
+	return client
 }
 
 // _, err = client.CheckToken(context.Background(), &auth.CheckTokenRequest{
