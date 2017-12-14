@@ -1,12 +1,13 @@
 package clickhouselog
 
 import (
+	"encoding/json"
 	"net"
 	"time"
 )
 
 type LogClient struct {
-	*net.UDPConn
+	con *net.UDPConn
 }
 
 type LogRecord struct {
@@ -21,7 +22,7 @@ type LogRecord struct {
 }
 
 func OpenConenction(addr string) (*LogClient, error) {
-	udpAddr, err := net.ResolveUDPAddr("udp4", addr)
+	udpAddr, err := net.ResolveUDPAddr("udp", addr)
 	if err != nil {
 		return nil, err
 	}
@@ -29,10 +30,15 @@ func OpenConenction(addr string) (*LogClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &LogClient{UDPConn: con}, nil
+
+	return &LogClient{con: con}, nil
 }
 
 func (lc *LogClient) WriteLog(lr LogRecord) error {
-
-	return nil
+	js, err := json.Marshal(lr)
+	if err != nil {
+		return err
+	}
+	_, err = lc.con.Write(js)
+	return err
 }
