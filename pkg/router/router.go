@@ -12,6 +12,7 @@ import (
 	"git.containerum.net/ch/api-gateway/pkg/router/middleware"
 	"git.containerum.net/ch/api-gateway/pkg/store"
 
+	clickhouse "git.containerum.net/ch/api-gateway/pkg/utils/clickhouselog"
 	"git.containerum.net/ch/grpc-proto-files/auth"
 	"git.containerum.net/ch/ratelimiter"
 
@@ -26,12 +27,13 @@ import (
 type Router struct {
 	*chi.Mux
 	*sync.Mutex
-	listeners   map[string]*model.Listener
-	store       *store.Store
-	authClient  *auth.AuthClient
-	statsClient *statsd.Statter
-	rateClient  **ratelimiter.PerIPLimiter
-	stopSync    chan struct{}
+	listeners              map[string]*model.Listener
+	store                  *store.Store
+	authClient             *auth.AuthClient
+	statsClient            *statsd.Statter
+	rateClient             **ratelimiter.PerIPLimiter
+	clickhouseLoggerClient *clickhouse.LogClient
+	stopSync               chan struct{}
 }
 
 //CreateRouter create and return HTTP handle router
@@ -49,7 +51,7 @@ func CreateRouter() *Router {
 func (r *Router) InitRoutes() {
 	//Init middleware
 	r.Use(middleware.ClearXHeaders)
-	r.Use(middleware.Logger(r.statsClient))
+	r.Use(middleware.Logger(r.statsClient, r.clickhouseLoggerClient))
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Rate(r.rateClient))
 	r.Use(chimid.Recoverer)
@@ -79,6 +81,11 @@ func (r *Router) RegisterStatsd(s *statsd.Statter) {
 //RegisterRatelimiter registre statsd interface in router
 func (r *Router) RegisterRatelimiter(l *ratelimiter.PerIPLimiter) {
 	*(r.rateClient) = l
+}
+
+//RegisterClickhouseLogger registre clickhouse logger client
+func (r *Router) RegisterClickhouseLogger(cl *clickhouse.LogClient) {
+	r.clickhouseLoggerClient = cl
 }
 
 //Start init all active routes
@@ -215,6 +222,7 @@ func (r *Router) updateRoutes(listenersNew *map[string]model.Listener, listeners
 	route.RegisterRatelimiter(*r.rateClient)
 	route.RegisterAuth(r.authClient)
 	route.RegisterStatsd(r.statsClient)
+	route.RegisterClickhouseLogger(r.clickhouseLoggerClient)
 	route.InitRoutes()
 
 	for _, listener := range *listenersNew {

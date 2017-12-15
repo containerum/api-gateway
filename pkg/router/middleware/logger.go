@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"time"
 
+	clickhouse "git.containerum.net/ch/api-gateway/pkg/utils/clickhouselog"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/cactus/go-statsd-client/statsd"
 )
@@ -50,7 +52,7 @@ func (lw *loggerWritter) BytesWritten() int {
 	return lw.bytes
 }
 
-func Logger(stats *statsd.Statter) func(http.Handler) http.Handler {
+func Logger(stats *statsd.Statter, clickLogs *clickhouse.LogClient) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			start := time.Now()
@@ -73,6 +75,18 @@ func Logger(stats *statsd.Statter) func(http.Handler) http.Handler {
 				s.Inc(methodCall, 1, 1.0)
 				s.Inc(statusCallNamed, 1, 1.0)
 			}
+
+			//Write Log to Clickhouse
+			clickLogs.WriteLog(clickhouse.LogRecord{
+				Method:       r.Method,
+				RequestTime:  time.Now(),
+				RequestSize:  uint(r.ContentLength),
+				ResponseSize: uint(lw.BytesWritten()),
+				User:         "unknow",
+				Path:         r.RequestURI,
+				Latency:      latency,
+				ID:           w.Header().Get("X-Request-ID"),
+			})
 
 			//Write log after
 			log.WithFields(log.Fields{
