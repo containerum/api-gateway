@@ -102,6 +102,12 @@ var flags = []cli.Flag{
 		Usage:  "Limit requests per second",
 		Value:  "3",
 	},
+	cli.StringFlag{
+		EnvVar: "CLICKHOUSE_LOGGER",
+		Name:   "clickhouse-logger",
+		Usage:  "Write all logs to clickhouse",
+		Value:  "88.99.160.131:7777",
+	},
 }
 
 var commands = []cli.Command{

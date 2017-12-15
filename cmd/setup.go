@@ -95,10 +95,11 @@ func setupStatsd(c *cli.Context) *statsd.Statter {
 }
 
 func setupClickhouseLogger(c *cli.Context) *clickhouse.LogClient {
-	client, err := clickhouse.OpenConenction("88.99.160.131:7777")
+	client, err := clickhouse.OpenConenction(c.String("clickhouse-logger"))
 	if err != nil {
 		log.WithFields(log.Fields{
-			"Err": err,
+			"Err":     err,
+			"Address": c.String("clickhouse-logger"),
 		}).Warning("Setup Clickhouse Logger failed")
 	}
 	return client
