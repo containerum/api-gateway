@@ -25,6 +25,7 @@ func CreateManageRouter(router *Router) http.Handler {
 
 func getAllRouter(router *Router) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Request-Name", "get_all_router")
 		st := *router.store
 		listners, _ := st.GetListenerList(&model.Listener{})
 		w.WriteHeader(http.StatusOK)
@@ -34,6 +35,7 @@ func getAllRouter(router *Router) http.HandlerFunc {
 
 func getRouter(router *Router) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Request-Name", "get_router")
 		id := chi.URLParam(r, "id")
 		if l, ok := router.listeners[id]; ok {
 			w.WriteHeader(http.StatusOK)
@@ -47,6 +49,7 @@ func getRouter(router *Router) http.HandlerFunc {
 
 func createRouter(router *Router) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Request-Name", "create_router")
 		st := *router.store
 		errAnswer := make(map[string]interface{}, 1)
 		decoder := json.NewDecoder(r.Body)
@@ -77,9 +80,9 @@ func createRouter(router *Router) http.HandlerFunc {
 	}
 }
 
-//TODO: update all listeners, but not only active
 func updateRouter(router *Router) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Request-Name", "update_router")
 		st := *router.store
 		decoder := json.NewDecoder(r.Body)
 		id := chi.URLParam(r, "id")
@@ -107,6 +110,7 @@ func updateRouter(router *Router) http.HandlerFunc {
 
 func deleteRouter(router *Router) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Request-Name", "delete_router")
 		st := *router.store
 		id := chi.URLParam(r, "id")
 		if err := st.DeleteListener(id); err != nil {
