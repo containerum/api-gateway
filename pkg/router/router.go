@@ -179,12 +179,10 @@ func (r *Router) addRoute(target model.Listener) {
 
 	if target.OAuth {
 		r.With(middleware.CheckAuthToken(r.authClient)).MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
-			w.Header().Set("X-Request-Name", target.GetSnakeName())
 			buildProxy(&target, w, req)
 		})
 	} else {
 		r.MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
-			w.Header().Set("X-Request-Name", target.GetSnakeName())
 			buildProxy(&target, w, req)
 		})
 	}
@@ -246,6 +244,10 @@ func (r *Router) updateRoutes(listenersNew *map[string]model.Listener, listeners
 // TODO: Run before plugins
 // TODO: Run after plugins
 func buildProxy(target *model.Listener, w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("X-Request-Name", target.GetSnakeName())
+	w.Header().Set("X-Gateway-ID", target.ID)
+	w.Header().Set("X-Upstream", target.UpstreamURL)
+
 	p := proxy.CreateProxy(target)
 	p.ServeHTTP(w, req)
 }

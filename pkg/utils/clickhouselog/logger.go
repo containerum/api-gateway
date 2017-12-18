@@ -19,6 +19,16 @@ type LogRecord struct {
 	Path         string        `json:"path"`
 	Latency      time.Duration `json:"latency"`
 	ID           string        `json:"id"`
+
+	Status          uint   `json:"status"`
+	Upstream        string `json:"upstream"`
+	UserAgent       string `json:"user_agent"`
+	Fingerprint     string `json:"fingerprint"`
+	RequestHeaders  string `json:"request_headers"`
+	RequestBody     string `json:"request_body"`
+	ResponseHeaders string `json:"response_headers"`
+	ResponseBody    string `json:"response_body"`
+	GatewayID       string `json:"gateway_id"`
 }
 
 func OpenConenction(addr string) (*LogClient, error) {
