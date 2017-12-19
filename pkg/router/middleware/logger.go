@@ -1,8 +1,13 @@
 package middleware
 
 import (
+	"crypto/aes"
+	"crypto/cipher"
+	"crypto/rand"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -10,6 +15,8 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/cactus/go-statsd-client/statsd"
+
+	b64 "encoding/base64"
 )
 
 type LoggerResponseWritter interface {
@@ -90,28 +97,21 @@ func Logger(stats *statsd.Statter, clickLogs *clickhouse.LogClient) func(http.Ha
 				// TODO
 			}
 
-			headersRequest, err := json.Marshal(r.Header)
-			if err != nil {
-				//TODO
+			userID := w.Header().Get("X-User-ID")
+			if userID == "" {
+				userID = "unknow"
 			}
 
-			headersResponse, err := json.Marshal(w.Header())
-			if err != nil {
-				// TODO
-			}
-
-			userId := w.Header().Get("X-User-ID")
-			if userId == "" {
-				userId = "unknow"
-			}
-
+			//TODO ADD secret to env
 			//Write Log to Clickhouse
-			clickLogs.WriteLog(clickhouse.LogRecord{
+			logKeyStr := fmt.Sprintf("%s+%s", w.Header().Get("X-Request-ID"), "Secret")
+			logKey := sha256.Sum256([]byte(logKeyStr))
+			logRecord := clickhouse.LogRecord{
 				Method:          r.Method,
 				RequestTime:     time.Now(),
 				RequestSize:     uint(r.ContentLength),
 				ResponseSize:    uint(lw.BytesWritten()),
-				User:            userId,
+				User:            userID,
 				Path:            r.RequestURI,
 				Latency:         latency,
 				ID:              w.Header().Get("X-Request-ID"),
@@ -119,12 +119,13 @@ func Logger(stats *statsd.Statter, clickLogs *clickhouse.LogClient) func(http.Ha
 				Upstream:        w.Header().Get("X-Upstream"),
 				UserAgent:       r.UserAgent(),
 				Fingerprint:     w.Header().Get("X-User-Fingerprint"),
-				RequestHeaders:  string(headersRequest),
-				RequestBody:     string(reqBody),
-				ResponseHeaders: string(headersResponse),
-				ResponseBody:    string(lw.Bytes()),
+				RequestHeaders:  makeBase64Headers(r.Header, logKey[:]),
+				RequestBody:     makebase64Body(reqBody, logKey[:]),
+				ResponseHeaders: makeBase64Headers(lw.Header(), logKey[:]),
+				ResponseBody:    makebase64Body(lw.Bytes(), logKey[:]),
 				GatewayID:       w.Header().Get("X-Gateway-ID"),
-			})
+			}
+			clickLogs.WriteLog(logRecord)
 
 			//Write log after
 			log.WithFields(log.Fields{
@@ -138,4 +139,31 @@ func Logger(stats *statsd.Statter, clickLogs *clickhouse.LogClient) func(http.Ha
 			}).Info("Request")
 		})
 	}
+}
+
+func makeBase64Headers(headers http.Header, key []byte) string {
+	headers64, err := json.Marshal(headers)
+	if err != nil {
+		return err.Error()
+	}
+	return makebase64Body(headers64, key)
+}
+
+func makebase64Body(body []byte, key []byte) string {
+	block, err := aes.NewCipher(key)
+	if err != nil {
+		panic(err)
+	}
+
+	cipherdata := make([]byte, aes.BlockSize+len(body))
+	iv := cipherdata[:aes.BlockSize]
+	if _, err := io.ReadFull(rand.Reader, iv); err != nil {
+		panic(err)
+	}
+
+	stream := cipher.NewCFBEncrypter(block, iv)
+	stream.XORKeyStream(cipherdata[aes.BlockSize:], body)
+
+	// convert to base64
+	return b64.URLEncoding.EncodeToString(cipherdata)
 }

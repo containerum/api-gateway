@@ -2,6 +2,7 @@ package clickhouselog
 
 import (
 	"encoding/json"
+	"fmt"
 	"net"
 	"time"
 )
@@ -11,24 +12,23 @@ type LogClient struct {
 }
 
 type LogRecord struct {
-	Method       string        `json:"method"`
-	RequestTime  time.Time     `json:"request_time"`
-	RequestSize  uint          `json:"request_size"`
-	ResponseSize uint          `json:"response_size"`
-	User         string        `json:"user"`
-	Path         string        `json:"path"`
-	Latency      time.Duration `json:"latency"`
-	ID           string        `json:"id"`
-
-	Status          uint   `json:"status"`
-	Upstream        string `json:"upstream"`
-	UserAgent       string `json:"user_agent"`
-	Fingerprint     string `json:"fingerprint"`
-	RequestHeaders  string `json:"request_headers"`
-	RequestBody     string `json:"request_body"`
-	ResponseHeaders string `json:"response_headers"`
-	ResponseBody    string `json:"response_body"`
-	GatewayID       string `json:"gateway_id"`
+	Method          string        `json:"method"`
+	RequestTime     time.Time     `json:"request_time"`
+	RequestSize     uint          `json:"request_size"`
+	ResponseSize    uint          `json:"response_size"`
+	User            string        `json:"user"`
+	Path            string        `json:"path"`
+	Latency         time.Duration `json:"latency"`
+	ID              string        `json:"id"`
+	Status          uint          `json:"status"`
+	Upstream        string        `json:"upstream"`
+	UserAgent       string        `json:"user_agent"`
+	Fingerprint     string        `json:"fingerprint"`
+	RequestHeaders  string        `json:"request_headers,omitempty"`
+	RequestBody     string        `json:"request_body,omitempty"`
+	ResponseHeaders string        `json:"response_headers,omitempty"`
+	ResponseBody    string        `json:"response_body,omitempty"`
+	GatewayID       string        `json:"gateway_id"`
 }
 
 func OpenConenction(addr string) (*LogClient, error) {
@@ -49,6 +49,9 @@ func (lc *LogClient) WriteLog(lr LogRecord) error {
 	if err != nil {
 		return err
 	}
-	_, err = lc.con.Write(js)
+	fmt.Printf("\n%v\n", string(js))
+	n, err := lc.con.Write(js)
+	fmt.Printf("\nLenght %v\n", n)
+
 	return err
 }
