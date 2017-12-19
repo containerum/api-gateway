@@ -100,13 +100,18 @@ func Logger(stats *statsd.Statter, clickLogs *clickhouse.LogClient) func(http.Ha
 				// TODO
 			}
 
+			userId := w.Header().Get("X-User-ID")
+			if userId == "" {
+				userId = "unknow"
+			}
+
 			//Write Log to Clickhouse
 			clickLogs.WriteLog(clickhouse.LogRecord{
 				Method:          r.Method,
 				RequestTime:     time.Now(),
 				RequestSize:     uint(r.ContentLength),
 				ResponseSize:    uint(lw.BytesWritten()),
-				User:            "unknow",
+				User:            userId,
 				Path:            r.RequestURI,
 				Latency:         latency,
 				ID:              w.Header().Get("X-Request-ID"),
