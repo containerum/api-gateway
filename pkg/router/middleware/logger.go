@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -15,6 +16,7 @@ type LoggerResponseWritter interface {
 	http.ResponseWriter
 	Status() int
 	BytesWritten() int
+	Bytes() []byte
 }
 
 type loggerWritter struct {
@@ -22,6 +24,7 @@ type loggerWritter struct {
 	wroteHeader bool
 	code        int
 	bytes       int
+	bytesArr    []byte
 	headers     []string
 }
 
@@ -41,6 +44,7 @@ func (lw *loggerWritter) Write(buf []byte) (int, error) {
 	lw.WriteHeader(http.StatusOK)
 	n, err := lw.ResponseWriter.Write(buf)
 	lw.bytes += n
+	lw.bytesArr = append(lw.bytesArr, buf...)
 	return n, err
 }
 
@@ -50,6 +54,10 @@ func (lw *loggerWritter) Status() int {
 
 func (lw *loggerWritter) BytesWritten() int {
 	return lw.bytes
+}
+
+func (lw *loggerWritter) Bytes() []byte {
+	return lw.bytesArr
 }
 
 func Logger(stats *statsd.Statter, clickLogs *clickhouse.LogClient) func(http.Handler) http.Handler {
@@ -76,16 +84,46 @@ func Logger(stats *statsd.Statter, clickLogs *clickhouse.LogClient) func(http.Ha
 				s.Inc(statusCallNamed, 1, 1.0)
 			}
 
+			var reqBody []byte
+			_, err := r.Body.Read(reqBody)
+			if err != nil {
+				// TODO
+			}
+
+			headersRequest, err := json.Marshal(r.Header)
+			if err != nil {
+				//TODO
+			}
+
+			headersResponse, err := json.Marshal(w.Header())
+			if err != nil {
+				// TODO
+			}
+
+			userId := w.Header().Get("X-User-ID")
+			if userId == "" {
+				userId = "unknow"
+			}
+
 			//Write Log to Clickhouse
 			clickLogs.WriteLog(clickhouse.LogRecord{
-				Method:       r.Method,
-				RequestTime:  time.Now(),
-				RequestSize:  uint(r.ContentLength),
-				ResponseSize: uint(lw.BytesWritten()),
-				User:         "unknow",
-				Path:         r.RequestURI,
-				Latency:      latency,
-				ID:           w.Header().Get("X-Request-ID"),
+				Method:          r.Method,
+				RequestTime:     time.Now(),
+				RequestSize:     uint(r.ContentLength),
+				ResponseSize:    uint(lw.BytesWritten()),
+				User:            userId,
+				Path:            r.RequestURI,
+				Latency:         latency,
+				ID:              w.Header().Get("X-Request-ID"),
+				Status:          uint(lw.Status()),
+				Upstream:        w.Header().Get("X-Upstream"),
+				UserAgent:       r.UserAgent(),
+				Fingerprint:     w.Header().Get("X-User-Fingerprint"),
+				RequestHeaders:  string(headersRequest),
+				RequestBody:     string(reqBody),
+				ResponseHeaders: string(headersResponse),
+				ResponseBody:    string(lw.Bytes()),
+				GatewayID:       w.Header().Get("X-Gateway-ID"),
 			})
 
 			//Write log after
