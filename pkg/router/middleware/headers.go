@@ -23,7 +23,7 @@ func (m *ModifierMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// we copy the original headers and remove X-headers from response
 	for k, v := range rec.Header() {
 		if xHeaderRegexp.MatchString(k) {
-			log.WithField("Header", k).Debug("Header deleted from response")
+			log.WithField("Header", k).WithField("Value", v).Debug("Header deleted from response")
 			continue
 		}
 		w.Header()[k] = v

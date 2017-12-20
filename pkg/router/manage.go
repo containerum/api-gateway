@@ -13,13 +13,15 @@ import (
 //CreateManageRouter return manage handlers
 func CreateManageRouter(router *Router) http.Handler {
 	r := chi.NewRouter()
-	// Router headers
+	// Router handlers
 	r.Get("/route", getAllRouter(router))
 	r.Post("/route", createRouter(router))
 	r.Get("/route/{id}", getRouter(router))
 	r.Put("/route/{id}", updateRouter(router))
 	r.Delete("/route/{id}", deleteRouter(router))
-	// r.Get("/group/{group-id}/route", getAllRouter(router))
+	// Group handlers
+	r.Get("/group", getAllGroup(router))
+	r.Post("/group", createGroup(router))
 	return r
 }
 
@@ -27,7 +29,11 @@ func getAllRouter(router *Router) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Request-Name", "get_all_router")
 		st := *router.store
-		listners, _ := st.GetListenerList(&model.Listener{})
+		listners, err := st.GetListenerList(&model.Listener{})
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
 		w.WriteHeader(http.StatusOK)
 		WriteJSON(w, listners)
 	}
@@ -87,20 +93,24 @@ func updateRouter(router *Router) http.HandlerFunc {
 		decoder := json.NewDecoder(r.Body)
 		id := chi.URLParam(r, "id")
 		if listener, err := st.GetListener(id); err != nil {
+			w.Header().Set("X-Error", err.Error())
 			w.WriteHeader(http.StatusNoContent)
 		} else {
 			var listenerNew model.Listener
 			if err := decoder.Decode(&listenerNew); err != nil {
+				w.Header().Set("X-Error", err.Error())
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
-			if listenerNew.Valid() != nil {
+			if err := listenerNew.Valid(); err != nil {
+				w.Header().Set("X-Error", err.Error())
 				w.WriteHeader(http.StatusBadRequest)
 				return
 			}
 
 			listenerNew.ID = listener.ID
 			if err := st.UpdateListener(&listenerNew); err != nil {
+				w.Header().Set("X-Error", err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
@@ -118,5 +128,52 @@ func deleteRouter(router *Router) http.HandlerFunc {
 			return
 		}
 		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func getAllGroup(router *Router) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Request-Name", "get_all_group")
+		st := *router.store
+		groups, err := st.GetGroupList(&model.Group{})
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		WriteJSON(w, groups)
+	}
+}
+
+func createGroup(router *Router) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Request-Name", "create_group")
+		st := *router.store
+		errAnswer := make(map[string]interface{}, 1)
+		decoder := json.NewDecoder(r.Body)
+
+		var groupNew model.Group
+		if err := decoder.Decode(&groupNew); err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			WriteJSON(w, err)
+			return
+		}
+
+		if err := groupNew.Valid(); err != nil {
+			errAnswer["Error"] = err.Error()
+			w.WriteHeader(http.StatusBadRequest)
+			WriteJSON(w, errAnswer)
+			return
+		}
+
+		groupSaved, err := st.CreateGroup(&groupNew)
+		if err != nil {
+			errAnswer["Error"] = fmt.Errorf("Can not add record: Group: %v", groupNew)
+			w.WriteHeader(http.StatusInternalServerError)
+			WriteJSON(w, errAnswer)
+		}
+
+		w.WriteHeader(http.StatusOK)
+		WriteJSON(w, groupSaved)
 	}
 }

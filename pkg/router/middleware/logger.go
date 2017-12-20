@@ -128,15 +128,36 @@ func Logger(stats *statsd.Statter, clickLogs *clickhouse.LogClient) func(http.Ha
 			clickLogs.WriteLog(logRecord)
 
 			//Write log after
-			log.WithFields(log.Fields{
-				"Method":       r.Method,
-				"Path":         r.RequestURI,
-				"Latency":      fmt.Sprintf("%v", latency),
-				"Status":       lw.Status(),
-				"RequestID":    w.Header().Get("X-Request-ID"),
-				"ResponseSize": lw.BytesWritten(),
-				"RequestSize":  r.ContentLength,
-			}).Info("Request")
+			if log.GetLevel() == log.InfoLevel {
+				log.WithFields(log.Fields{
+					"Method":       r.Method,
+					"Path":         r.RequestURI,
+					"Latency":      fmt.Sprintf("%v", latency),
+					"Status":       lw.Status(),
+					"RequestID":    w.Header().Get("X-Request-ID"),
+					"ResponseSize": lw.BytesWritten(),
+					"RequestSize":  r.ContentLength,
+				}).Info("Request")
+			} else {
+				log.WithFields(log.Fields{
+					"Method":       r.Method,
+					"Path":         r.RequestURI,
+					"Latency":      fmt.Sprintf("%v", latency),
+					"Status":       lw.Status(),
+					"RequestID":    w.Header().Get("X-Request-ID"),
+					"ResponseSize": lw.BytesWritten(),
+					"RequestSize":  r.ContentLength,
+					"User":         userID,
+					"Upstream":     w.Header().Get("X-Upstream"),
+					"UserAgent":    r.UserAgent(),
+					"Fingerprint":  w.Header().Get("X-User-Fingerprint"),
+					// "RequestHeaders":  string(r.Header),
+					"RequestBody": string(reqBody),
+					// "ResponseHeaders": string(lw.Header()),
+					"ResponseBody": string(lw.Bytes()),
+					"GatewayID":    w.Header().Get("X-Gateway-ID"),
+				}).Info("Request")
+			}
 		})
 	}
 }

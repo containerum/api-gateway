@@ -20,10 +20,12 @@ type Listener struct {
 	Name         string `gorm:"not null" structs:"name"`
 	nameSnake    string
 
-	Roles []Role `structs:"roles"`
-	//TODO: Add Group
-	OAuth  bool `structs:"o_auth"`
-	Active bool `structs:"active"`
+	Roles  []Role `structs:"roles"`
+	OAuth  bool   `structs:"o_auth"`
+	Active bool   `structs:"active"`
+
+	Group      Group  `gorm:"ForeignKey:GroupRefer" structs:"group"`
+	GroupRefer string `structs:"-" json:"-"`
 
 	StripPath   bool   `structs:"strip_path"`
 	ListenPath  string `gorm:"not null" structs:"listen_path"`
