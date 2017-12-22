@@ -10,12 +10,12 @@ import (
 )
 
 //Rate limitate reuests per second
-func Rate(limiter **rate.PerIPLimiter) func(http.Handler) http.Handler {
+func Rate(limiter *rate.PerIPLimiter) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if *limiter != nil {
+			if limiter != nil {
 				host, _, _ := net.SplitHostPort(r.RemoteAddr)
-				ok, _ := (*limiter).Limit(host)
+				ok, _ := limiter.Limit(host)
 				log.WithFields(log.Fields{
 					"Host":   host,
 					"Status": ok,

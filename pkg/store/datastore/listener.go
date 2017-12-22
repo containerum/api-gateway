@@ -30,7 +30,7 @@ func (d *datastore) GetListenerList(l *model.Listener) (*[]model.Listener, error
 }
 
 //UpdateListener updates model in DB
-func (d *datastore) UpdateListener(l *model.Listener) error {
+func (d *datastore) UpdateListener(l *model.Listener, utype int) error {
 	return d.Model(l).Update(model.Listener{
 		Method:      l.Method,
 		Active:      l.Active,

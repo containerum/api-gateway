@@ -1,7 +1,6 @@
 package router
 
 import (
-	"encoding/json"
 	"net/http"
 	"strings"
 	"sync"
@@ -31,7 +30,7 @@ type Router struct {
 	store                  *store.Store
 	authClient             *auth.AuthClient
 	statsClient            *statsd.Statter
-	rateClient             **ratelimiter.PerIPLimiter
+	rateClient             *ratelimiter.PerIPLimiter
 	clickhouseLoggerClient *clickhouse.LogClient
 	stopSync               chan struct{}
 }
@@ -41,7 +40,7 @@ func CreateRouter() *Router {
 	return &Router{
 		Mux:        chi.NewRouter(),
 		Mutex:      &sync.Mutex{},
-		rateClient: new(*ratelimiter.PerIPLimiter),
+		rateClient: &ratelimiter.PerIPLimiter{},
 		listeners:  make(map[string]*model.Listener),
 		stopSync:   make(chan struct{}, 1),
 	}
@@ -80,7 +79,7 @@ func (r *Router) RegisterStatsd(s *statsd.Statter) {
 
 //RegisterRatelimiter registre statsd interface in router
 func (r *Router) RegisterRatelimiter(l *ratelimiter.PerIPLimiter) {
-	*(r.rateClient) = l
+	r.rateClient = l
 }
 
 //RegisterClickhouseLogger registre clickhouse logger client
@@ -91,7 +90,8 @@ func (r *Router) RegisterClickhouseLogger(cl *clickhouse.LogClient) {
 //Start init all active routes
 func (r *Router) Start(syncPeriod time.Duration) {
 	st := *r.store
-	listeners, err := st.GetListenerList(&model.Listener{Active: true})
+	active := true
+	listeners, err := st.GetListenerList(&model.Listener{Active: &active})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Err": err,
@@ -120,7 +120,8 @@ func (r *Router) Start(syncPeriod time.Duration) {
 //Synchronize check route updates and accept it
 func (r *Router) Synchronize() {
 	st := *r.store
-	listeners, err := st.GetListenerList(&model.Listener{Active: true})
+	active := true
+	listeners, err := st.GetListenerList(&model.Listener{Active: &active})
 	if err != nil {
 		log.WithError(err)
 	}
@@ -156,17 +157,6 @@ func (r *Router) Synchronize() {
 	r.updateRoutes(&listenersNew, &listenersUpdate, &listenersDelete)
 }
 
-//WriteJSON render JSON
-func WriteJSON(w http.ResponseWriter, obj interface{}) error {
-	w.Header().Set("Content-Type", "application/json")
-	jsonBytes, err := json.Marshal(obj)
-	if err != nil {
-		return err
-	}
-	w.Write(jsonBytes)
-	return nil
-}
-
 //addRoute append new http route
 func (r *Router) addRoute(target model.Listener) {
 	r.Lock()
@@ -174,10 +164,7 @@ func (r *Router) addRoute(target model.Listener) {
 
 	//Add handler
 	method := strings.ToUpper(target.Method)
-	log.Debug(method)
-	log.Debug(target)
-
-	if target.OAuth {
+	if target.OAuth != nil && *target.OAuth {
 		r.With(middleware.CheckAuthToken(r.authClient)).MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
 			buildProxy(&target, w, req)
 		})
@@ -189,9 +176,9 @@ func (r *Router) addRoute(target model.Listener) {
 	r.listeners[target.ID] = &target
 
 	log.WithFields(log.Fields{
-		"ListenPath":  target.ListenPath,
-		"Method":      method,
-		"Roles":       target.Roles,
+		"ListenPath": target.ListenPath,
+		"Method":     method,
+		// "Roles":       target.Roles,
 		"Active":      target.Active,
 		"Name":        target.Name,
 		"UpstreamURL": target.UpstreamURL,
@@ -217,7 +204,7 @@ func (r *Router) updateRoutes(listenersNew *map[string]model.Listener, listeners
 	r.stopSync <- struct{}{} //Stop sync
 	route := CreateRouter()
 	route.RegisterStore(r.store)
-	route.RegisterRatelimiter(*r.rateClient)
+	route.RegisterRatelimiter(r.rateClient)
 	route.RegisterAuth(r.authClient)
 	route.RegisterStatsd(r.statsClient)
 	route.RegisterClickhouseLogger(r.clickhouseLoggerClient)
