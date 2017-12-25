@@ -13,7 +13,7 @@ func Cors() *cors.Cors {
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "DELETE", "PUT", "PATH", "OPTIONS"},
-		AllowedHeaders:   []string{"Content-Type", "User-Client"},
+		AllowedHeaders:   []string{"Content-Type", "User-Client", "Authorization"},
 		Debug:            true,
 	})
 }
