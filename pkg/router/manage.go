@@ -102,8 +102,11 @@ func updateRouter(router *Router) http.HandlerFunc {
 
 			//Activate update
 			if err := listenerNew.ValidateUpdateActive(); len(err) != 0 {
-				WriteAnswer(http.StatusOK, listenerNew, nil, reqName, w)
-				return
+				if err := st.UpdateListener(&listenerNew, model.ListenerUpdateActive); err != nil {
+					WriteAnswer(http.StatusInternalServerError, nil, &[]error{err}, reqName, w)
+					return
+				}
+				validErr = err
 			}
 
 			if len(validErr) != 0 {
