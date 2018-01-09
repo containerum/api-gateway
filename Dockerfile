@@ -35,4 +35,4 @@ ENV GATEWAY_DEBUG=false \
 # run app
 ENTRYPOINT ["/ch-gateway"]
 
-EXPOSE 8081
+EXPOSE 8082
