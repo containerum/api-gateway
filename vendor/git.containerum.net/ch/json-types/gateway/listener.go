@@ -13,7 +13,7 @@ type ListenerJSON struct {
 	GroupID     *string    `json:"group_id,omitempty"`
 	StripPath   *bool      `json:"strip_path,omitempty"`
 	ListenPath  *string    `json:"listen_path,omitempty"`
-	UpstreamURL *string    `json:"usptream_url,omitempty"`
+	UpstreamURL *string    `json:"upstream_url,omitempty"`
 	Method      *string    `json:"method,omitempty"`
 	// Plugins     []Plugin  `json:"deleted_at,omitempty"`
 }
