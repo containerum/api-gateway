@@ -8,10 +8,10 @@
   revision = "a37cf53c18640c19d94263e11ddd4735fa79c9fe"
 
 [[projects]]
-  branch = "master"
+  branch = "develop"
   name = "git.containerum.net/ch/json-types"
   packages = ["gateway"]
-  revision = "601742d58eed0f934e2f1e360a56984cec381cff"
+  revision = "b1668a7e3f55c4415f617cab263595e8d258449c"
 
 [[projects]]
   branch = "master"
