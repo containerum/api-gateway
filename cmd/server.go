@@ -102,6 +102,6 @@ func setLogFormat(c *cli.Context) error {
 func listenAndServe(handler http.Handler) error {
 	//TODO: Move Cors to middleware
 	c := middleware.Cors()
-	server := &http.Server{Addr: ":8081", Handler: c.Handler(handler)}
+	server := &http.Server{Addr: ":8082", Handler: c.Handler(handler)}
 	return server.ListenAndServe()
 }

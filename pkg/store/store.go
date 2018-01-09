@@ -22,9 +22,12 @@ type Store interface {
 	GetListener(id string) (*model.Listener, error)
 	FindListener(l *model.Listener) (*model.Listener, error)
 	GetListenerList(l *model.Listener) (*[]model.Listener, error)
-	UpdateListener(l *model.Listener) error
+	UpdateListener(l *model.Listener, utype int) error
 	CreateListener(l *model.Listener) (*model.Listener, error)
 	DeleteListener(id string) error
+	/* Group */
+	GetGroupList(g *model.Group) (*model.Group, error)
+	CreateGroup(g *model.Group) (*model.Group, error)
 }
 
 //New create new Store interface for working with data
@@ -58,8 +61,8 @@ func GetListenerList(c context.Context, l *model.Listener) (*[]model.Listener, e
 	return FromContext(c).GetListenerList(l)
 }
 
-func UpdateListener(c context.Context, l *model.Listener) error {
-	return FromContext(c).UpdateListener(l)
+func UpdateListener(c context.Context, l *model.Listener, utype int) error {
+	return FromContext(c).UpdateListener(l, utype)
 }
 
 func CreateListener(c context.Context, l *model.Listener) (*model.Listener, error) {
@@ -68,6 +71,14 @@ func CreateListener(c context.Context, l *model.Listener) (*model.Listener, erro
 
 func DeleteListener(c context.Context, id string) error {
 	return FromContext(c).DeleteListener(id)
+}
+
+func GetGroupList(c context.Context, g *model.Group) (*model.Group, error) {
+	return FromContext(c).GetGroupList(g)
+}
+
+func CreateGroup(c context.Context, g *model.Group) (*model.Group, error) {
+	return FromContext(c).CreateGroup(g)
 }
 
 func Init(c context.Context) error {

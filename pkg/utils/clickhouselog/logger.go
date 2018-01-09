@@ -2,7 +2,6 @@ package clickhouselog
 
 import (
 	"encoding/json"
-	"fmt"
 	"net"
 	"time"
 )
@@ -40,7 +39,6 @@ func OpenConenction(addr string) (*LogClient, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &LogClient{con: con}, nil
 }
 
@@ -49,9 +47,6 @@ func (lc *LogClient) WriteLog(lr LogRecord) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("\n%v\n", string(js))
-	n, err := lc.con.Write(js)
-	fmt.Printf("\nLenght %v\n", n)
-
+	_, err = lc.con.Write(js)
 	return err
 }

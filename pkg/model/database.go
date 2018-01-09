@@ -21,10 +21,10 @@ const timeFormat = "Monday, 02 Jan 2006 15:04:05 MST"
 
 //DefaultModel embedded struct in each Gorm Model
 type DefaultModel struct {
-	ID        string     `gorm:"type:uuid;primary_key;default:uuid_generate_v4()" structs:"id"`
-	CreatedAt time.Time  `structs:"-"`
-	UpdatedAt time.Time  `structs:"-"`
-	DeletedAt *time.Time `structs:"-"`
+	ID        string `gorm:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
 }
 
 func (dm DefaultModel) getMap() map[string]interface{} {
@@ -37,4 +37,13 @@ func (dm DefaultModel) getMap() map[string]interface{} {
 		model["deleted_at"] = "null"
 	}
 	return model
+}
+
+func getUnixTimeOrNil(t *time.Time) *int64 {
+	var unix int64
+	if t != nil {
+		unix = t.Unix()
+		return &unix
+	}
+	return nil
 }

@@ -9,6 +9,12 @@
 
 [[projects]]
   branch = "master"
+  name = "git.containerum.net/ch/json-types"
+  packages = ["gateway"]
+  revision = "601742d58eed0f934e2f1e360a56984cec381cff"
+
+[[projects]]
+  branch = "master"
   name = "git.containerum.net/ch/ratelimiter"
   packages = ["."]
   revision = "c71f27bc1d5491ffb0cd2f313458459f1f689f17"
@@ -18,6 +24,12 @@
   packages = ["."]
   revision = "f006c2ac4710855cf0f916dd6b77acf6b048dc6e"
   version = "v1.0.3"
+
+[[projects]]
+  name = "github.com/asaskevich/govalidator"
+  packages = ["."]
+  revision = "521b25f4b05fd26bec69d9dedeb8f9c9a83939a8"
+  version = "v8"
 
 [[projects]]
   name = "github.com/cactus/go-statsd-client"
@@ -124,6 +136,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9e56737a8c396a332087fac7a25a239958c224763df6c24dd69ed8cd7536af8c"
+  inputs-digest = "15e6adf46f76a44199752e8a2c6196c87619966a5d095cdf9477b618231a1eab"
   solver-name = "gps-cdcl"
   solver-version = 1
