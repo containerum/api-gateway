@@ -32,17 +32,6 @@ func (d *datastore) GetListenerList(l *model.Listener) (*[]model.Listener, error
 
 //UpdateListener updates model in DB
 func (d *datastore) UpdateListener(l *model.Listener, utype int) error {
-	switch utype {
-	case model.ListenerUpdateFull:
-		return d.Model(l).Update(model.Listener{
-			Method:      l.Method,
-			Active:      l.Active,
-			ListenPath:  l.ListenPath,
-			UpstreamURL: l.UpstreamURL,
-			OAuth:       l.OAuth,
-			StripPath:   l.StripPath,
-		}).Error
-	}
 	return errors.New("Not allowed update type")
 }
 
