@@ -1,4 +1,4 @@
-// +build !stub
+// +build stub
 
 package datastore
 
@@ -28,8 +28,7 @@ func (d *datastore) FindListener(l *model.Listener) (*model.Listener, error) {
 //GetListenerList find all listeers by input model
 func (d *datastore) GetListenerList(l *model.Listener) (*[]model.Listener, error) {
 	var listeners []model.Listener
-	err := d.Where(l).Find(&listeners).Error
-	return &listeners, err
+	return &listeners, nil
 }
 
 //UpdateListener updates model in DB
