@@ -31,7 +31,7 @@ func DeleteListener(c context.Context, id string) error {
 	return FromContext(c).DeleteListener(id)
 }
 
-func GetGroupList(c context.Context, g *model.Group) (*model.Group, error) {
+func GetGroupList(c context.Context, g *model.Group) (*[]model.Group, error) {
 	return FromContext(c).GetGroupList(g)
 }
 

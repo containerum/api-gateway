@@ -31,6 +31,7 @@ func (d *datastore) GetListenerList(l *model.Listener) (*[]model.Listener, error
 	err := d.Where(l).Find(&listeners).Error
 	if err != nil {
 		log.WithError(err).Error(reqName)
+		return nil, ErrUnableGetListeners
 	}
 	log.Debug(reqName)
 	return &listeners, nil
