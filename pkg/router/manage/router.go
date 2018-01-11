@@ -1,13 +1,15 @@
 package manage
 
+//TODO: RENAME router to listener
+
 import (
 	"encoding/json"
 	"errors"
 	"net/http"
 
-	"github.com/go-chi/chi"
-
 	"git.containerum.net/ch/api-gateway/pkg/model"
+
+	"github.com/go-chi/chi"
 )
 
 var (
@@ -34,8 +36,8 @@ func (m manage) GetAllRouter() http.HandlerFunc {
 
 //GetRouter return listeners by id
 func (m manage) GetRouter() http.HandlerFunc {
+	reqName := "Get router"
 	return func(w http.ResponseWriter, r *http.Request) {
-		reqName := "Get router"
 		id := chi.URLParam(r, "id")
 		listener, err := (*m.st).GetListener(id)
 		if err != nil {
@@ -69,19 +71,31 @@ func (m manage) CreateRouter() http.HandlerFunc {
 	}
 }
 
-//TODO: write updating method
 //UpdateRouter update router
 func (m manage) UpdateRouter() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		reqName := "Update router"
-		// decoder := json.NewDecoder(r.Body)
+		decoder := json.NewDecoder(r.Body)
 		id := chi.URLParam(r, "id")
+		var listenerNew model.Listener
 		if _, err := (*m.st).GetListener(id); err != nil {
 			WriteAnswer(http.StatusNoContent, nil, &[]error{ErrUnableFindLisnener}, reqName, &w)
 			return
 		}
-		// update, err := listenerNew.GetUpdateType(id)
-
+		if err := decoder.Decode(&listenerNew); err != nil {
+			WriteAnswer(http.StatusBadRequest, nil, &[]error{ErrUnableDecodeListener}, reqName, &w)
+			return
+		}
+		update, err := listenerNew.GetUpdateType(id)
+		if update == model.ListenerUpdateNone {
+			WriteAnswer(http.StatusBadRequest, nil, &err, reqName, &w)
+			return
+		}
+		if err := (*m.st).UpdateListener(&listenerNew, update); err != nil {
+			WriteAnswer(http.StatusInternalServerError, nil, &[]error{err}, reqName, &w)
+			return
+		}
+		WriteAnswer(http.StatusOK, nil, nil, reqName, &w)
 	}
 }
 
