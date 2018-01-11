@@ -14,13 +14,14 @@ import (
 
 //ManagerHandlers implements manage handlers
 type ManagerHandlers interface {
+	//Listeners
 	GetAllRouter() http.HandlerFunc
 	GetRouter() http.HandlerFunc
 	CreateRouter() http.HandlerFunc
 	UpdateRouter() http.HandlerFunc
 	DeleteRouter() http.HandlerFunc
-
-	// getAllGroup(router *Router) http.HandlerFunc
+	//Groups
+	GetAllGroup() http.HandlerFunc
 	// createGroup(router *Router) http.HandlerFunc
 }
 
@@ -71,6 +72,11 @@ func WriteAnswer(status int, answerObject interface{}, errs *[]error, reqName st
 			logdec.DecorateLoggerWithRuntimeContext(errLogger).WithError(err).Error("Unable make error answer")
 		}
 	}
+	//If answer is NULL, write empty string
+	if string(answerBytes) == "null" {
+		answerBytes = []byte("")
+	}
+
 	(*w).WriteHeader(status)
 	(*w).Write(answerBytes)
 	return nil
