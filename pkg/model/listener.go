@@ -156,6 +156,8 @@ var (
 	ErrInvalidListenerUpstreamURL = fmt.Errorf("Invalid Upstream URL length. It must be more than %v and less than %v", listenerUpstreamURLLengthMin, listenerUpstreamURLLengthMax)
 	//ErrInvalidListenerActive - error when Active is nil
 	ErrInvalidListenerActive = errors.New("Param Active is empty")
+	//ErrInvalidListenerOAuth - error when OAuth is nil
+	ErrInvalidListenerOAuth = errors.New("Param OAuth is empty")
 )
 
 //ValidateCreate check model before insert
@@ -219,22 +221,29 @@ func (l *Listener) ValidateUpdateOAuth(id string) (err []error) {
 	}
 	l.ID = id
 	if l.OAuth == nil {
-		err = append(err, ErrInvalidListenerActive)
+		err = append(err, ErrInvalidListenerOAuth)
 	}
 	return
 }
 
 //GetUpdateType return update method
-func (l *Listener) GetUpdateType(id string) (ListenerUpdateType, []error) {
+func (l *Listener) GetUpdateType(id string) (utype ListenerUpdateType, errs []error) {
 	var err []error
 	if err = l.ValidateUpdate(id); len(err) == 0 {
-		return ListenerUpdateFull, err
+		utype = ListenerUpdateFull
+		return
 	}
+	errs = append(errs, err...)
 	if err = l.ValidateUpdateActive(id); len(err) == 0 {
-		return ListenerUpdateActive, err
+		utype = ListenerUpdateActive
+		return
 	}
+	errs = append(errs, err...)
 	if err = l.ValidateUpdateOAuth(id); len(err) == 0 {
-		return ListenerUpdateOAuth, err
+		utype = ListenerUpdateOAuth
+		return
 	}
-	return ListenerUpdateNone, err
+	errs = append(errs, err...)
+	utype = ListenerUpdateNone
+	return
 }
