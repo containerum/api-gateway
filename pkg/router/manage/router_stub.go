@@ -1,4 +1,4 @@
-// +build stub
+// +build ignore
 
 package manage
 
