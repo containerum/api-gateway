@@ -14,11 +14,18 @@ import (
 func (d *datastore) GetListener(id string) (*model.Listener, error) {
 	reqName := "GetListener call"
 	var listener model.Listener
-	d.Where("id = ?", id).First(&listener)
+	var group model.Group
+	if err := d.Where("id = ?", id).First(&listener).Error; err != nil {
+		return nil, nil
+	}
+	if err := d.Model(&listener).Related(&group, "GroupRefer").Error; err != nil {
+		return nil, nil
+	}
 	if listener.ID == "" {
 		log.WithError(ErrListenerIDIsEmpty).Error(reqName)
-		return &listener, ErrUnableFindListener
+		return nil, ErrUnableFindListener
 	}
+	listener.Group = group
 	log.Debug(reqName)
 	return &listener, nil
 }
@@ -32,6 +39,14 @@ func (d *datastore) GetListenerList(l *model.Listener) (*[]model.Listener, error
 	if err != nil {
 		log.WithError(err).Error(reqName)
 		return nil, ErrUnableGetListeners
+	}
+	for k, l := range listeners {
+		var group model.Group
+		if err := d.Model(&l).Related(&group, "GroupRefer").Error; err != nil {
+			log.WithError(err).WithField("Route ID", l.ID).Error(ErrUnableToGetGroupID)
+			continue
+		}
+		listeners[k].Group = group
 	}
 	log.Debug(reqName)
 	return &listeners, nil
@@ -80,7 +95,7 @@ func (d *datastore) UpdateListener(l *model.Listener, utype model.ListenerUpdate
 func (d *datastore) CreateListener(l *model.Listener) (*model.Listener, error) {
 	reqName := "CreateListener call"
 	d.NewRecord(l)
-	err := d.Save(l).Error
+	err := d.Save(&l).Error
 	if err != nil {
 		log.WithError(err).Error(reqName)
 		return nil, ErrUnableToCreateListener
