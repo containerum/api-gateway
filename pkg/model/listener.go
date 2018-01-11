@@ -13,6 +13,9 @@ import (
 	validator "github.com/asaskevich/govalidator"
 )
 
+//ListenerUpdateType keeps method type for update
+type ListenerUpdateType int
+
 const (
 	listenerNameLengthMin        = 4
 	listenerNameLengthMax        = 128
@@ -22,7 +25,7 @@ const (
 	listenerUpstreamURLLengthMax = 128
 
 	//ListenerUpdateNone when nothing to update
-	ListenerUpdateNone = iota
+	ListenerUpdateNone ListenerUpdateType = iota
 	//ListenerUpdateFull when update all params
 	ListenerUpdateFull
 	//ListenerUpdateActive when update only active
@@ -32,7 +35,7 @@ const (
 )
 
 var (
-	listenerMethods = []string{"GET", "POST"}
+	listenerMethods = []string{"GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"}
 )
 
 //Listener keeps proxy-router configs
@@ -90,8 +93,8 @@ func (l Listener) MarshalJSON() ([]byte, error) {
 }
 
 //UnmarshalJSON make Listener from json
-func (l Listener) UnmarshalJSON(b []byte) error {
-	var listenerJS model.ListenerJSON
+func (l *Listener) UnmarshalJSON(b []byte) error {
+	listenerJS := &model.ListenerJSON{}
 	if err := json.Unmarshal(b, listenerJS); err != nil {
 		return err
 	}
@@ -153,6 +156,8 @@ var (
 	ErrInvalidListenerUpstreamURL = fmt.Errorf("Invalid Upstream URL length. It must be more than %v and less than %v", listenerUpstreamURLLengthMin, listenerUpstreamURLLengthMax)
 	//ErrInvalidListenerActive - error when Active is nil
 	ErrInvalidListenerActive = errors.New("Param Active is empty")
+	//ErrInvalidListenerOAuth - error when OAuth is nil
+	ErrInvalidListenerOAuth = errors.New("Param OAuth is empty")
 )
 
 //ValidateCreate check model before insert
@@ -180,25 +185,65 @@ func (l *Listener) ValidateCreate() (err []error) {
 }
 
 //ValidateUpdate check model before update
-func (l *Listener) ValidateUpdate() (err []error) {
-	if !validator.IsUUID(l.ID) {
+func (l *Listener) ValidateUpdate(id string) (err []error) {
+	if !validator.IsUUID(id) {
 		err = append(err, ErrInvalidListenerID)
 	}
+	l.ID = id
 	err = append(err, l.ValidateCreate()...)
 	return
 }
 
 //ValidateUpdateActive check if possible to update Active field
-func (l *Listener) ValidateUpdateActive() (err []error) {
+func (l *Listener) ValidateUpdateActive(id string) (err []error) {
 	if l == nil {
 		err = append(err, ErrNilListener)
 		return
 	}
-	if !validator.IsUUID(l.ID) {
+	if !validator.IsUUID(id) {
 		err = append(err, ErrInvalidListenerID)
 	}
+	l.ID = id
 	if l.Active == nil {
 		err = append(err, ErrInvalidListenerActive)
 	}
+	return
+}
+
+//ValidateUpdateOAuth check if possible to update OAuth field
+func (l *Listener) ValidateUpdateOAuth(id string) (err []error) {
+	if l == nil {
+		err = append(err, ErrNilListener)
+		return
+	}
+	if !validator.IsUUID(id) {
+		err = append(err, ErrInvalidListenerID)
+	}
+	l.ID = id
+	if l.OAuth == nil {
+		err = append(err, ErrInvalidListenerOAuth)
+	}
+	return
+}
+
+//GetUpdateType return update method
+func (l *Listener) GetUpdateType(id string) (utype ListenerUpdateType, errs []error) {
+	var err []error
+	if err = l.ValidateUpdate(id); len(err) == 0 {
+		utype = ListenerUpdateFull
+		return
+	}
+	errs = append(errs, err...)
+	if err = l.ValidateUpdateActive(id); len(err) == 0 {
+		utype = ListenerUpdateActive
+		return
+	}
+	errs = append(errs, err...)
+	if err = l.ValidateUpdateOAuth(id); len(err) == 0 {
+		utype = ListenerUpdateOAuth
+		return
+	}
+	errs = append(errs, err...)
+	utype = ListenerUpdateNone
 	return
 }
