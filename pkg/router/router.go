@@ -56,10 +56,10 @@ func (r *Router) InitRoutes() {
 	r.Use(chimid.Recoverer)
 	// TODO: Add compression middleware
 
-	r.NotFound(noRouteHandler())              //Init Not Found page handler
-	r.HandleFunc("/", rootRouteHandler())     //Init root route handler
-	r.Mount("/manage", CreateManageRouter(r)) //Manage handlers
-	// router.HandleFunc("/status", statusHandler()) //Init status page handler
+	r.With(middleware.CheckAuthToken(r.authClient)).Mount("/manage", CreateManageRouter(r)) //Manage handlers
+
+	r.NotFound(noRouteHandler())          //Init Not Found page handler
+	r.HandleFunc("/", rootRouteHandler()) //Init root route handler
 }
 
 //RegisterStore registre store interface in router

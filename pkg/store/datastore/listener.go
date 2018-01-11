@@ -30,7 +30,6 @@ func (d *datastore) GetListener(id string) (*model.Listener, error) {
 	return &listener, nil
 }
 
-//TODO: Remove error from answer
 //GetListenerList find all listeers by input model
 func (d *datastore) GetListenerList(l *model.Listener) (*[]model.Listener, error) {
 	reqName := "GetListenerList call"

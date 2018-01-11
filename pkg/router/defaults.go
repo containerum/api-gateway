@@ -28,7 +28,7 @@ func noRouteHandler() http.HandlerFunc {
 
 func rootRouteHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello! I am API Gateway."))
+		w.Write([]byte("Containerum.io API Gateway"))
 	}
 }
 
