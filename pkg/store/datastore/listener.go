@@ -3,47 +3,99 @@
 package datastore
 
 import (
-	"errors"
-	"fmt"
+	"strings"
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 //GetListener find Listener by ID
 func (d *datastore) GetListener(id string) (*model.Listener, error) {
+	reqName := "GetListener call"
 	var listener model.Listener
 	d.Where("id = ?", id).First(&listener)
 	if listener.ID == "" {
-		return &listener, fmt.Errorf("Unable to find Listener with id = %v", id)
+		log.WithError(ErrListenerIDIsEmpty).Error(reqName)
+		return &listener, ErrUnableFindListener
 	}
+	log.Debug(reqName)
 	return &listener, nil
 }
 
-//FindListener find first listener by input model
-func (d *datastore) FindListener(l *model.Listener) (*model.Listener, error) {
-	var listener model.Listener
-	return &listener, nil
-}
-
+//TODO: Remove error from answer
 //GetListenerList find all listeers by input model
 func (d *datastore) GetListenerList(l *model.Listener) (*[]model.Listener, error) {
+	reqName := "GetListenerList call"
 	var listeners []model.Listener
 	err := d.Where(l).Find(&listeners).Error
-	return &listeners, err
+	if err != nil {
+		log.WithError(err).Error(reqName)
+	}
+	log.Debug(reqName)
+	return &listeners, nil
 }
 
 //UpdateListener updates model in DB
-func (d *datastore) UpdateListener(l *model.Listener, utype int) error {
-	return errors.New("Not allowed update type")
+func (d *datastore) UpdateListener(l *model.Listener, utype model.ListenerUpdateType) error {
+	reqName := "UpdateListener call"
+	if _, err := d.GetListener(l.ID); err != nil {
+		log.WithError(err).Error(reqName)
+		return err
+	}
+	switch utype {
+	case model.ListenerUpdateActive:
+		err := d.Model(l).Update("active", l.Active).Error
+		if err != nil {
+			log.WithError(err).Error(reqName)
+			return ErrUnableToUpdateListener
+		}
+		log.WithField("UpdateType", "ListenerUpdateActive").Debug(reqName)
+	case model.ListenerUpdateOAuth:
+		err := d.Model(l).Update("o_auth", l.OAuth).Error
+		if err != nil {
+			log.WithError(err).Error(reqName)
+			return ErrUnableToUpdateListener
+		}
+		log.WithField("UpdateType", "ListenerUpdateOAuth").Debug(reqName)
+	case model.ListenerUpdateFull:
+		err := d.Model(l).Update(
+			"name", l.Name,
+			"method", strings.ToUpper(l.Method),
+			"group_refer", l.GroupRefer,
+			"listen_path", l.ListenPath,
+			"upstream_url", l.UpstreamURL,
+		).Error
+		if err != nil {
+			log.WithError(err).Error(reqName)
+			return ErrUnableToUpdateListener
+		}
+		log.WithField("UpdateType", "ListenerUpdateFull").Debug(reqName)
+	}
+	return nil
 }
 
 //CreateListener create new listener in DB
 func (d *datastore) CreateListener(l *model.Listener) (*model.Listener, error) {
+	reqName := "CreateListener call"
 	d.NewRecord(l)
-	return l, d.Save(l).Error
+	err := d.Save(l).Error
+	if err != nil {
+		log.WithError(err).Error(reqName)
+		return nil, ErrUnableToCreateListener
+	}
+	log.Debug(reqName)
+	return l, nil
 }
 
 //DeleteListener delete listener in DB by ID
 func (d *datastore) DeleteListener(id string) error {
-	return d.Where("id = ?", id).Delete(&model.Listener{}).Error
+	reqName := "DeleteListener call"
+	err := d.Where("id = ?", id).Delete(&model.Listener{}).Error
+	if err != nil {
+		log.WithError(err).Error(reqName)
+		return ErrUnableToDeleteListener
+	}
+	log.Debug(reqName)
+	return nil
 }

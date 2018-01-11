@@ -1,8 +1,15 @@
+// +build !stub
+
 package datastore
 
 import (
-	"git.containerum.net/ch/api-gateway/pkg/store/migrations"
+	"fmt"
+
+	"git.containerum.net/ch/api-gateway/pkg/model"
+	"git.containerum.net/ch/api-gateway/pkg/store/datastore/migrations"
+
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres" //Gorm postgres driver
 )
 
 type datastore struct {
@@ -10,8 +17,26 @@ type datastore struct {
 }
 
 //New returns Store with gorm DB
-func New(db *gorm.DB) interface{} {
-	return &datastore{db}
+func New(config model.DatabaseConfig) (interface{}, error) {
+	db, err := newConnection(config)
+	if config.Debug {
+		db.Debug()
+		db.LogMode(true)
+	}
+	if config.SafeMigration {
+		db.AutoMigrate(&model.Role{}, &model.Group{}, &model.Plugin{}, &model.Listener{}) //"Safety" migrations
+	}
+	return &datastore{db}, err
+}
+
+func newConnection(config model.DatabaseConfig) (*gorm.DB, error) {
+	return gorm.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		config.Address,
+		config.Port,
+		config.User,
+		config.Database,
+		config.Password,
+	))
 }
 
 //Init Create migration table
@@ -62,19 +87,3 @@ func (d *datastore) Down() (int, error) {
 	}
 	return migrations.RunMigrationsDown(v, d.DB)
 }
-
-//NOTE: Example work with gorm
-// l := &model.Listener{}
-// db.First(l)
-//
-// fmt.Print(*l)
-
-// listener := &model.Listener{
-// 	Name:        "newModel",
-// 	StripPath:   true,
-// 	ListenPath:  "/yy/*",
-// 	UpstreamURL: "http://192.168.88.57:8888",
-// 	Methods:     []string{"get", "post"},
-// }
-// db.NewRecord(listener)
-// db.Create(listener)
