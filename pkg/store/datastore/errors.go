@@ -9,4 +9,5 @@ var (
 	ErrUnableToUpdateListener = errors.New("Unable to update Listener")
 	ErrUnableToCreateListener = errors.New("Unable to create Listener")
 	ErrUnableToDeleteListener = errors.New("Unable to delete Listener")
+	ErrUnableToGetGroupID     = errors.New("Unable to get group id")
 )
