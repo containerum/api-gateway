@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -103,6 +105,20 @@ func setupClickhouseLogger(c *cli.Context) *clickhouse.LogClient {
 		}).Warning("Setup Clickhouse Logger failed")
 	}
 	return client
+}
+
+func setupTSL(c *cli.Context) (certFile string, keyFile string, err error) {
+	if _, e := os.Stat(c.String("tls-cert")); os.IsNotExist(e) {
+		log.WithError(err).Error("Unable to open cert.pem")
+		err = errors.New("Unable to open cert.pem")
+		return
+	}
+	if _, e := os.Stat(c.String("tls-key")); os.IsNotExist(e) {
+		log.WithError(err).Error("Unable to open key.pem")
+		err = errors.New("Unable to open key.pem")
+		return
+	}
+	return c.String("tls-cert"), c.String("tls-key"), nil
 }
 
 // _, err = client.CheckToken(context.Background(), &auth.CheckTokenRequest{

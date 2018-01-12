@@ -108,6 +108,18 @@ var flags = []cli.Flag{
 		Usage:  "Write all logs to clickhouse",
 		Value:  "88.99.160.131:7777",
 	},
+	cli.StringFlag{
+		EnvVar: "TLS_CERT",
+		Name:   "tls-cert",
+		Usage:  "Cert.pem for HTTPS",
+		Value:  "cert.pem",
+	},
+	cli.StringFlag{
+		EnvVar: "TLS_KEY",
+		Name:   "tls-key",
+		Usage:  "Key.pem for HTTPS",
+		Value:  "key.pem",
+	},
 }
 
 var commands = []cli.Command{

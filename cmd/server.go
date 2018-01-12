@@ -33,7 +33,7 @@ func runServer(c *cli.Context) error {
 	r.InitRoutes()
 	r.Start(time.Second * 5)
 
-	return listenAndServe(r)
+	return listenAndServe(c, r)
 }
 
 //Initialize migration table
@@ -99,9 +99,13 @@ func setLogFormat(c *cli.Context) error {
 	return nil
 }
 
-func listenAndServe(handler http.Handler) error {
+func listenAndServe(c *cli.Context, handler http.Handler) error {
+	cert, key, err := setupTSL(c)
+	if err != nil {
+		return err
+	}
 	//TODO: Move Cors to middleware
-	c := middleware.Cors()
-	server := &http.Server{Addr: ":8082", Handler: c.Handler(handler)}
-	return server.ListenAndServe()
+	cors := middleware.Cors()
+	server := &http.Server{Addr: ":8082", Handler: cors.Handler(handler)}
+	return server.ListenAndServeTLS(cert, key)
 }
