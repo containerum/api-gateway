@@ -138,7 +138,8 @@ func (r *Router) Synchronize() {
 	//Find routes to update, create or delete
 	for _, listener := range *listeners {
 		if listenerOld, ok := r.listeners[listener.ID]; ok {
-			if listenerOld.UpdatedAt != listener.UpdatedAt {
+			log.WithField("Old updated time", listenerOld.UpdatedAt.Format(time.RFC822)).WithField("New updated time", listener.UpdatedAt.Format(time.RFC822)).Debug("Update time compare")
+			if listenerOld.UpdatedAt.Unix() != listener.UpdatedAt.Unix() {
 				listenersUpdate[listener.ID] = listener
 			}
 		} else {
