@@ -30,7 +30,9 @@ ENV GATEWAY_DEBUG=false \
     REDIS_ADDRESS="192.168.88.200:6379" \
     REDIS_PASSWORD="" \
     RATE_LIMIT="3" \
-    CLICKHOUSE_LOGGER="88.99.160.131:7777"
+    CLICKHOUSE_LOGGER="88.99.160.131:7777" \
+    TLS_CERT="cert.pem" \
+    TLS_KEY="key.pem"
 
 # run app
 ENTRYPOINT ["/ch-gateway"]
