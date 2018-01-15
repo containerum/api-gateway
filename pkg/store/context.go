@@ -38,19 +38,3 @@ func GetGroupList(c context.Context, g *model.Group) (*[]model.Group, error) {
 func CreateGroup(c context.Context, g *model.Group) (*model.Group, error) {
 	return FromContext(c).CreateGroup(g)
 }
-
-func Init(c context.Context) error {
-	return FromContext(c).Init()
-}
-
-func Version(c context.Context) (int, error) {
-	return FromContext(c).Version()
-}
-
-func Up(c context.Context) (int, error) {
-	return FromContext(c).Up()
-}
-
-func Down(c context.Context) (int, error) {
-	return FromContext(c).Down()
-}

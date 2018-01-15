@@ -9,11 +9,6 @@ const key = "store"
 
 //Store impl functions for working with data
 type Store interface {
-	/*Migrations */
-	Init() error
-	Version() (int, error)
-	Up() (int, error)
-	Down() (int, error)
 	/* Listener */
 	GetListener(id string) (*model.Listener, error)
 	GetListenerList(l *model.Listener) (*[]model.Listener, error)
