@@ -195,7 +195,6 @@ func (r *Router) updateRoutes(listenersNew *map[string]model.Listener, listeners
 			if ok := r.Match(chi.NewRouteContext(), listener.Method, listener.ListenPath); !ok {
 				r.addRoute(listener)
 			} else {
-				log.Debug(listener)
 			}
 		}
 		return
