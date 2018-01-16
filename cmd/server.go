@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"time"
 
 	"git.containerum.net/ch/api-gateway/pkg/router"
 	"git.containerum.net/ch/api-gateway/pkg/router/middleware"
@@ -23,14 +22,14 @@ func runServer(c *cli.Context) error {
 	}).Debug("Setup DB connection")
 
 	//Create router and register all extensions
-	r := router.CreateRouter()
+	r := router.CreateRouter(nil)
 	r.RegisterStore(setupStore(c))
 	r.RegisterAuth(setupAuth(c))
 	r.RegisterRatelimiter(setupRatelimiter(c))
 	r.RegisterStatsd(setupStatsd(c))
 	r.RegisterClickhouseLogger(setupClickhouseLogger(c))
 	r.InitRoutes()
-	r.Start(time.Second * 5)
+	r.Start()
 
 	return listenAndServe(r)
 }
