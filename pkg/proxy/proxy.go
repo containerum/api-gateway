@@ -33,11 +33,9 @@ func createDirector(target *model.Listener) func(r *http.Request) {
 		r.URL.Host = targetURL.Host
 		r.URL.Path = singleJoiningSlash(targetURL.Path, r.URL.Path)
 
-		if target.StripPath != nil {
-			if *target.StripPath {
-				strPath := stripPath(target.ListenPath, r.URL.Path)
-				r.URL.Path = singleJoiningSlash(targetURL.Path, strPath)
-			}
+		if target.StripPath {
+			strPath := stripPath(target.ListenPath, r.URL.Path)
+			r.URL.Path = singleJoiningSlash(targetURL.Path, strPath)
 		}
 	}
 }
