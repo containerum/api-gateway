@@ -17,6 +17,8 @@ const (
 )
 
 var (
+	//ErrNilGroup - error when group model is nil
+	ErrNilGroup = errors.New("Group model is empty")
 	//ErrInvalidGroupNameLength - error when name lenght < groupNameLengthMin or > groupNameLengthMax
 	ErrInvalidGroupNameLength = fmt.Errorf("Invalid Name length. It must be more than %v and less than %v", groupNameLengthMin, groupNameLengthMax)
 	//ErrInvalidGroupID - error when id is not uuid
@@ -66,19 +68,17 @@ func (g Group) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-//ValidateCreate check model before insert
-func (g *Group) ValidateCreate() (err []error) {
-	if !validator.IsByteLength(g.Name, groupNameLengthMin, groupNameLengthMax) {
-		err = append(err, ErrInvalidGroupNameLength)
+//Validate check model
+func (g *Group) Validate() (err []error) {
+	if g == nil {
+		err = append(err, ErrNilGroup)
+		return
 	}
-	return
-}
-
-//ValidateUpdate check model before update
-func (g *Group) ValidateUpdate() (err []error) {
 	if !validator.IsUUID(g.ID) {
 		err = append(err, ErrInvalidGroupID)
 	}
-	err = append(err, g.ValidateCreate()...)
+	if !validator.IsByteLength(g.Name, groupNameLengthMin, groupNameLengthMax) {
+		err = append(err, ErrInvalidGroupNameLength)
+	}
 	return
 }

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
+	"net/url"
 	"time"
 
 	"git.containerum.net/ch/api-gateway/pkg/utils/snake"
@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	listenerNameLengthMin        = 4
+	listenerNameLengthMin        = 3
 	listenerNameLengthMax        = 128
 	listenerListenPathLengthMin  = 3
 	listenerListenPathLengthMax  = 128
@@ -23,7 +23,8 @@ const (
 )
 
 var (
-	listenerMethods = []string{"GET", "POST", "PATCH", "PUT", "DELETE"}
+	listenerMethods   = []string{"GET", "POST", "PATCH", "PUT", "DELETE"}
+	listenerProtocols = []string{"http", "https"}
 )
 
 var (
@@ -45,6 +46,10 @@ var (
 	ErrInvalidListenerActive = errors.New("Param Active is empty")
 	//ErrInvalidListenerOAuth - error when OAuth is nil
 	ErrInvalidListenerOAuth = errors.New("Param OAuth is empty")
+	//ErrInvalidListenPathURL - error when can't parse listen path url
+	ErrInvalidListenPathURL = errors.New("Invalid listen path url")
+	//ErrInvalidListenPathURLProtocol - error when pass unsupported url sheme
+	ErrInvalidListenPathURLProtocol = fmt.Errorf("Invalid listen path protocol. It must be one of %v", listenerProtocols)
 )
 
 //Listener keeps proxy-router configs
@@ -65,11 +70,6 @@ type Listener struct {
 
 	// Roles  []Role
 	// Plugins []Plugin
-}
-
-//GetSnakeName return Listerner name in snake case
-func (l *Listener) GetSnakeName() string {
-	return snake.StrToSnake(l.Name)
 }
 
 //MarshalJSON return Listener model json
@@ -138,16 +138,19 @@ func (l *Listener) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-//ValidateCreate check model before insert
-func (l *Listener) ValidateCreate() (err []error) {
+//Validate check model
+func (l *Listener) Validate() (err []error) {
 	if l == nil {
 		err = append(err, ErrNilListener)
 		return
 	}
+	if !validator.IsUUID(l.ID) {
+		err = append(err, ErrInvalidListenerID)
+	}
 	if !validator.IsByteLength(l.Name, listenerNameLengthMin, listenerNameLengthMax) {
 		err = append(err, ErrInvalidListenerNameLength)
 	}
-	if !validator.IsIn(strings.ToUpper(l.Method), listenerMethods...) {
+	if !validator.IsIn(l.Method, listenerMethods...) {
 		err = append(err, ErrInvalidListenerMethod)
 	}
 	if !validator.IsUUID(l.GroupRefer) {
@@ -159,66 +162,17 @@ func (l *Listener) ValidateCreate() (err []error) {
 	if !validator.IsByteLength(l.UpstreamURL, listenerUpstreamURLLengthMin, listenerUpstreamURLLengthMax) {
 		err = append(err, ErrInvalidListenerUpstreamURL)
 	}
-	return
-}
-
-//ValidateUpdate check model before update
-func (l *Listener) ValidateUpdate(id string) (err []error) {
-	if !validator.IsUUID(id) {
-		err = append(err, ErrInvalidListenerID)
+	u, e := url.Parse(l.UpstreamURL)
+	if e != nil {
+		err = append(err, ErrInvalidListenPathURL)
 	}
-	l.ID = id
-	err = append(err, l.ValidateCreate()...)
-	return
-}
-
-//ValidateUpdateActive check if possible to update Active field
-func (l *Listener) ValidateUpdateActive(id string) (err []error) {
-	if l == nil {
-		err = append(err, ErrNilListener)
-		return
-	}
-	if !validator.IsUUID(id) {
-		err = append(err, ErrInvalidListenerID)
-	}
-	l.ID = id
-	return
-}
-
-//ValidateUpdateOAuth check if possible to update OAuth field
-func (l *Listener) ValidateUpdateOAuth(id string) (err []error) {
-	if l == nil {
-		err = append(err, ErrNilListener)
-		return
-	}
-	if !validator.IsUUID(id) {
-		err = append(err, ErrInvalidListenerID)
-	}
-	l.ID = id
-	if l.OAuth == nil {
-		err = append(err, ErrInvalidListenerOAuth)
+	if !validator.IsIn(u.Scheme, listenerProtocols...) {
+		err = append(err, ErrInvalidListenPathURLProtocol)
 	}
 	return
 }
 
-//GetUpdateType return update method
-func (l *Listener) GetUpdateType(id string) (utype ListenerUpdateType, errs []error) {
-	var err []error
-	if err = l.ValidateUpdate(id); len(err) == 0 {
-		utype = ListenerUpdateFull
-		return
-	}
-	errs = append(errs, err...)
-	if err = l.ValidateUpdateActive(id); len(err) == 0 {
-		utype = ListenerUpdateActive
-		return
-	}
-	errs = append(errs, err...)
-	if err = l.ValidateUpdateOAuth(id); len(err) == 0 {
-		utype = ListenerUpdateOAuth
-		return
-	}
-	errs = append(errs, err...)
-	utype = ListenerUpdateNone
-	return
+//GetSnakeName return Listerner name in snake case
+func (l *Listener) GetSnakeName() string {
+	return snake.StrToSnake(l.Name)
 }

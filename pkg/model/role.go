@@ -1,3 +1,5 @@
+// +build ignore
+
 package model
 
 //Role keeps user role
