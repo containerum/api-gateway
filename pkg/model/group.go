@@ -74,9 +74,6 @@ func (g *Group) Validate() (err []error) {
 		err = append(err, ErrNilGroup)
 		return
 	}
-	if !validator.IsUUID(g.ID) {
-		err = append(err, ErrInvalidGroupID)
-	}
 	if !validator.IsByteLength(g.Name, groupNameLengthMin, groupNameLengthMax) {
 		err = append(err, ErrInvalidGroupNameLength)
 	}

@@ -144,9 +144,6 @@ func (l *Listener) Validate() (err []error) {
 		err = append(err, ErrNilListener)
 		return
 	}
-	if !validator.IsUUID(l.ID) {
-		err = append(err, ErrInvalidListenerID)
-	}
 	if !validator.IsByteLength(l.Name, listenerNameLengthMin, listenerNameLengthMax) {
 		err = append(err, ErrInvalidListenerNameLength)
 	}
