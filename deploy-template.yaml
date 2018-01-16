@@ -56,8 +56,6 @@ spec:
           value: '${GRPC_AUTH_PORT}'
         - name: CLICKHOUSE_LOGGER
           value: '${CLICKHOUSE_LOGGER}'
-      nodeSelector:
-        role: master
       imagePullSecrets:
       - name: regsecret
 
