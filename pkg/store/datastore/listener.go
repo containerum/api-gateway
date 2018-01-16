@@ -29,9 +29,15 @@ func (d *data) GetListener(id string) (*model.Listener, error) {
 }
 
 //GetListenerList find all listeers by input model
-func (d *data) GetListenerList(l *model.Listener) (*[]model.Listener, error) {
+func (d *data) GetListenerList(active *bool) (*[]model.Listener, error) {
 	var listeners []model.Listener
-	rows, err := d.Queryx(SQLGetListeners)
+	var err error
+	rows := initRows()
+	if active != nil {
+		rows, err = d.Queryx(SQLGetListenersActive, active)
+	} else {
+		rows, err = d.Queryx(SQLGetListeners)
+	}
 	if err != nil {
 		log.WithError(err).Warn(ErrUnableGetListeners)
 		return nil, ErrUnableGetListeners
@@ -50,7 +56,7 @@ func (d *data) GetListenerList(l *model.Listener) (*[]model.Listener, error) {
 
 //TODO Get updated time
 //UpdateListener updates model in DB
-func (d *data) UpdateListener(l *model.Listener, utype model.ListenerUpdateType) error {
+func (d *data) UpdateListener(l *model.Listener) error {
 	_, err := d.Exec(SQLUpdateListener, l.Name, l.OAuth, l.Active, l.StripPath, l.ListenPath, l.UpstreamURL, l.Method, l.GroupRefer, l.ID)
 	if err != nil {
 		log.WithError(err).Warn(ErrUnableUpdateListener)

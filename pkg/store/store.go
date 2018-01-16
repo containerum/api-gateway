@@ -11,8 +11,8 @@ const key = "store"
 type Store interface {
 	/* Listener */
 	GetListener(id string) (*model.Listener, error)
-	GetListenerList(l *model.Listener) (*[]model.Listener, error)
-	UpdateListener(l *model.Listener, utype model.ListenerUpdateType) error
+	GetListenerList(active *bool) (*[]model.Listener, error)
+	UpdateListener(l *model.Listener) error
 	CreateListener(l *model.Listener) (*model.Listener, error)
 	DeleteListener(id string) error
 	/* Group */

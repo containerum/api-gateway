@@ -5,9 +5,13 @@ var (
 	SQLGetListener = "SELECT id, created_at, updated_at, name, o_auth," +
 		"active, strip_path, listen_path, upstream_url, method, group_refer FROM listeners " +
 		" WHERE id = $1;"
-		//SQLGetListeners get all listeners
+	//SQLGetListeners get all listeners
 	SQLGetListeners = "SELECT id, created_at, updated_at, name, o_auth," +
 		"active, strip_path, listen_path, upstream_url, method, group_refer FROM listeners;"
+	//SQLGetListenersActive get all listeners by active
+	SQLGetListenersActive = "SELECT id, created_at, updated_at, name, o_auth," +
+		"active, strip_path, listen_path, upstream_url, method, group_refer FROM listeners " +
+		" WHERE active = $1;"
 	//SQLCreateListener create listener
 	SQLCreateListener = "INSERT INTO listeners (name, o_auth, active, strip_path, listen_path, upstream_url, method, group_refer) " +
 		"VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, created_at;"

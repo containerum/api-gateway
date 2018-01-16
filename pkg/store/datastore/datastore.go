@@ -72,3 +72,7 @@ func runMigrationUP(db *sql.DB) error {
 	}).Info("Migration")
 	return nil
 }
+
+func initRows() *sqlx.Rows {
+	return &sqlx.Rows{}
+}

@@ -15,12 +15,12 @@ func GetListener(c context.Context, id string) (*model.Listener, error) {
 	return FromContext(c).GetListener(id)
 }
 
-func GetListenerList(c context.Context, l *model.Listener) (*[]model.Listener, error) {
-	return FromContext(c).GetListenerList(l)
+func GetListenerList(c context.Context, active *bool) (*[]model.Listener, error) {
+	return FromContext(c).GetListenerList(active)
 }
 
-func UpdateListener(c context.Context, l *model.Listener, utype model.ListenerUpdateType) error {
-	return FromContext(c).UpdateListener(l, utype)
+func UpdateListener(c context.Context, l *model.Listener) error {
+	return FromContext(c).UpdateListener(l)
 }
 
 func CreateListener(c context.Context, l *model.Listener) (*model.Listener, error) {
