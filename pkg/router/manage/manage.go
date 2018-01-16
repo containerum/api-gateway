@@ -43,12 +43,9 @@ func NewManager(st *store.Store) ManagerHandlers {
 }
 
 //WriteAnswer render answer with all headers and json content
-func WriteAnswer(status int, answerObject interface{}, errs *[]error, reqName string, w *http.ResponseWriter) error {
+func WriteAnswer(status int, reqName string, w *http.ResponseWriter, answerObject interface{}, errs ...error) error {
 	(*w).Header().Set("Content-Type", "application/json")
 	(*w).Header().Set("X-Request-Name", snake.StrToSnake(reqName))
-
-	log.WithField("Errors", errs).Debug("Error list")
-
 	var answerBytes []byte
 	var err error
 	//Make good answer
@@ -62,7 +59,7 @@ func WriteAnswer(status int, answerObject interface{}, errs *[]error, reqName st
 	//Make error answer
 	if (status < http.StatusOK && status > http.StatusNoContent) || errs != nil {
 		answer := errAnswer{}
-		for _, e := range *errs {
+		for _, e := range errs {
 			answer.Errors = append(answer.Errors, e.Error())
 		}
 		answerBytes, err = json.Marshal(answer)
@@ -76,7 +73,6 @@ func WriteAnswer(status int, answerObject interface{}, errs *[]error, reqName st
 	if string(answerBytes) == "null" {
 		answerBytes = []byte("")
 	}
-
 	(*w).WriteHeader(status)
 	(*w).Write(answerBytes)
 	return nil
