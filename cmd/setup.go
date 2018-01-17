@@ -22,15 +22,14 @@ import (
 //setup DB and migration imp. in Store
 func setupStore(c *cli.Context) *store.Store {
 	st, err := store.New(model.DatabaseConfig{
-		User:          c.String("pg-user"),
-		Password:      c.String("pg-password"),
-		Database:      c.String("pg-database"),
-		Address:       c.String("pg-address"),
-		Port:          c.String("pg-port"),
-		Debug:         c.Bool("pg-debug"),
-		SafeMigration: c.Bool("pg-safe-migration"),
+		User:       c.String("pg-user"),
+		Password:   c.String("pg-password"),
+		Database:   c.String("pg-database"),
+		Address:    c.String("pg-address"),
+		Port:       c.String("pg-port"),
+		Debug:      c.Bool("pg-debug"),
+		Migrations: c.Bool("pg-migrations"),
 	})
-
 	if err != nil {
 		panic(err)
 	}

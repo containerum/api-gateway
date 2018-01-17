@@ -1,3 +1,5 @@
+// +build ignore
+
 package model
 
 //Plugin keeps plagin name and state when it should be work: After proxy or before
