@@ -1,7 +1,5 @@
 package manage
 
-//TODO: RENAME router to listener
-
 import (
 	"encoding/json"
 	"errors"
@@ -10,6 +8,14 @@ import (
 	"git.containerum.net/ch/api-gateway/pkg/model"
 
 	"github.com/go-chi/chi"
+)
+
+const (
+	getAllRouterMethod = "Get all router"
+	getRouterMethod    = "Get router"
+	createRouterMethod = "Create router"
+	updateRouterMethod = "Update router"
+	deleteRouterMethod = "Delete router"
 )
 
 var (
@@ -24,90 +30,84 @@ var (
 //GetAllRouter return listeners list
 func (m manage) GetAllRouter() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		reqName := "Get all router"
-		listeners, err := (*m.st).GetListenerList(&model.Listener{})
+		listeners, err := (*m.st).GetListenerList(nil)
 		if err != nil {
-			WriteAnswer(http.StatusBadRequest, nil, &[]error{ErrUnableFindLisneners}, reqName, &w)
+			WriteAnswer(http.StatusBadRequest, getAllRouterMethod, &w, nil, ErrUnableFindLisneners)
 			return
 		}
-		WriteAnswer(http.StatusOK, listeners, nil, reqName, &w)
+		WriteAnswer(http.StatusOK, getAllRouterMethod, &w, listeners)
 	}
 }
 
 //GetRouter return listeners by id
 func (m manage) GetRouter() http.HandlerFunc {
-	reqName := "Get router"
 	return func(w http.ResponseWriter, r *http.Request) {
 		id := chi.URLParam(r, "id")
 		listener, err := (*m.st).GetListener(id)
 		if err != nil {
-			WriteAnswer(http.StatusBadRequest, nil, &[]error{ErrUnableFindLisnener}, reqName, &w)
+			WriteAnswer(http.StatusBadRequest, getRouterMethod, &w, nil, ErrUnableFindLisnener)
 			return
 		}
-		WriteAnswer(http.StatusOK, listener, nil, reqName, &w)
+		WriteAnswer(http.StatusOK, getRouterMethod, &w, listener)
 	}
 }
 
 //CreateRouter create listener id db
 func (m manage) CreateRouter() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		reqName := "Create router"
 		decoder := json.NewDecoder(r.Body)
 		var listenerNew model.Listener
 		if err := decoder.Decode(&listenerNew); err != nil {
-			WriteAnswer(http.StatusBadRequest, nil, &[]error{ErrUnableDecodeListener}, reqName, &w)
+			WriteAnswer(http.StatusBadRequest, createRouterMethod, &w, nil, ErrUnableDecodeListener)
 			return
 		}
-		if err := listenerNew.ValidateCreate(); len(err) != 0 {
-			WriteAnswer(http.StatusBadRequest, nil, &err, reqName, &w)
+		if err := listenerNew.Validate(); len(err) != 0 {
+			WriteAnswer(http.StatusBadRequest, createRouterMethod, &w, nil, err...)
 			return
 		}
 		listenerSaved, err := (*m.st).CreateListener(&listenerNew)
 		if err != nil {
-			WriteAnswer(http.StatusInternalServerError, nil, &[]error{err}, reqName, &w)
+			WriteAnswer(http.StatusInternalServerError, createRouterMethod, &w, nil, err)
 			return
 		}
-		WriteAnswer(http.StatusOK, listenerSaved, nil, reqName, &w)
+		WriteAnswer(http.StatusOK, createRouterMethod, &w, listenerSaved)
 	}
 }
 
 //UpdateRouter update router
 func (m manage) UpdateRouter() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		reqName := "Update router"
 		decoder := json.NewDecoder(r.Body)
 		id := chi.URLParam(r, "id")
 		var listenerNew model.Listener
 		if _, err := (*m.st).GetListener(id); err != nil {
-			WriteAnswer(http.StatusNoContent, nil, &[]error{ErrUnableFindLisnener}, reqName, &w)
+			WriteAnswer(http.StatusNoContent, updateRouterMethod, &w, nil, ErrUnableFindLisnener)
 			return
 		}
 		if err := decoder.Decode(&listenerNew); err != nil {
-			WriteAnswer(http.StatusBadRequest, nil, &[]error{ErrUnableDecodeListener}, reqName, &w)
+			WriteAnswer(http.StatusBadRequest, updateRouterMethod, &w, nil, ErrUnableDecodeListener)
 			return
 		}
-		update, err := listenerNew.GetUpdateType(id)
-		if update == model.ListenerUpdateNone {
-			WriteAnswer(http.StatusBadRequest, nil, &err, reqName, &w)
+		if err := listenerNew.Validate(); len(err) != 0 {
+			WriteAnswer(http.StatusBadRequest, createRouterMethod, &w, nil, err...)
 			return
 		}
-		if err := (*m.st).UpdateListener(&listenerNew, update); err != nil {
-			WriteAnswer(http.StatusInternalServerError, nil, &[]error{err}, reqName, &w)
+		if err := (*m.st).UpdateListener(&listenerNew); err != nil {
+			WriteAnswer(http.StatusInternalServerError, updateRouterMethod, &w, nil, err)
 			return
 		}
-		WriteAnswer(http.StatusOK, nil, nil, reqName, &w)
+		WriteAnswer(http.StatusOK, updateRouterMethod, &w, listenerNew)
 	}
 }
 
 //DeleteRouter delete router
 func (m manage) DeleteRouter() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		reqName := "Delete router"
 		id := chi.URLParam(r, "id")
 		if err := (*m.st).DeleteListener(id); err != nil {
-			WriteAnswer(http.StatusInternalServerError, nil, &[]error{err}, reqName, &w)
+			WriteAnswer(http.StatusInternalServerError, deleteRouterMethod, &w, nil, err)
 			return
 		}
-		WriteAnswer(http.StatusOK, nil, nil, reqName, &w)
+		WriteAnswer(http.StatusOK, deleteRouterMethod, &w, nil)
 	}
 }

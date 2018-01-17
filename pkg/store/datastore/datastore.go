@@ -1,89 +1,78 @@
-// +build !stub
-
 package datastore
 
 import (
+	"database/sql"
 	"fmt"
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
-	"git.containerum.net/ch/api-gateway/pkg/store/datastore/migrations"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres" //Gorm postgres driver
+	"github.com/jmoiron/sqlx"
+
+	"github.com/mattes/migrate"
+	"github.com/mattes/migrate/database/postgres"
+	_ "github.com/mattes/migrate/source/file" //file driver for migrations
+
+	log "github.com/Sirupsen/logrus"
 )
 
-type datastore struct {
-	*gorm.DB
+type data struct {
+	*sqlx.DB
 }
 
-//New returns Store with gorm DB
+var (
+	migrationsPath = "file://pkg/store/migrations"
+)
+
+//New create Store interface
 func New(config model.DatabaseConfig) (interface{}, error) {
-	db, err := newConnection(config)
-	if config.Debug {
-		db.Debug()
-		db.LogMode(true)
-	}
-	if config.SafeMigration {
-		db.AutoMigrate(&model.Role{}, &model.Group{}, &model.Plugin{}, &model.Listener{}) //"Safety" migrations
-	}
-	return &datastore{db}, err
-}
-
-func newConnection(config model.DatabaseConfig) (*gorm.DB, error) {
-	return gorm.Open("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+	db, err := sqlx.Connect("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
 		config.Address,
 		config.Port,
 		config.User,
 		config.Database,
 		config.Password,
 	))
-}
-
-//Init Create migration table
-func (d *datastore) Init() error {
-	//Create table
-	err := d.AutoMigrate(&migrations.Migration{}).Error
 	if err != nil {
-		return err
+		log.WithError(err).Fatal(ErrUnableConnectPostgres)
+		return nil, ErrUnableConnectPostgres
 	}
-	//Write first record if not exists
-	var m migrations.Migration
-	err = d.First(&m).Error
-	if err != nil {
-		if err.Error() == "record not found" {
-			m.Dirty = false
-			m.Version = 0
-			d.NewRecord(&m)
-			if err = d.Create(&m).Error; err != nil {
-				return err
-			}
-		} else {
-			return err
+	if config.Migrations {
+		if err := runMigrationUP(db.DB); err != nil {
+			log.WithError(err).Fatal(ErrUnableRunMigrations)
+			return nil, ErrUnableRunMigrations
 		}
 	}
+	return &data{db}, nil
+}
+
+func runMigrationUP(db *sql.DB) error {
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	if err != nil {
+		log.WithError(err).Fatal(ErrUnableCreatePostgresInstance)
+		return ErrUnableCreatePostgresInstance
+	}
+	log.WithField("Path", migrationsPath).Debug("Migrations")
+	m, err := migrate.NewWithDatabaseInstance(migrationsPath, "postgres", driver)
+	if err != nil {
+		log.WithError(err).Fatal(ErrUnableCreateMigrationInstance)
+		return ErrUnableCreateMigrationInstance
+	}
+	if err = m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.WithError(err).Fatal(ErrUnableRunUpMigration)
+		return ErrUnableRunUpMigration
+	}
+	version, dirty, err := m.Version()
+	if err != nil {
+		log.WithError(err).Fatal(ErrUnableGetMigrationVersion)
+		return ErrUnableGetMigrationVersion
+	}
+	log.WithFields(log.Fields{
+		"Version": version,
+		"Dirty":   dirty,
+	}).Info("Migration")
 	return nil
 }
 
-//Version return curent DB Migration Version
-func (d *datastore) Version() (int, error) {
-	var m migrations.Migration
-	err := d.First(&m).Error
-	if err != nil {
-		return 0, err
-	}
-	return m.Version, nil
-}
-
-//Up run all migration
-func (d *datastore) Up() (int, error) {
-	return migrations.RunMigrations(d.DB)
-}
-
-//Down run last down migration
-func (d *datastore) Down() (int, error) {
-	v, err := d.Version()
-	if err != nil {
-		return 0, err
-	}
-	return migrations.RunMigrationsDown(v, d.DB)
+func initRows() *sqlx.Rows {
+	return &sqlx.Rows{}
 }

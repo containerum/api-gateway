@@ -10,10 +10,6 @@ var flags = []cli.Flag{
 		Name:   "debug, d",
 		Usage:  "start the server in debug mode",
 	},
-	cli.BoolFlag{
-		Name:  "migrate, m",
-		Usage: "start the server in migration mode",
-	},
 	cli.StringFlag{
 		EnvVar: "PG_USER",
 		Name:   "pg-user",
@@ -45,14 +41,9 @@ var flags = []cli.Flag{
 		Value:  "36519",
 	},
 	cli.BoolFlag{
-		EnvVar: "PG_DEBUG",
-		Name:   "pg-debug",
-		Usage:  "Write gorm logs",
-	},
-	cli.BoolFlag{
-		EnvVar: "PG_SAFE_MIGRATION",
-		Name:   "pg-safe-migration",
-		Usage:  "Use safe migration",
+		EnvVar: "PG_MIGRATIONS",
+		Name:   "pg-migrations",
+		Usage:  "Run migrations",
 	},
 	cli.StringFlag{
 		EnvVar: "STATSD_ADDRESS",
@@ -119,43 +110,5 @@ var flags = []cli.Flag{
 		Name:   "tls-key",
 		Usage:  "Key.pem for HTTPS",
 		Value:  "key.pem",
-	},
-}
-
-var commands = []cli.Command{
-	cli.Command{
-		Name:        "migration",
-		Subcommands: migrationCommands,
-	},
-}
-
-var migrationCommands = []cli.Command{
-	cli.Command{
-		Name:   "init",
-		Usage:  "Creates migrations table",
-		Flags:  flags,
-		Before: setLogFormat,
-		Action: initMigration,
-	},
-	cli.Command{
-		Name:   "version",
-		Usage:  "Prints current db version",
-		Flags:  flags,
-		Before: setLogFormat,
-		Action: getMigrationVersion,
-	},
-	cli.Command{
-		Name:   "up",
-		Usage:  "Runs all available migrations",
-		Flags:  flags,
-		Before: setLogFormat,
-		Action: upMigration,
-	},
-	cli.Command{
-		Name:   "down",
-		Usage:  "Reverts last migration",
-		Flags:  flags,
-		Before: setLogFormat,
-		Action: downMigration,
 	},
 }
