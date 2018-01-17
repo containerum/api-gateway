@@ -9,13 +9,27 @@ RUN CGO_ENABLED=0 go build -v -o /bin/ch-gateway \
 
 COPY pkg/store/migrations /pkg/store/migrations
 
+#### Generate Cert Step ####
+FROM alpine as generator
+
+RUN apk update && \
+  apk add --no-cache openssl && \
+  rm -rf /var/cache/apk/*
+
+WORKDIR /cert
+
+RUN openssl req -subj '/CN=containerum.io/O=Containerum/C=LV' -new -newkey rsa:2048 -sha256 -days 365 -nodes -x509 -keyout key.pem -out cert.pem
+
 #### Run Step ####
 # FROM scratch
 FROM ubuntu
 
-# Copy bin
+# Copy bin and migrations
 COPY --from=builder /bin/ch-gateway /
 COPY --from=builder /pkg/store/migrations /pkg/store/migrations
+
+# Copy certs
+COPY --from=generator /cert /cert
 
 # Set envs
 ENV GATEWAY_DEBUG=false \
@@ -34,8 +48,8 @@ ENV GATEWAY_DEBUG=false \
     REDIS_PASSWORD="" \
     RATE_LIMIT="3" \
     CLICKHOUSE_LOGGER="88.99.160.131:7777" \
-    TLS_CERT="cert.pem" \
-    TLS_KEY="key.pem"
+    TLS_CERT="/cert/cert.pem" \
+    TLS_KEY="/cert/key.pem"
 
 # run app
 ENTRYPOINT ["/ch-gateway"]
