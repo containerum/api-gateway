@@ -20,8 +20,7 @@ type data struct {
 }
 
 var (
-	//MigrationsPath path to migrations folder
-	MigrationsPath = "file://pkg/store/migrations"
+	migrationsPath = "file://pkg/store/migrations"
 )
 
 //New create Store interface
@@ -52,7 +51,8 @@ func runMigrationUP(db *sql.DB) error {
 		log.WithError(err).Fatal(ErrUnableCreatePostgresInstance)
 		return ErrUnableCreatePostgresInstance
 	}
-	m, err := migrate.NewWithDatabaseInstance(MigrationsPath, "postgres", driver)
+	log.WithField("Path", migrationsPath).Debug("Migrations")
+	m, err := migrate.NewWithDatabaseInstance(migrationsPath, "postgres", driver)
 	if err != nil {
 		log.WithError(err).Fatal(ErrUnableCreateMigrationInstance)
 		return ErrUnableCreateMigrationInstance
