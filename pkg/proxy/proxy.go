@@ -11,6 +11,8 @@ import (
 	"time"
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 func CreateProxy(target *model.Listener, headers http.Header) *httputil.ReverseProxy {
@@ -39,6 +41,7 @@ func createDirector(target *model.Listener, headers *http.Header) func(r *http.R
 		}
 		if headers != nil {
 			r.Header = *headers
+			log.WithField("Headers", *headers).Debug("Add headers to proxy director")
 		}
 	}
 }
