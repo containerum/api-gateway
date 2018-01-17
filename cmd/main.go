@@ -15,7 +15,6 @@ func main() {
 	app.Name = "ch-gateway"
 	app.Version = GetVersion()
 	app.Flags = flags
-	app.Commands = commands
 	app.Usage = usageText
 	app.Action = runServer
 	app.Before = setLogFormat

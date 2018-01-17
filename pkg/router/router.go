@@ -1,6 +1,7 @@
 package router
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 	"sync"
@@ -35,31 +36,55 @@ type Router struct {
 	stopSync               chan struct{}
 }
 
+const (
+	syncPeriod = time.Second * 30
+)
+
+var (
+	//ErrUnbaleGetListenersForSync - error when unable to get listeners
+	ErrUnbaleGetListenersForSync = errors.New("Unable to get listeners for Synchronization")
+)
+
 //CreateRouter create and return HTTP handle router
-func CreateRouter() *Router {
+func CreateRouter(router *Router) *Router {
+	if router == nil {
+		return &Router{
+			Mux:                    chi.NewRouter(),
+			Mutex:                  &sync.Mutex{},
+			rateClient:             &ratelimiter.PerIPLimiter{},
+			clickhouseLoggerClient: &clickhouse.LogClient{},
+			listeners:              make(map[string]*model.Listener),
+			stopSync:               make(chan struct{}, 1),
+		}
+	}
 	return &Router{
-		Mux:        chi.NewRouter(),
-		Mutex:      &sync.Mutex{},
-		rateClient: &ratelimiter.PerIPLimiter{},
-		listeners:  make(map[string]*model.Listener),
-		stopSync:   make(chan struct{}, 1),
+		Mux:                    chi.NewRouter(),
+		Mutex:                  &sync.Mutex{},
+		store:                  router.store,
+		rateClient:             router.rateClient,
+		statsClient:            router.statsClient,
+		authClient:             router.authClient,
+		clickhouseLoggerClient: router.clickhouseLoggerClient,
+		listeners:              make(map[string]*model.Listener),
+		stopSync:               make(chan struct{}, 1),
 	}
 }
 
 //InitRoutes create main routes
+//TODO: Add compression middleware
 func (r *Router) InitRoutes() {
 	//Init middleware
 	r.Use(middleware.ClearXHeaders)
+	r.Use(middleware.TranslateUserXHeaders)
+	r.Use(middleware.CheckRequiredXHeaders)
 	r.Use(middleware.Logger(r.statsClient, r.clickhouseLoggerClient))
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Rate(r.rateClient))
 	r.Use(chimid.Recoverer)
-	// TODO: Add compression middleware
 
 	r.With(middleware.CheckAuthToken(r.authClient)).Mount("/manage", CreateManageRouter(r)) //Manage handlers
-
-	r.NotFound(noRouteHandler())          //Init Not Found page handler
-	r.HandleFunc("/", rootRouteHandler()) //Init root route handler
+	r.NotFound(noRouteHandler())                                                            //Init Not Found page handler
+	r.HandleFunc("/", rootRouteHandler())                                                   //Init root route handler
 }
 
 //RegisterStore registre store interface in router
@@ -88,102 +113,58 @@ func (r *Router) RegisterClickhouseLogger(cl *clickhouse.LogClient) {
 }
 
 //Start init all active routes
-func (r *Router) Start(syncPeriod time.Duration) {
-	st := *r.store
-	active := true
-	listeners, err := st.GetListenerList(&model.Listener{Active: &active})
-	if err != nil {
-		log.WithFields(log.Fields{
-			"Err": err,
-		}).Error("GetListenerList failed in router.Start")
-	} else {
-		for _, listener := range *listeners {
-			r.addRoute(listener)
-		}
-	}
+func (r *Router) Start() {
+	go r.runSynchronization()
+}
 
-	//Run Sync
-	go func(t time.Duration, stop chan struct{}) {
-		for {
-			time.Sleep(t)
-			select {
-			case <-stop:
-				log.Debug("STOP SYNC")
-				return
-			default:
-				r.Synchronize()
-			}
+//Stop -stops sync
+func (r *Router) Stop() {
+	r.stopSync <- struct{}{}
+}
+
+func (r *Router) runSynchronization() {
+	for {
+		select {
+		case <-r.stopSync:
+			log.Info("Synchronization stopped")
+			return
+		default:
+			r.synchronize()
 		}
-	}(syncPeriod, r.stopSync)
+		time.Sleep(syncPeriod)
+	}
 }
 
 //Synchronize check route updates and accept it
-func (r *Router) Synchronize() {
+func (r *Router) synchronize() {
 	st := *r.store
 	active := true
-	listeners, err := st.GetListenerList(&model.Listener{Active: &active})
-	if err != nil {
-		log.WithError(err)
-	}
-
 	listenersUpdate := make(map[string]model.Listener) //Listeners to Update
 	listenersNew := make(map[string]model.Listener)    //Listeners to Create
 	listenersDelete := make(map[string]model.Listener) //Listeners to Delete
-
-	//Deep copy old routes to delete map
-	for k, v := range r.listeners {
-		listenersDelete[k] = *v
+	listeners, err := st.GetListenerList(&active)
+	if err != nil {
+		log.WithError(err).Warn(ErrUnbaleGetListenersForSync)
+		return
 	}
-
+	copyListenersMap(r.listeners, &listenersDelete)
 	//Find routes to update, create or delete
 	for _, listener := range *listeners {
 		if listenerOld, ok := r.listeners[listener.ID]; ok {
-			if listenerOld.UpdatedAt != listener.UpdatedAt {
+			if listenerOld.UpdatedAt.Unix() != listener.UpdatedAt.Unix() {
 				listenersUpdate[listener.ID] = listener
 			}
 		} else {
 			listenersNew[listener.ID] = listener
-			log.Debug(listener)
 		}
 		delete(listenersDelete, listener.ID)
 	}
-
 	log.WithFields(log.Fields{
-		"Update": listenersUpdate,
-		"New":    listenersNew,
-		"Delete": listenersDelete,
-	}).Debug("Starting Sync")
-
+		"New routes":    len(listenersNew),
+		"Update routes": len(listenersUpdate),
+		"Delete routes": len(listenersDelete),
+	}).Debug("Synchronization")
 	r.updateRoutes(&listenersNew, &listenersUpdate, &listenersDelete)
-}
-
-//addRoute append new http route
-func (r *Router) addRoute(target model.Listener) {
-	r.Lock()
-	defer r.Unlock()
-
-	//Add handler
-	method := strings.ToUpper(target.Method)
-	if target.OAuth != nil && *target.OAuth {
-		r.With(middleware.CheckAuthToken(r.authClient)).MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
-			buildProxy(&target, w, req)
-		})
-	} else {
-		r.MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
-			buildProxy(&target, w, req)
-		})
-	}
-	r.listeners[target.ID] = &target
-
-	log.WithFields(log.Fields{
-		"ListenPath": target.ListenPath,
-		"Method":     method,
-		// "Roles":       target.Roles,
-		"Active":      target.Active,
-		"Name":        target.Name,
-		"UpstreamURL": target.UpstreamURL,
-		"Auth":        target.OAuth,
-	}).Debug("New route builded")
 }
 
 //updateRoute update, delete or create new routes. If only create, then append to exist chi, else create new chi route
@@ -193,39 +174,49 @@ func (r *Router) updateRoutes(listenersNew *map[string]model.Listener, listeners
 		for _, listener := range *listenersNew {
 			if ok := r.Match(chi.NewRouteContext(), listener.Method, listener.ListenPath); !ok {
 				r.addRoute(listener)
-			} else {
-				log.Debug(listener)
 			}
 		}
 		return
 	}
-
-	//Make new routes and replace it
-	r.stopSync <- struct{}{} //Stop sync
-	route := CreateRouter()
-	route.RegisterStore(r.store)
-	route.RegisterRatelimiter(r.rateClient)
-	route.RegisterAuth(r.authClient)
-	route.RegisterStatsd(r.statsClient)
-	route.RegisterClickhouseLogger(r.clickhouseLoggerClient)
+	//Make new routes and replace old
+	r.Stop()
+	route := CreateRouter(r)
 	route.InitRoutes()
-
-	for _, listener := range *listenersNew {
+	for _, listener := range appendListenersMap(*listenersNew, *listenersUpdate) {
 		if ok := r.Match(chi.NewRouteContext(), listener.Method, listener.ListenPath); !ok {
 			r.addRoute(listener)
-			delete(*listenersNew, listener.ID)
 		}
 	}
-	for _, listener := range *listenersUpdate {
-		if ok := r.Match(chi.NewRouteContext(), listener.Method, listener.ListenPath); !ok {
-			r.addRoute(listener)
-			delete(*listenersUpdate, listener.ID)
-		}
-	}
-
-	route.Start(time.Second * 10)
+	route.Start()
 	*r = *route //Change mux
-	log.Debug("NEW MUX")
+	log.WithField("Route count", len(route.Routes())).Info("New mux started")
+}
+
+//addRoute append new http route
+func (r *Router) addRoute(target model.Listener) {
+	r.Lock()
+	defer r.Unlock()
+	method := strings.ToUpper(target.Method)
+	if target.OAuth {
+		r.With(middleware.CheckAuthToken(r.authClient)).MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
+			buildProxy(&target, w, req)
+		})
+	} else {
+		r.MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
+			buildProxy(&target, w, req)
+		})
+	}
+	r.listeners[target.ID] = &target
+	log.WithFields(log.Fields{
+		"ListenPath":  target.ListenPath,
+		"Method":      method,
+		"Statsd":      target.GetSnakeName(),
+		"Name":        target.Name,
+		"UpstreamURL": target.UpstreamURL,
+		"Auth":        target.OAuth,
+		"StripPath":   target.StripPath,
+		"Group":       target.Group.Name,
+	}).Info("New route")
 }
 
 // TODO: Run before plugins
@@ -234,7 +225,21 @@ func buildProxy(target *model.Listener, w http.ResponseWriter, req *http.Request
 	w.Header().Set("X-Request-Name", target.GetSnakeName())
 	w.Header().Set("X-Gateway-ID", target.ID)
 	w.Header().Set("X-Upstream", target.UpstreamURL)
-
-	p := proxy.CreateProxy(target)
+	p := proxy.CreateProxy(target, w.Header())
 	p.ServeHTTP(w, req)
+}
+
+func copyListenersMap(src map[string]*model.Listener, dst *map[string]model.Listener) {
+	for k, v := range src {
+		(*dst)[k] = *v
+	}
+}
+
+func appendListenersMap(arrs ...map[string]model.Listener) (res map[string]model.Listener) {
+	for _, arr := range arrs {
+		for k, v := range arr {
+			res[k] = v
+		}
+	}
+	return
 }
