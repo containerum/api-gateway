@@ -13,8 +13,8 @@ import (
 	"git.containerum.net/ch/api-gateway/pkg/model"
 )
 
-func CreateProxy(target *model.Listener) *httputil.ReverseProxy {
-	direct := createDirector(target)
+func CreateProxy(target *model.Listener, headers http.Header) *httputil.ReverseProxy {
+	direct := createDirector(target, &headers)
 	return &httputil.ReverseProxy{
 		Director: direct,
 		Transport: &http.Transport{
@@ -26,7 +26,7 @@ func CreateProxy(target *model.Listener) *httputil.ReverseProxy {
 	}
 }
 
-func createDirector(target *model.Listener) func(r *http.Request) {
+func createDirector(target *model.Listener, headers *http.Header) func(r *http.Request) {
 	return func(r *http.Request) {
 		targetURL, _ := url.Parse(target.UpstreamURL)
 		r.URL.Scheme = targetURL.Scheme
@@ -38,6 +38,9 @@ func createDirector(target *model.Listener) func(r *http.Request) {
 				strPath := stripPath(target.ListenPath, r.URL.Path)
 				r.URL.Path = singleJoiningSlash(targetURL.Path, strPath)
 			}
+		}
+		if headers != nil {
+			r.Header = *headers
 		}
 	}
 }

@@ -51,6 +51,7 @@ func (r *Router) InitRoutes() {
 	//Init middleware
 	r.Use(middleware.ClearXHeaders)
 	r.Use(middleware.TranslateUserXHeaders)
+	r.Use(middleware.CheckRequiredXHeaders)
 	r.Use(middleware.Logger(r.statsClient, r.clickhouseLoggerClient))
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Rate(r.rateClient))
@@ -236,7 +237,6 @@ func buildProxy(target *model.Listener, w http.ResponseWriter, req *http.Request
 	w.Header().Set("X-Request-Name", target.GetSnakeName())
 	w.Header().Set("X-Gateway-ID", target.ID)
 	w.Header().Set("X-Upstream", target.UpstreamURL)
-
-	p := proxy.CreateProxy(target)
+	p := proxy.CreateProxy(target, w.Header())
 	p.ServeHTTP(w, req)
 }
