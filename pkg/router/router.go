@@ -50,6 +50,7 @@ func CreateRouter() *Router {
 func (r *Router) InitRoutes() {
 	//Init middleware
 	r.Use(middleware.ClearXHeaders)
+	r.Use(middleware.TranslateUserXHeaders)
 	r.Use(middleware.Logger(r.statsClient, r.clickhouseLoggerClient))
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Rate(r.rateClient))
