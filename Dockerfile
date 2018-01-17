@@ -4,7 +4,10 @@ FROM golang:1.9-alpine as builder
 WORKDIR src/git.containerum.net/ch/api-gateway
 COPY . .
 
-RUN CGO_ENABLED=0 go build -v -o /bin/ch-gateway -ldflags "-X git.containerum.net/ch/api-gateway/main.version=${APP_VERSION}" cmd/*
+RUN CGO_ENABLED=0 go build -v -o /bin/ch-gateway \
+    -ldflags "-X git.containerum.net/ch/api-gateway/main.version=${APP_VERSION}" cmd/*
+
+COPY pkg/store/migrations /pkg/store/migrations
 
 #### Run Step ####
 # FROM scratch
@@ -12,6 +15,7 @@ FROM ubuntu
 
 # Copy bin
 COPY --from=builder /bin/ch-gateway /
+COPY --from=builder /pkg/store/migrations /pkg/store/migrations
 
 # Set envs
 ENV GATEWAY_DEBUG=false \
