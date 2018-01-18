@@ -18,6 +18,7 @@ var (
 	ErrUnableDeleteListener = errors.New("Unable to delete listener")
 	ErrUnableUpdateListener = errors.New("Unable to update listener")
 
+	ErrUnableGetGroup    = errors.New("Unable to get group")
 	ErrUnableGetGroups   = errors.New("Unable to get groups")
 	ErrUnableCreateGroup = errors.New("Unable to create group")
 

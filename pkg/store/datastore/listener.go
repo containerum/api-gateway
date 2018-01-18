@@ -10,7 +10,6 @@ import (
 
 //GetListener find Listener by ID
 func (d *data) GetListener(id string) (*model.Listener, error) {
-	var listener model.Listener
 	rows, err := d.Queryx(SQLGetListener, id)
 	if err != nil {
 		log.WithError(err).Warn(ErrUnableGetListener)
@@ -21,11 +20,7 @@ func (d *data) GetListener(id string) (*model.Listener, error) {
 		log.Warn(ErrNoRows)
 		return nil, ErrNoRows
 	}
-	if err := rows.StructScan(&listener); err != nil {
-		log.WithError(err).Warn(ErrUnableScanListener)
-		return nil, ErrUnableScanListener
-	}
-	return &listener, nil
+	return scanListenerGroup(rows)
 }
 
 //GetListenerList find all listeers by input model
@@ -44,12 +39,11 @@ func (d *data) GetListenerList(active *bool) (*[]model.Listener, error) {
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var listener model.Listener
-		if err := rows.StructScan(&listener); err != nil {
-			log.WithError(err).Warn(ErrUnableScanListener)
-			return nil, ErrUnableScanListener
+		listener, err := scanListenerGroup(rows)
+		if err != nil {
+			return nil, err
 		}
-		listeners = append(listeners, listener)
+		listeners = append(listeners, *listener)
 	}
 	return &listeners, nil
 }
