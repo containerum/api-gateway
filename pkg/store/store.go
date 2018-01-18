@@ -16,7 +16,7 @@ type Store interface {
 	CreateListener(l *model.Listener) (*model.Listener, error)
 	DeleteListener(id string) error
 	/* Group */
-	GetGroupList(g *model.Group) (*[]model.Group, error)
+	GetGroupList(acctive *bool) (*[]model.Group, error)
 	CreateGroup(g *model.Group) (*model.Group, error)
 }
 

@@ -3,8 +3,6 @@ package manage
 import (
 	"errors"
 	"net/http"
-
-	"git.containerum.net/ch/api-gateway/pkg/model"
 )
 
 const (
@@ -19,7 +17,7 @@ var (
 //GetAllGroup return listeners list
 func (m manage) GetAllGroup() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		groups, err := (*m.st).GetGroupList(&model.Group{})
+		groups, err := (*m.st).GetGroupList(nil)
 		if err != nil {
 			WriteAnswer(http.StatusBadRequest, getAllGroupMethod, &w, nil, ErrUnableFindGroups)
 			return

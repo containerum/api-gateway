@@ -14,7 +14,9 @@ FROM ubuntu
 COPY --from=builder /bin/ch-gateway /
 
 # Set envs
-ENV GATEWAY_DEBUG=true
+ENV GATEWAY_DEBUG=true \
+    TLS_CERT="cert.pem" \
+    TLS_KEY="key.pem"
 
 # run app
 ENTRYPOINT ["/ch-gateway"]
