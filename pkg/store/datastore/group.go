@@ -8,9 +8,34 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func (d *data) GetGroupList(g *model.Group) (*[]model.Group, error) {
+func (d *data) GetGroup(id string) (*model.Group, error) {
+	var group model.Group
+	rows, err := d.Queryx(SQLGetGroup, id)
+	if err != nil {
+		log.WithError(err).Warn(ErrUnableGetGroup)
+		return nil, ErrUnableGetGroup
+	}
+	defer rows.Close()
+	if !rows.Next() {
+		log.WithError(err).Warn(ErrUnableScanGroup) //TODO write error
+		return nil, ErrUnableScanGroup
+	}
+	if err = rows.StructScan(&group); err != nil {
+		log.WithError(err).Warn(ErrUnableScanGroup)
+		return nil, ErrUnableScanGroup
+	}
+	return &group, nil
+}
+
+func (d *data) GetGroupList(active *bool) (*[]model.Group, error) {
 	var groups []model.Group
-	rows, err := d.Queryx(SQLGetGroups)
+	var err error
+	rows := initRows()
+	if active != nil {
+		rows, err = d.Queryx(SQLGetGroupsActive, active)
+	} else {
+		rows, err = d.Queryx(SQLGetGroups)
+	}
 	if err != nil {
 		log.WithError(err).Warn(ErrUnableGetGroups)
 		return nil, ErrUnableGetGroups

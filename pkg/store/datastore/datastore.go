@@ -3,6 +3,7 @@ package datastore
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
 
@@ -22,6 +23,15 @@ type data struct {
 var (
 	migrationsPath = "file://pkg/store/migrations"
 )
+
+//ListenerGroup struct for scan listener and group in one scan
+type ListenerGroup struct {
+	model.Listener
+	GroupName      string    `db:"group_name"`
+	GroupCreatedAt time.Time `db:"group_created_at"`
+	GroupUpdatedAt time.Time `db:"group_updated_at"`
+	GroupActive    bool      `db:"group_active"`
+}
 
 //New create Store interface
 func New(config model.DatabaseConfig) (interface{}, error) {
@@ -75,4 +85,35 @@ func runMigrationUP(db *sql.DB) error {
 
 func initRows() *sqlx.Rows {
 	return &sqlx.Rows{}
+}
+
+func scanListenerGroup(rows *sqlx.Rows) (*model.Listener, error) {
+	var localListener ListenerGroup
+	if err := rows.StructScan(&localListener); err != nil {
+		log.WithError(err).Warn(ErrUnableScanListener)
+		return nil, ErrUnableScanListener
+	}
+	return &model.Listener{
+		DefaultModel: model.DefaultModel{
+			ID:        localListener.ID,
+			CreatedAt: localListener.CreatedAt,
+			UpdatedAt: localListener.UpdatedAt,
+		},
+		Name:       localListener.Name,
+		OAuth:      localListener.OAuth,
+		Active:     localListener.Active,
+		GroupRefer: localListener.GroupRefer,
+		Group: model.Group{
+			DefaultModel: model.DefaultModel{
+				ID:        localListener.GroupRefer,
+				CreatedAt: localListener.GroupCreatedAt,
+				UpdatedAt: localListener.GroupUpdatedAt,
+			},
+			Name: localListener.GroupName,
+		},
+		StripPath:   localListener.StripPath,
+		ListenPath:  localListener.ListenPath,
+		UpstreamURL: localListener.UpstreamURL,
+		Method:      localListener.Method,
+	}, nil
 }
