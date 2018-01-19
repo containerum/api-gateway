@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"git.containerum.net/ch/grpc-proto-files/auth"
-	"git.containerum.net/ch/grpc-proto-files/common"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -36,22 +35,9 @@ func CheckAuthToken(authClient *auth.AuthClient) func(http.Handler) http.Handler
 			log.WithFields(log.Fields{
 				"useragent": w.Header().Get(userAgentXHeaderName),
 				"finger":    w.Header().Get(userClientXHeaderName),
-				"user":      &common.UUID{Value: "396b8880-02f5-4ca0-832e-90c2b7bb543c"},
 				"ip":        w.Header().Get(userIPXHeaderName),
 				"role":      auth.Role_USER,
-			}).Debug("Create token info")
-
-			// res, err := (*authClient).CreateToken(context.Background(), &auth.CreateTokenRequest{
-			// 	UserAgent:   w.Header().Get(userAgentXHeaderName),
-			// 	Fingerprint: w.Header().Get(userClientXHeaderName),
-			// 	UserId:      &common.UUID{Value: "396b8880-02f5-4ca0-832e-90c2b7bb543c"},
-			// 	UserIp:      w.Header().Get(userIPXHeaderName),
-			// 	UserRole:    auth.Role_USER,
-			// })
-			// if err != nil {
-			// 	log.Fatal(err)
-			// }
-			// log.WithField("Token", res.AccessToken).Info("Create token success")
+			}).Debug("Check token info")
 
 			token, err := (*authClient).CheckToken(context.Background(), &auth.CheckTokenRequest{
 				AccessToken: accessToken,
@@ -66,7 +52,12 @@ func CheckAuthToken(authClient *auth.AuthClient) func(http.Handler) http.Handler
 				log.WithError(err).Warn(ErrInvalidToken)
 				return
 			}
-			log.WithField("Token", token).Debug("Valid token")
+			w.Header().Add(userIDXHeaderName, token.UserId.Value)
+			log.WithField("Name", userIDXHeaderName).WithField("Value", token.UserId.Value).Debug("Add X-Header")
+			w.Header().Add(userRoleHeaderName, token.UserRole.String())
+			log.WithField("Name", userRoleHeaderName).WithField("Value", token.UserRole.String()).Debug("Add X-Header")
+			w.Header().Add(tokenIDXHeaderName, token.TokenId.Value)
+			log.WithField("Name", tokenIDXHeaderName).WithField("Value", token.TokenId.Value).Debug("Add X-Header")
 			next.ServeHTTP(w, r)
 		})
 	}
@@ -79,6 +70,3 @@ func IsAdmin() func(http.Handler) http.Handler {
 		})
 	}
 }
-
-//User Id Header
-//User Role Header

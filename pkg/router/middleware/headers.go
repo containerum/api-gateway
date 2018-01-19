@@ -16,9 +16,12 @@ import (
 const (
 	userClientHeaderName = "User-Client"
 
+	userIDXHeaderName     = "X-User-ID"
 	userClientXHeaderName = "X-User-Client"
-	userIPXHeaderName     = "X-Client-IP"
 	userAgentXHeaderName  = "X-User-Agent"
+	userIPXHeaderName     = "X-Client-IP"
+	tokenIDXHeaderName    = "X-Token-ID"
+	userRoleHeaderName    = "X-User-Role"
 )
 
 var (
@@ -115,14 +118,3 @@ func CheckRequiredXHeaders(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-
-// const (
-// 	UserIDHeader      = "X-User-ID"
-// 	SessionIDHeader   = "X-Session-ID"
-// 	FingerprintHeader = "X-User-Client"
-// 	UserAgentHeader   = "X-User-Agent"
-// 	ClientIPHeader    = "X-Client-IP"
-// 	TokenIDHeader     = "X-Token-ID"
-// 	PartTokenIDHeader = "X-User-Part-Token-ID"
-// 	UserRoleHeader    = "X-User-Role"
-// )
