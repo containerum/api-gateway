@@ -16,9 +16,12 @@ import (
 const (
 	userClientHeaderName = "User-Client"
 
+	userIDXHeaderName     = "X-User-ID"
 	userClientXHeaderName = "X-User-Client"
-	userIPXHeaderName     = "X-Client-IP"
 	userAgentXHeaderName  = "X-User-Agent"
+	userIPXHeaderName     = "X-Client-IP"
+	tokenIDXHeaderName    = "X-Token-ID"
+	userRoleHeaderName    = "X-User-Role"
 )
 
 var (

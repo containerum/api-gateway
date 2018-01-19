@@ -82,9 +82,9 @@ func (r *Router) InitRoutes() {
 	r.Use(middleware.Rate(r.rateClient))
 	r.Use(chimid.Recoverer)
 
-	r.NotFound(noRouteHandler())              //Init Not Found page handler
-	r.HandleFunc("/", rootRouteHandler())     //Init root route handler
-	r.Mount("/manage", CreateManageRouter(r)) //Manage handlers
+	r.With(middleware.CheckAuthToken(r.authClient)).Mount("/manage", CreateManageRouter(r)) //Manage handlers
+	r.NotFound(noRouteHandler())                                                            //Init Not Found page handler
+	r.HandleFunc("/", rootRouteHandler())                                                   //Init root route handler
 }
 
 //RegisterStore registre store interface in router
