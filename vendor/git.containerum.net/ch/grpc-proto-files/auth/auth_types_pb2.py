@@ -3,7 +3,6 @@
 
 import sys
 _b=sys.version_info[0]<3 and (lambda x:x) or (lambda x:x.encode('latin1'))
-from google.protobuf.internal import enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
 from google.protobuf import reflection as _reflection
@@ -21,50 +20,10 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='auth/auth_types.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x15\x61uth/auth_types.proto\x1a\x11\x63ommon/uuid.proto\"\x82\x02\n\x0bStoredToken\x12\x17\n\x08token_id\x18\x01 \x01(\x0b\x32\x05.UUID\x12\x12\n\nuser_agent\x18\x02 \x01(\t\x12\x10\n\x08platform\x18\x03 \x01(\t\x12\x13\n\x0b\x66ingerprint\x18\x04 \x01(\t\x12\x16\n\x07user_id\x18\x05 \x01(\x0b\x32\x05.UUID\x12\x18\n\tuser_role\x18\x06 \x01(\x0e\x32\x05.Role\x12\x16\n\x0euser_namespace\x18\x07 \x01(\t\x12\x13\n\x0buser_volume\x18\x08 \x01(\t\x12\x11\n\trw_access\x18\t \x01(\x08\x12\x0f\n\x07user_ip\x18\n \x01(\t\x12\x1c\n\rpart_token_id\x18\x0b \x01(\x0b\x32\x05.UUID\"G\n\x0c\x41\x63\x63\x65ssObject\x12\r\n\x05label\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x01(\t\x12\x1c\n\x06\x61\x63\x63\x65ss\x18\x03 \x01(\x0e\x32\x0c.AccessLevel\"R\n\x0fResourcesAccess\x12 \n\tnamespace\x18\x01 \x03(\x0b\x32\r.AccessObject\x12\x1d\n\x06volume\x18\x02 \x03(\x0b\x32\r.AccessObject\"a\n\x12StoredTokenForUser\x12\x17\n\x08token_id\x18\x01 \x01(\x0b\x32\x05.UUID\x12\x12\n\nuser_agent\x18\x02 \x01(\t\x12\n\n\x02ip\x18\x03 \x01(\t\x12\x12\n\ncreated_at\x18\x04 \x01(\t*\x10\n\x04Role\x12\x08\n\x04USER\x10\x00*\x18\n\x0b\x41\x63\x63\x65ssLevel\x12\t\n\x05OWNER\x10\x00\x42.Z,git.containerum.net/ch/grpc-proto-files/authb\x06proto3')
+  serialized_pb=_b('\n\x15\x61uth/auth_types.proto\x1a\x11\x63ommon/uuid.proto\"\xfb\x01\n\x0bStoredToken\x12\x17\n\x08token_id\x18\x01 \x01(\x0b\x32\x05.UUID\x12\x12\n\nuser_agent\x18\x02 \x01(\t\x12\x10\n\x08platform\x18\x03 \x01(\t\x12\x13\n\x0b\x66ingerprint\x18\x04 \x01(\t\x12\x16\n\x07user_id\x18\x05 \x01(\x0b\x32\x05.UUID\x12\x11\n\tuser_role\x18\x06 \x01(\t\x12\x16\n\x0euser_namespace\x18\x07 \x01(\t\x12\x13\n\x0buser_volume\x18\x08 \x01(\t\x12\x11\n\trw_access\x18\t \x01(\x08\x12\x0f\n\x07user_ip\x18\n \x01(\t\x12\x1c\n\rpart_token_id\x18\x0b \x01(\x0b\x32\x05.UUID\"9\n\x0c\x41\x63\x63\x65ssObject\x12\r\n\x05label\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x01(\t\x12\x0e\n\x06\x61\x63\x63\x65ss\x18\x03 \x01(\t\"R\n\x0fResourcesAccess\x12 \n\tnamespace\x18\x01 \x03(\x0b\x32\r.AccessObject\x12\x1d\n\x06volume\x18\x02 \x03(\x0b\x32\r.AccessObject\"a\n\x12StoredTokenForUser\x12\x17\n\x08token_id\x18\x01 \x01(\x0b\x32\x05.UUID\x12\x12\n\nuser_agent\x18\x02 \x01(\t\x12\n\n\x02ip\x18\x03 \x01(\t\x12\x12\n\ncreated_at\x18\x04 \x01(\tB.Z,git.containerum.net/ch/grpc-proto-files/authb\x06proto3')
   ,
   dependencies=[common_dot_uuid__pb2.DESCRIPTOR,])
 
-_ROLE = _descriptor.EnumDescriptor(
-  name='Role',
-  full_name='Role',
-  filename=None,
-  file=DESCRIPTOR,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='USER', index=0, number=0,
-      options=None,
-      type=None),
-  ],
-  containing_type=None,
-  options=None,
-  serialized_start=561,
-  serialized_end=577,
-)
-_sym_db.RegisterEnumDescriptor(_ROLE)
-
-Role = enum_type_wrapper.EnumTypeWrapper(_ROLE)
-_ACCESSLEVEL = _descriptor.EnumDescriptor(
-  name='AccessLevel',
-  full_name='AccessLevel',
-  filename=None,
-  file=DESCRIPTOR,
-  values=[
-    _descriptor.EnumValueDescriptor(
-      name='OWNER', index=0, number=0,
-      options=None,
-      type=None),
-  ],
-  containing_type=None,
-  options=None,
-  serialized_start=579,
-  serialized_end=603,
-)
-_sym_db.RegisterEnumDescriptor(_ACCESSLEVEL)
-
-AccessLevel = enum_type_wrapper.EnumTypeWrapper(_ACCESSLEVEL)
-USER = 0
-OWNER = 0
 
 
 
@@ -112,8 +71,8 @@ _STOREDTOKEN = _descriptor.Descriptor(
       options=None),
     _descriptor.FieldDescriptor(
       name='user_role', full_name='StoredToken.user_role', index=5,
-      number=6, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
+      number=6, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -165,7 +124,7 @@ _STOREDTOKEN = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=45,
-  serialized_end=303,
+  serialized_end=296,
 )
 
 
@@ -192,8 +151,8 @@ _ACCESSOBJECT = _descriptor.Descriptor(
       options=None),
     _descriptor.FieldDescriptor(
       name='access', full_name='AccessObject.access', index=2,
-      number=3, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -209,8 +168,8 @@ _ACCESSOBJECT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=305,
-  serialized_end=376,
+  serialized_start=298,
+  serialized_end=355,
 )
 
 
@@ -247,8 +206,8 @@ _RESOURCESACCESS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=378,
-  serialized_end=460,
+  serialized_start=357,
+  serialized_end=439,
 )
 
 
@@ -299,15 +258,13 @@ _STOREDTOKENFORUSER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=462,
-  serialized_end=559,
+  serialized_start=441,
+  serialized_end=538,
 )
 
 _STOREDTOKEN.fields_by_name['token_id'].message_type = common_dot_uuid__pb2._UUID
 _STOREDTOKEN.fields_by_name['user_id'].message_type = common_dot_uuid__pb2._UUID
-_STOREDTOKEN.fields_by_name['user_role'].enum_type = _ROLE
 _STOREDTOKEN.fields_by_name['part_token_id'].message_type = common_dot_uuid__pb2._UUID
-_ACCESSOBJECT.fields_by_name['access'].enum_type = _ACCESSLEVEL
 _RESOURCESACCESS.fields_by_name['namespace'].message_type = _ACCESSOBJECT
 _RESOURCESACCESS.fields_by_name['volume'].message_type = _ACCESSOBJECT
 _STOREDTOKENFORUSER.fields_by_name['token_id'].message_type = common_dot_uuid__pb2._UUID
@@ -315,8 +272,6 @@ DESCRIPTOR.message_types_by_name['StoredToken'] = _STOREDTOKEN
 DESCRIPTOR.message_types_by_name['AccessObject'] = _ACCESSOBJECT
 DESCRIPTOR.message_types_by_name['ResourcesAccess'] = _RESOURCESACCESS
 DESCRIPTOR.message_types_by_name['StoredTokenForUser'] = _STOREDTOKENFORUSER
-DESCRIPTOR.enum_types_by_name['Role'] = _ROLE
-DESCRIPTOR.enum_types_by_name['AccessLevel'] = _ACCESSLEVEL
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 StoredToken = _reflection.GeneratedProtocolMessageType('StoredToken', (_message.Message,), dict(

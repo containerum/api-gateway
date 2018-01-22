@@ -22,7 +22,7 @@ message CreateTokenRequest {
     string fingerprint = 2;
     UUID user_id = 3;
     string user_ip = 4;
-    Role user_role = 5;
+    string user_role = 5;
     bool rw_access = 6;
     ResourcesAccess access = 7;
     UUID part_token_id = 8;
@@ -43,7 +43,7 @@ message CheckTokenRequest {
 message CheckTokenResponse {
     ResourcesAccess access = 1;
     UUID user_id = 2;
-    Role user_role = 3;
+    string user_role = 3;
     UUID token_id = 4;
     UUID part_token_id = 5;
 }
