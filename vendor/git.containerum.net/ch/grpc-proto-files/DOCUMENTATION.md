@@ -16,8 +16,6 @@
     - [StoredToken](#.StoredToken)
     - [StoredTokenForUser](#.StoredTokenForUser)
   
-    - [AccessLevel](#.AccessLevel)
-    - [Role](#.Role)
   
   
   
@@ -99,7 +97,7 @@ Represents UUID in standart format
 | ----- | ---- | ----- | ----------- |
 | label | [string](#string) |  |  |
 | id | [string](#string) |  |  |
-| access | [.AccessLevel](#..AccessLevel) |  |  |
+| access | [string](#string) |  |  |
 
 
 
@@ -135,7 +133,7 @@ Represents UUID in standart format
 | platform | [string](#string) |  |  |
 | fingerprint | [string](#string) |  |  |
 | user_id | [.UUID](#..UUID) |  |  |
-| user_role | [.Role](#..Role) |  |  |
+| user_role | [string](#string) |  |  |
 | user_namespace | [string](#string) |  |  |
 | user_volume | [string](#string) |  |  |
 | rw_access | [bool](#bool) |  |  |
@@ -165,28 +163,6 @@ Represents UUID in standart format
 
 
  
-
-
-<a name=".AccessLevel"/>
-
-### AccessLevel
-
-
-| Name | Number | Description |
-| ---- | ------ | ----------- |
-| OWNER | 0 |  |
-
-
-
-<a name=".Role"/>
-
-### Role
-
-
-| Name | Number | Description |
-| ---- | ------ | ----------- |
-| USER | 0 |  |
-
 
  
 
@@ -265,7 +241,7 @@ The JSON representation for `Empty` is empty JSON object `{}`.
 | ----- | ---- | ----- | ----------- |
 | access | [.ResourcesAccess](#..ResourcesAccess) |  |  |
 | user_id | [.UUID](#..UUID) |  |  |
-| user_role | [.Role](#..Role) |  |  |
+| user_role | [string](#string) |  |  |
 | token_id | [.UUID](#..UUID) |  |  |
 | part_token_id | [.UUID](#..UUID) |  |  |
 
@@ -286,7 +262,7 @@ The JSON representation for `Empty` is empty JSON object `{}`.
 | fingerprint | [string](#string) |  |  |
 | user_id | [.UUID](#..UUID) |  |  |
 | user_ip | [string](#string) |  |  |
-| user_role | [.Role](#..Role) |  |  |
+| user_role | [string](#string) |  |  |
 | rw_access | [bool](#bool) |  |  |
 | access | [.ResourcesAccess](#..ResourcesAccess) |  |  |
 | part_token_id | [.UUID](#..UUID) |  |  |

@@ -5,7 +5,7 @@
   branch = "master"
   name = "git.containerum.net/ch/grpc-proto-files"
   packages = ["auth","common"]
-  revision = "a37cf53c18640c19d94263e11ddd4735fa79c9fe"
+  revision = "88c149b05138ce6362b2ffd66842176c6cfe4c8d"
 
 [[projects]]
   branch = "develop"
@@ -130,6 +130,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "aa6fd4c4354fb415d61a065b22e4e75dbf3da93334bcf32539e043e7b1649d1b"
+  inputs-digest = "0fa3520ed5443eb324cd9bea63d9fa2c5873535222c4057c29ebe67b42e2c2ff"
   solver-name = "gps-cdcl"
   solver-version = 1
