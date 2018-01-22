@@ -20,6 +20,8 @@ var (
 	ErrUnableParseToken = errors.New("Unable to parse JWT token")
 	//ErrInvalidToken - error when token is invalid
 	ErrInvalidToken = errors.New("Invalid access token")
+	//ErrAccessForbidden - error when access is forbidden
+	ErrAccessForbidden = errors.New("Access forbidden")
 
 	errorInvalidTokenMsg = struct {
 		Error string
@@ -33,10 +35,10 @@ func CheckAuthToken(authClient *auth.AuthClient) func(http.Handler) http.Handler
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			accessToken := r.Header.Get(authorizationHeader)
 			log.WithFields(log.Fields{
-				"useragent": w.Header().Get(userAgentXHeaderName),
-				"finger":    w.Header().Get(userClientXHeaderName),
-				"ip":        w.Header().Get(userIPXHeaderName),
-				"role":      auth.Role_USER,
+				"useragent":   w.Header().Get(userAgentXHeaderName),
+				"finger":      w.Header().Get(userClientXHeaderName),
+				"ip":          w.Header().Get(userIPXHeaderName),
+				"accessToken": accessToken,
 			}).Debug("Check token info")
 
 			token, err := (*authClient).CheckToken(context.Background(), &auth.CheckTokenRequest{
@@ -54,8 +56,8 @@ func CheckAuthToken(authClient *auth.AuthClient) func(http.Handler) http.Handler
 			}
 			w.Header().Add(userIDXHeaderName, token.UserId.Value)
 			log.WithField("Name", userIDXHeaderName).WithField("Value", token.UserId.Value).Debug("Add X-Header")
-			w.Header().Add(userRoleHeaderName, token.UserRole.String())
-			log.WithField("Name", userRoleHeaderName).WithField("Value", token.UserRole.String()).Debug("Add X-Header")
+			w.Header().Add(userRoleHeaderName, token.UserRole)
+			log.WithField("Name", userRoleHeaderName).WithField("Value", token.UserRole).Debug("Add X-Header")
 			w.Header().Add(tokenIDXHeaderName, token.TokenId.Value)
 			log.WithField("Name", tokenIDXHeaderName).WithField("Value", token.TokenId.Value).Debug("Add X-Header")
 			next.ServeHTTP(w, r)
@@ -66,7 +68,14 @@ func CheckAuthToken(authClient *auth.AuthClient) func(http.Handler) http.Handler
 func IsAdmin() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			next.ServeHTTP(w, r)
+			if w.Header().Get(userRoleHeaderName) == "admin" {
+				next.ServeHTTP(w, r)
+				return
+			}
+			w.WriteHeader(http.StatusForbidden)
+			b, _ := json.Marshal(errorInvalidTokenMsg)
+			log.Warn(ErrAccessForbidden)
+			w.Write([]byte(b))
 		})
 	}
 }
