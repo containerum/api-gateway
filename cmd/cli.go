@@ -10,49 +10,40 @@ var flags = []cli.Flag{
 		Name:   "debug, d",
 		Usage:  "start the server in debug mode",
 	},
-	cli.BoolFlag{
-		Name:  "migrate, m",
-		Usage: "start the server in migration mode",
-	},
 	cli.StringFlag{
 		EnvVar: "PG_USER",
 		Name:   "pg-user",
 		Usage:  "Postgres user",
-		Value:  "pg",
+		Value:  "gatewayapi",
 	},
 	cli.StringFlag{
 		EnvVar: "PG_PASSWORD",
 		Name:   "pg-password",
 		Usage:  "Postgres user password",
-		Value:  "123456789",
+		Value:  "Caik9miegh6k",
 	},
 	cli.StringFlag{
 		EnvVar: "PG_DATABASE",
 		Name:   "pg-database",
 		Usage:  "Postgres database",
-		Value:  "postgres",
+		Value:  "gatewayapi",
 	},
 	cli.StringFlag{
 		EnvVar: "PG_ADDRESS",
 		Name:   "pg-address",
 		Usage:  "Postgres address",
-		Value:  "x1.containerum.io",
+		Value:  "192.168.88.200",
 	},
 	cli.StringFlag{
 		EnvVar: "PG_PORT",
 		Name:   "pg-port",
 		Usage:  "Postgres port",
-		Value:  "36519",
+		Value:  "5432",
 	},
 	cli.BoolFlag{
-		EnvVar: "PG_DEBUG",
-		Name:   "pg-debug",
-		Usage:  "Write gorm logs",
-	},
-	cli.BoolFlag{
-		EnvVar: "PG_SAFE_MIGRATION",
-		Name:   "pg-safe-migration",
-		Usage:  "Use safe migration",
+		EnvVar: "PG_MIGRATIONS",
+		Name:   "pg-migrations",
+		Usage:  "Run migrations",
 	},
 	cli.StringFlag{
 		EnvVar: "STATSD_ADDRESS",
@@ -102,42 +93,22 @@ var flags = []cli.Flag{
 		Usage:  "Limit requests per second",
 		Value:  "3",
 	},
-}
-
-var commands = []cli.Command{
-	cli.Command{
-		Name:        "migration",
-		Subcommands: migrationCommands,
+	cli.StringFlag{
+		EnvVar: "CLICKHOUSE_LOGGER",
+		Name:   "clickhouse-logger",
+		Usage:  "Write all logs to clickhouse",
+		Value:  "88.99.160.131:7777",
 	},
-}
-
-var migrationCommands = []cli.Command{
-	cli.Command{
-		Name:   "init",
-		Usage:  "Creates migrations table",
-		Flags:  flags,
-		Before: setLogFormat,
-		Action: initMigration,
+	cli.StringFlag{
+		EnvVar: "TLS_CERT",
+		Name:   "tls-cert",
+		Usage:  "Cert.pem for HTTPS",
+		Value:  "cert.pem",
 	},
-	cli.Command{
-		Name:   "version",
-		Usage:  "Prints current db version",
-		Flags:  flags,
-		Before: setLogFormat,
-		Action: getMigrationVersion,
-	},
-	cli.Command{
-		Name:   "up",
-		Usage:  "Runs all available migrations",
-		Flags:  flags,
-		Before: setLogFormat,
-		Action: upMigration,
-	},
-	cli.Command{
-		Name:   "down",
-		Usage:  "Reverts last migration",
-		Flags:  flags,
-		Before: setLogFormat,
-		Action: downMigration,
+	cli.StringFlag{
+		EnvVar: "TLS_KEY",
+		Name:   "tls-key",
+		Usage:  "Key.pem for HTTPS",
+		Value:  "key.pem",
 	},
 }

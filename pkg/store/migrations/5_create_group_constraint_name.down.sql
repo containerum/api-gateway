@@ -1,0 +1,1 @@
+ALTER TABLE "groups" DROP CONSTRAINT IF EXISTS unique_name;

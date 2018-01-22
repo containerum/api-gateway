@@ -8,6 +8,12 @@
   revision = "a37cf53c18640c19d94263e11ddd4735fa79c9fe"
 
 [[projects]]
+  branch = "develop"
+  name = "git.containerum.net/ch/json-types"
+  packages = ["gateway"]
+  revision = "986787004130d84dc14b7224305ccac2fcc76368"
+
+[[projects]]
   branch = "master"
   name = "git.containerum.net/ch/ratelimiter"
   packages = ["."]
@@ -20,16 +26,16 @@
   version = "v1.0.3"
 
 [[projects]]
+  name = "github.com/asaskevich/govalidator"
+  packages = ["."]
+  revision = "521b25f4b05fd26bec69d9dedeb8f9c9a83939a8"
+  version = "v8"
+
+[[projects]]
   name = "github.com/cactus/go-statsd-client"
   packages = ["statsd"]
   revision = "91c326c3f7bd20f0226d3d1c289dd9f8ce28d33d"
   version = "v3.1.0"
-
-[[projects]]
-  name = "github.com/fatih/structs"
-  packages = ["."]
-  revision = "a720dfa8df582c51dee1b36feabb906bde1588bd"
-  version = "v1.0"
 
 [[projects]]
   name = "github.com/go-chi/chi"
@@ -50,22 +56,22 @@
   revision = "1e59b77b52bf8e4b449a57e6f79f21226d571845"
 
 [[projects]]
-  name = "github.com/jinzhu/gorm"
-  packages = [".","dialects/postgres"]
-  revision = "5174cc5c242a728b435ea2be8a2f7f998e15429b"
-  version = "v1.0"
-
-[[projects]]
   branch = "master"
-  name = "github.com/jinzhu/inflection"
-  packages = ["."]
-  revision = "1c35d901db3da928c72a72d8458480cc9ade058f"
+  name = "github.com/jmoiron/sqlx"
+  packages = [".","reflectx"]
+  revision = "de8647470aafe4854c976707c431dbe1eb2822c6"
 
 [[projects]]
   branch = "master"
   name = "github.com/lib/pq"
-  packages = [".","hstore","oid"]
+  packages = [".","oid"]
   revision = "83612a56d3dd153a94a629cd64925371c9adad78"
+
+[[projects]]
+  name = "github.com/mattes/migrate"
+  packages = [".","database","database/postgres","source","source/file"]
+  revision = "035c07716cd373d88456ec4d701402df52584cb4"
+  version = "v3.0.1"
 
 [[projects]]
   name = "github.com/rs/cors"
@@ -124,6 +130,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9e56737a8c396a332087fac7a25a239958c224763df6c24dd69ed8cd7536af8c"
+  inputs-digest = "aa6fd4c4354fb415d61a065b22e4e75dbf3da93334bcf32539e043e7b1649d1b"
   solver-name = "gps-cdcl"
   solver-version = 1

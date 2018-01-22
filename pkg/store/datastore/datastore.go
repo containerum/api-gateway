@@ -1,80 +1,119 @@
 package datastore
 
 import (
-	"git.containerum.net/ch/api-gateway/pkg/store/migrations"
-	"github.com/jinzhu/gorm"
+	"database/sql"
+	"fmt"
+	"time"
+
+	"git.containerum.net/ch/api-gateway/pkg/model"
+
+	"github.com/jmoiron/sqlx"
+
+	"github.com/mattes/migrate"
+	"github.com/mattes/migrate/database/postgres"
+	_ "github.com/mattes/migrate/source/file" //file driver for migrations
+
+	log "github.com/Sirupsen/logrus"
 )
 
-type datastore struct {
-	*gorm.DB
+type data struct {
+	*sqlx.DB
 }
 
-//New returns Store with gorm DB
-func New(db *gorm.DB) interface{} {
-	return &datastore{db}
+var (
+	migrationsPath = "file://pkg/store/migrations"
+)
+
+//ListenerGroup struct for scan listener and group in one scan
+type ListenerGroup struct {
+	model.Listener
+	GroupName      string    `db:"group_name"`
+	GroupCreatedAt time.Time `db:"group_created_at"`
+	GroupUpdatedAt time.Time `db:"group_updated_at"`
+	GroupActive    bool      `db:"group_active"`
 }
 
-//Init Create migration table
-func (d *datastore) Init() error {
-	//Create table
-	err := d.AutoMigrate(&migrations.Migration{}).Error
+//New create Store interface
+func New(config model.DatabaseConfig) (interface{}, error) {
+	db, err := sqlx.Connect("postgres", fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=disable",
+		config.Address,
+		config.Port,
+		config.User,
+		config.Database,
+		config.Password,
+	))
 	if err != nil {
-		return err
+		log.WithError(err).Fatal(ErrUnableConnectPostgres)
+		return nil, ErrUnableConnectPostgres
 	}
-	//Write first record if not exists
-	var m migrations.Migration
-	err = d.First(&m).Error
-	if err != nil {
-		if err.Error() == "record not found" {
-			m.Dirty = false
-			m.Version = 0
-			d.NewRecord(&m)
-			if err = d.Create(&m).Error; err != nil {
-				return err
-			}
-		} else {
-			return err
+	if config.Migrations {
+		if err := runMigrationUP(db.DB); err != nil {
+			log.WithError(err).Fatal(ErrUnableRunMigrations)
+			return nil, ErrUnableRunMigrations
 		}
 	}
+	return &data{db}, nil
+}
+
+func runMigrationUP(db *sql.DB) error {
+	driver, err := postgres.WithInstance(db, &postgres.Config{})
+	if err != nil {
+		log.WithError(err).Fatal(ErrUnableCreatePostgresInstance)
+		return ErrUnableCreatePostgresInstance
+	}
+	log.WithField("Path", migrationsPath).Debug("Migrations")
+	m, err := migrate.NewWithDatabaseInstance(migrationsPath, "postgres", driver)
+	if err != nil {
+		log.WithError(err).Fatal(ErrUnableCreateMigrationInstance)
+		return ErrUnableCreateMigrationInstance
+	}
+	if err = m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.WithError(err).Fatal(ErrUnableRunUpMigration)
+		return ErrUnableRunUpMigration
+	}
+	version, dirty, err := m.Version()
+	if err != nil {
+		log.WithError(err).Fatal(ErrUnableGetMigrationVersion)
+		return ErrUnableGetMigrationVersion
+	}
+	log.WithFields(log.Fields{
+		"Version": version,
+		"Dirty":   dirty,
+	}).Info("Migration")
 	return nil
 }
 
-//Version return curent DB Migration Version
-func (d *datastore) Version() (int, error) {
-	var m migrations.Migration
-	err := d.First(&m).Error
-	if err != nil {
-		return 0, err
+func initRows() *sqlx.Rows {
+	return &sqlx.Rows{}
+}
+
+func scanListenerGroup(rows *sqlx.Rows) (*model.Listener, error) {
+	var localListener ListenerGroup
+	if err := rows.StructScan(&localListener); err != nil {
+		log.WithError(err).Warn(ErrUnableScanListener)
+		return nil, ErrUnableScanListener
 	}
-	return m.Version, nil
+	return &model.Listener{
+		DefaultModel: model.DefaultModel{
+			ID:        localListener.ID,
+			CreatedAt: localListener.CreatedAt,
+			UpdatedAt: localListener.UpdatedAt,
+		},
+		Name:       localListener.Name,
+		OAuth:      localListener.OAuth,
+		Active:     localListener.Active,
+		GroupRefer: localListener.GroupRefer,
+		Group: model.Group{
+			DefaultModel: model.DefaultModel{
+				ID:        localListener.GroupRefer,
+				CreatedAt: localListener.GroupCreatedAt,
+				UpdatedAt: localListener.GroupUpdatedAt,
+			},
+			Name: localListener.GroupName,
+		},
+		StripPath:   localListener.StripPath,
+		ListenPath:  localListener.ListenPath,
+		UpstreamURL: localListener.UpstreamURL,
+		Method:      localListener.Method,
+	}, nil
 }
-
-//Up run all migration
-func (d *datastore) Up() (int, error) {
-	return migrations.RunMigrations(d.DB)
-}
-
-//Down run last down migration
-func (d *datastore) Down() (int, error) {
-	v, err := d.Version()
-	if err != nil {
-		return 0, err
-	}
-	return migrations.RunMigrationsDown(v, d.DB)
-}
-
-//NOTE: Example work with gorm
-// l := &model.Listener{}
-// db.First(l)
-//
-// fmt.Print(*l)
-
-// listener := &model.Listener{
-// 	Name:        "newModel",
-// 	StripPath:   true,
-// 	ListenPath:  "/yy/*",
-// 	UpstreamURL: "http://192.168.88.57:8888",
-// 	Methods:     []string{"get", "post"},
-// }
-// db.NewRecord(listener)
-// db.Create(listener)

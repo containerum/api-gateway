@@ -1,53 +1,93 @@
 package datastore
 
 import (
-	"fmt"
+	"time"
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 //GetListener find Listener by ID
-func (d *datastore) GetListener(id string) (*model.Listener, error) {
-	var listener model.Listener
-	d.Where("id = ?", id).First(&listener)
-	if listener.ID == "" {
-		return &listener, fmt.Errorf("Unable to find Listener with id = %v", id)
+func (d *data) GetListener(id string) (*model.Listener, error) {
+	rows, err := d.Queryx(SQLGetListener, id)
+	if err != nil {
+		log.WithError(err).Warn(ErrUnableGetListener)
+		return nil, ErrUnableGetListener
 	}
-	return &listener, nil
-}
-
-//FindListener find first listener by input model
-func (d *datastore) FindListener(l *model.Listener) (*model.Listener, error) {
-	var listener model.Listener
-	return &listener, nil
+	defer rows.Close()
+	if !rows.Next() {
+		log.Warn(ErrNoRows)
+		return nil, ErrNoRows
+	}
+	return scanListenerGroup(rows)
 }
 
 //GetListenerList find all listeers by input model
-func (d *datastore) GetListenerList(l *model.Listener) (*[]model.Listener, error) {
+func (d *data) GetListenerList(active *bool) (*[]model.Listener, error) {
 	var listeners []model.Listener
-	err := d.Where(l).Find(&listeners).Error
-	return &listeners, err
+	var err error
+	rows := initRows()
+	if active != nil {
+		rows, err = d.Queryx(SQLGetListenersActive, active)
+	} else {
+		rows, err = d.Queryx(SQLGetListeners)
+	}
+	if err != nil {
+		log.WithError(err).Warn(ErrUnableGetListeners)
+		return nil, ErrUnableGetListeners
+	}
+	defer rows.Close()
+	for rows.Next() {
+		listener, err := scanListenerGroup(rows)
+		if err != nil {
+			return nil, err
+		}
+		listeners = append(listeners, *listener)
+	}
+	return &listeners, nil
 }
 
+//TODO Get updated time
 //UpdateListener updates model in DB
-func (d *datastore) UpdateListener(l *model.Listener) error {
-	return d.Model(l).Update(model.Listener{
-		Method:      l.Method,
-		Active:      l.Active,
-		ListenPath:  l.ListenPath,
-		UpstreamURL: l.UpstreamURL,
-		OAuth:       l.OAuth,
-		StripPath:   l.StripPath,
-	}).Error
+func (d *data) UpdateListener(l *model.Listener) error {
+	_, err := d.Exec(SQLUpdateListener, l.Name, l.OAuth, l.Active, l.StripPath, l.ListenPath, l.UpstreamURL, l.Method, l.GroupRefer, l.ID)
+	if err != nil {
+		log.WithError(err).Warn(ErrUnableUpdateListener)
+		return ErrUnableUpdateListener
+	}
+	return nil
 }
 
 //CreateListener create new listener in DB
-func (d *datastore) CreateListener(l *model.Listener) (*model.Listener, error) {
-	d.NewRecord(l)
-	return l, d.Save(l).Error
+func (d *data) CreateListener(l *model.Listener) (*model.Listener, error) {
+	var id string
+	var created time.Time
+	rows, err := d.Queryx(SQLCreateListener, l.Name, l.OAuth, l.Active, l.StripPath, l.ListenPath, l.UpstreamURL, l.Method, l.GroupRefer)
+	if err != nil {
+		log.WithError(err).Warn(ErrUnableCreateListener)
+		return nil, ErrUnableCreateListener
+	}
+	defer rows.Close()
+	if !rows.Next() {
+		log.Warn(ErrNoRows)
+		return nil, ErrNoRows
+	}
+	if err := rows.Scan(&id, &created); err != nil {
+		log.WithError(err).Warn(ErrUnableScanListenerID)
+		return nil, ErrUnableScanListenerID
+	}
+	l.ID = id
+	l.CreatedAt, l.UpdatedAt = created, created
+	return l, nil
 }
 
 //DeleteListener delete listener in DB by ID
-func (d *datastore) DeleteListener(id string) error {
-	return d.Where("id = ?", id).Delete(&model.Listener{}).Error
+func (d *data) DeleteListener(id string) error {
+	_, err := d.Exec(SQLDeleteListener, id)
+	if err != nil {
+		log.WithError(err).Warn(ErrUnableDeleteListener)
+		return ErrUnableDeleteListener
+	}
+	return nil
 }

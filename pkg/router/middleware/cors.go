@@ -12,7 +12,8 @@ func Cors() *cors.Cors {
 	return cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
-		AllowedMethods:   []string{"GET", "POST", "DELETE", "PUT", "OPTIONS"},
-		Debug:            true,
+		AllowedMethods:   []string{"GET", "POST", "DELETE", "PUT", "PATH", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type", "User-Client", "Authorization"},
+		Debug:            false,
 	})
 }

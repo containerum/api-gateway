@@ -4,14 +4,32 @@ FROM golang:1.9-alpine as builder
 WORKDIR src/git.containerum.net/ch/api-gateway
 COPY . .
 
-RUN CGO_ENABLED=0 go build -v -o /bin/ch-gateway -ldflags "-X git.containerum.net/ch/api-gateway/main.version=${APP_VERSION}" cmd/*
+RUN CGO_ENABLED=0 go build -v -o /bin/ch-gateway \
+    -ldflags "-X git.containerum.net/ch/api-gateway/main.version=${APP_VERSION}" cmd/*
+
+COPY pkg/store/migrations /pkg/store/migrations
+
+#### Generate Cert Step ####
+FROM alpine as generator
+
+RUN apk update && \
+  apk add --no-cache openssl && \
+  rm -rf /var/cache/apk/*
+
+WORKDIR /cert
+
+RUN openssl req -subj '/CN=containerum.io/O=Containerum/C=LV' -new -newkey rsa:2048 -sha256 -days 365 -nodes -x509 -keyout key.pem -out cert.pem
 
 #### Run Step ####
 # FROM scratch
 FROM ubuntu
 
-# Copy bin
+# Copy bin and migrations
 COPY --from=builder /bin/ch-gateway /
+COPY --from=builder /pkg/store/migrations /pkg/store/migrations
+
+# Copy certs
+COPY --from=generator /cert /cert
 
 # Set envs
 ENV GATEWAY_DEBUG=false \
@@ -20,8 +38,7 @@ ENV GATEWAY_DEBUG=false \
     PG_DATABASE="postgres" \
     PG_ADDRESS="x1.containerum.io" \
     PG_PORT="36519" \
-    PG_DEBUG="false" \
-    PG_SAFE_MIGRATION="true" \
+    PG_MIGRATIONS="true" \
     STATSD_ADDRESS="213.239.208.25:8125" \
     STATSD-PREFIX="ch-gateway" \
     STATSD-BUFFER-TIME=300 \
@@ -29,9 +46,12 @@ ENV GATEWAY_DEBUG=false \
     GRPC_AUTH_PORT="1112" \
     REDIS_ADDRESS="192.168.88.200:6379" \
     REDIS_PASSWORD="" \
-    RATE_LIMIT="3"
+    RATE_LIMIT="3" \
+    CLICKHOUSE_LOGGER="88.99.160.131:7777" \
+    TLS_CERT="/cert/cert.pem" \
+    TLS_KEY="/cert/key.pem"
 
 # run app
 ENTRYPOINT ["/ch-gateway"]
 
-EXPOSE 8081
+EXPOSE 8082

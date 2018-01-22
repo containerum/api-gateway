@@ -1,13 +1,16 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	"git.containerum.net/ch/api-gateway/pkg/store"
 
+	clickhouse "git.containerum.net/ch/api-gateway/pkg/utils/clickhouselog"
 	"git.containerum.net/ch/grpc-proto-files/auth"
 	rate "git.containerum.net/ch/ratelimiter"
 
@@ -21,15 +24,14 @@ import (
 //setup DB and migration imp. in Store
 func setupStore(c *cli.Context) *store.Store {
 	st, err := store.New(model.DatabaseConfig{
-		User:          c.String("pg-user"),
-		Password:      c.String("pg-password"),
-		Database:      c.String("pg-database"),
-		Address:       c.String("pg-address"),
-		Port:          c.String("pg-port"),
-		Debug:         c.Bool("pg-debug"),
-		SafeMigration: c.Bool("pg-safe-migration"),
+		User:       c.String("pg-user"),
+		Password:   c.String("pg-password"),
+		Database:   c.String("pg-database"),
+		Address:    c.String("pg-address"),
+		Port:       c.String("pg-port"),
+		Debug:      c.Bool("pg-debug"),
+		Migrations: c.Bool("pg-migrations"),
 	})
-
 	if err != nil {
 		panic(err)
 	}
@@ -91,6 +93,31 @@ func setupStatsd(c *cli.Context) *statsd.Statter {
 		}).Warning("Setup Statsd failed")
 	}
 	return &std
+}
+
+func setupClickhouseLogger(c *cli.Context) *clickhouse.LogClient {
+	client, err := clickhouse.OpenConenction(c.String("clickhouse-logger"))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"Err":     err,
+			"Address": c.String("clickhouse-logger"),
+		}).Warning("Setup Clickhouse Logger failed")
+	}
+	return client
+}
+
+func setupTSL(c *cli.Context) (certFile string, keyFile string, err error) {
+	if _, e := os.Stat(c.String("tls-cert")); os.IsNotExist(e) {
+		log.WithError(err).Error("Unable to open cert.pem")
+		err = errors.New("Unable to open cert.pem")
+		return
+	}
+	if _, e := os.Stat(c.String("tls-key")); os.IsNotExist(e) {
+		log.WithError(err).Error("Unable to open key.pem")
+		err = errors.New("Unable to open key.pem")
+		return
+	}
+	return c.String("tls-cert"), c.String("tls-key"), nil
 }
 
 // _, err = client.CheckToken(context.Background(), &auth.CheckTokenRequest{
