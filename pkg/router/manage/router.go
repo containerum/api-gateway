@@ -92,6 +92,7 @@ func (m manage) UpdateRouter() http.HandlerFunc {
 			WriteAnswer(http.StatusBadRequest, createRouterMethod, &w, nil, err...)
 			return
 		}
+		listenerNew.ID = id
 		if err := (*m.st).UpdateListener(&listenerNew); err != nil {
 			WriteAnswer(http.StatusInternalServerError, updateRouterMethod, &w, nil, err)
 			return
