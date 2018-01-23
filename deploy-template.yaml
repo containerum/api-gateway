@@ -56,6 +56,12 @@ spec:
           value: '${GRPC_AUTH_PORT}'
         - name: CLICKHOUSE_LOGGER
           value: '${CLICKHOUSE_LOGGER}'
+        volumeMounts:
+        - mountPath: /cert/
+          name: config
       imagePullSecrets:
       - name: regsecret
-
+      volumes:
+        - name: config
+          configMap:
+            name: ch-gateway
