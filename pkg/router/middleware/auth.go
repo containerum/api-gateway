@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -54,12 +55,29 @@ func CheckAuthToken(authClient *auth.AuthClient) func(http.Handler) http.Handler
 				log.WithError(err).Warn(ErrInvalidToken)
 				return
 			}
+			ns, vol, err := encodeAccessToBase64(token.GetAccess())
+			if err != nil {
+				w.WriteHeader(http.StatusUnauthorized)
+				b, _ := json.Marshal(errorInvalidTokenMsg)
+				w.Write([]byte(b))
+				log.WithError(err).Warn(ErrInvalidToken)
+				return
+			}
 			w.Header().Add(userIDXHeaderName, token.UserId.Value)
 			log.WithField("Name", userIDXHeaderName).WithField("Value", token.UserId.Value).Debug("Add X-Header")
+
 			w.Header().Add(userRoleHeaderName, token.UserRole)
 			log.WithField("Name", userRoleHeaderName).WithField("Value", token.UserRole).Debug("Add X-Header")
+
 			w.Header().Add(tokenIDXHeaderName, token.TokenId.Value)
 			log.WithField("Name", tokenIDXHeaderName).WithField("Value", token.TokenId.Value).Debug("Add X-Header")
+
+			w.Header().Add(userNamespacesXHeaderName, ns)
+			log.WithField("Name", userNamespacesXHeaderName).WithField("Value", ns).Debug("Add X-Header")
+
+			w.Header().Add(userVolumesXHeaderName, vol)
+			log.WithField("Name", userVolumesXHeaderName).WithField("Value", vol).Debug("Add X-Header")
+
 			next.ServeHTTP(w, r)
 		})
 	}
@@ -78,4 +96,22 @@ func IsAdmin() func(http.Handler) http.Handler {
 			w.Write([]byte(b))
 		})
 	}
+}
+
+func encodeAccessToBase64(access *auth.ResourcesAccess) (ns string, vol string, err error) {
+	userNamespaces := access.GetNamespace()
+	userVolumes := access.GetVolume()
+	bNs, e := json.Marshal(userNamespaces)
+	if e != nil {
+		err = e
+		return
+	}
+	ns = base64.StdEncoding.EncodeToString(bNs)
+	bVol, e := json.Marshal(userVolumes)
+	if e != nil {
+		err = e
+		return
+	}
+	vol = base64.StdEncoding.EncodeToString(bVol)
+	return
 }
