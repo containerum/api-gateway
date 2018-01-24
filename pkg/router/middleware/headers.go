@@ -16,12 +16,15 @@ import (
 const (
 	userClientHeaderName = "User-Client"
 
-	userIDXHeaderName     = "X-User-ID"
-	userClientXHeaderName = "X-User-Client"
-	userAgentXHeaderName  = "X-User-Agent"
-	userIPXHeaderName     = "X-Client-IP"
-	tokenIDXHeaderName    = "X-Token-ID"
-	userRoleHeaderName    = "X-User-Role"
+	userIDXHeaderName         = "X-User-ID"
+	userClientXHeaderName     = "X-User-Client"
+	userAgentXHeaderName      = "X-User-Agent"
+	userIPXHeaderName         = "X-Client-IP"
+	tokenIDXHeaderName        = "X-Token-ID"
+	userRoleHeaderName        = "X-User-Role"
+	userNamespacesXHeaderName = "X-User-Namespace"
+	userVolumesXHeaderName    = "X-User-Volume"
+	userHideDataXHeaderName   = "X-User-Hide-Data"
 )
 
 var (
@@ -74,6 +77,8 @@ func TranslateUserXHeaders(next http.Handler) http.Handler {
 		log.WithField("Name", userIPXHeaderName).WithField("Value", ip).Debug("Add X-Header")
 		w.Header().Add(userAgentXHeaderName, r.UserAgent()) //Add X-User-Agent
 		log.WithField("Name", userAgentXHeaderName).WithField("Value", r.UserAgent()).Debug("Add X-Header")
+		w.Header().Add(userHideDataXHeaderName, "true") //X-User-Hide-Data
+		log.WithField("Name", userHideDataXHeaderName).WithField("Value", "true").Debug("Add X-Header")
 		//Translate user header to X header
 		for k, v := range r.Header {
 			if k == userClientHeaderName && len(v) > 0 { //Add X-User-Client
