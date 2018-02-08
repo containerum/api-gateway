@@ -37,7 +37,7 @@ func createDirector(target *model.Listener, headers *http.Header) func(r *http.R
 
 		if target.StripPath {
 			strPath := stripPath(target.ListenPath, r.URL.Path)
-			r.URL.Path = singleJoiningSlash(targetURL.Path, strPath)
+			r.URL.Path = singleJoiningSlash(buildHostUrl(*targetURL), strPath)
 		}
 		if headers != nil {
 			r.Header = *headers
@@ -66,4 +66,8 @@ func stripPath(listenPath, path string) string {
 	r, _ := regexp.Compile(re)
 
 	return r.ReplaceAllString(path, "")
+}
+
+func buildHostUrl(u url.URL) string {
+	return u.Scheme + "://" + u.Host
 }
