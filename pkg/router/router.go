@@ -82,9 +82,12 @@ func (r *Router) InitRoutes() {
 	r.Use(middleware.Rate(r.rateClient))
 	r.Use(chimid.Recoverer)
 
-	r.With(middleware.CheckAuthToken(r.authClient)).Mount("/manage", CreateManageRouter(r)) //Manage handlers
-	r.NotFound(noRouteHandler())                                                            //Init Not Found page handler
-	r.HandleFunc("/", rootRouteHandler())                                                   //Init root route handler
+	r.With(
+		middleware.CheckAuthToken(r.authClient),
+		middleware.CheckUserRole([]string{"admin"}),
+	).Mount("/manage", CreateManageRouter(r)) //Manage handlers
+	r.NotFound(noRouteHandler())          //Init Not Found page handler
+	r.HandleFunc("/", rootRouteHandler()) //Init root route handler
 }
 
 //RegisterStore registre store interface in router
@@ -198,7 +201,10 @@ func (r *Router) addRoute(target model.Listener) {
 	defer r.Unlock()
 	method := strings.ToUpper(target.Method)
 	if target.OAuth {
-		r.With(middleware.CheckAuthToken(r.authClient)).MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
+		r.With(
+			middleware.CheckAuthToken(r.authClient),
+			middleware.CheckUserRole(target.Roles),
+		).MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
 			buildProxy(&target, w, req)
 		})
 	} else {
@@ -216,6 +222,7 @@ func (r *Router) addRoute(target model.Listener) {
 		"Auth":        target.OAuth,
 		"StripPath":   target.StripPath,
 		"Group":       target.Group.Name,
+		"Roles":       target.Roles,
 	}).Info("New route")
 }
 
@@ -235,11 +242,13 @@ func copyListenersMap(src map[string]*model.Listener, dst *map[string]model.List
 	}
 }
 
-func appendListenersMap(arrs ...map[string]model.Listener) (res map[string]model.Listener) {
+func appendListenersMap(arrs ...map[string]model.Listener) map[string]model.Listener {
+	res := make(map[string]model.Listener)
 	for _, arr := range arrs {
 		for k, v := range arr {
+			log.WithField("Listener", v).WithField("Key", k).Debug("Append listener")
 			res[k] = v
 		}
 	}
-	return
+	return res
 }

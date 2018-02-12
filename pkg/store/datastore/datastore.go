@@ -115,5 +115,6 @@ func scanListenerGroup(rows *sqlx.Rows) (*model.Listener, error) {
 		ListenPath:  localListener.ListenPath,
 		UpstreamURL: localListener.UpstreamURL,
 		Method:      localListener.Method,
+		Roles:       localListener.Roles,
 	}, nil
 }

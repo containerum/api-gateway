@@ -21,6 +21,8 @@ var (
 	ErrUnableParseToken = errors.New("Unable to parse JWT token")
 	//ErrInvalidToken - error when token is invalid
 	ErrInvalidToken = errors.New("Invalid access token")
+	//ErrInvalidRole- error when user has "bad" role
+	ErrInvalidRole = errors.New("Invalid user role")
 	//ErrAccessForbidden - error when access is forbidden
 	ErrAccessForbidden = errors.New("Access forbidden")
 
@@ -89,6 +91,24 @@ func IsAdmin() func(http.Handler) http.Handler {
 			if w.Header().Get(userRoleHeaderName) == "admin" {
 				next.ServeHTTP(w, r)
 				return
+			}
+			w.WriteHeader(http.StatusForbidden)
+			b, _ := json.Marshal(errorInvalidTokenMsg)
+			log.Warn(ErrInvalidRole)
+			w.Write([]byte(b))
+		})
+	}
+}
+
+func CheckUserRole(targetRoles []string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			userRole := w.Header().Get(userRoleHeaderName)
+			for _, role := range targetRoles {
+				if role == userRole {
+					next.ServeHTTP(w, r)
+					return
+				}
 			}
 			w.WriteHeader(http.StatusForbidden)
 			b, _ := json.Marshal(errorInvalidTokenMsg)
