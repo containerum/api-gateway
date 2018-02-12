@@ -68,7 +68,7 @@ type Listener struct {
 	UpstreamURL string `db:"upstream_url"`
 	Method      string `db:"method"`
 
-	// Roles  []Role
+	Roles []string `db:"roles"`
 	// Plugins []Plugin
 }
 

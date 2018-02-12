@@ -3,12 +3,12 @@ package datastore
 var (
 	//SQLGetListener get listener by ID
 	SQLGetListener = "SELECT listeners.id, listeners.created_at, listeners.updated_at, listeners.name, listeners.o_auth," +
-		"listeners.active, listeners.strip_path, listeners.listen_path, listeners.upstream_url, listeners.method, listeners.group_refer," +
+		"listeners.active, listeners.strip_path, listeners.listen_path, listeners.upstream_url, listeners.method, listeners.group_refer, listeners.roles," +
 		"groups.name as group_name, groups.created_at as group_created_at, groups.updated_at as group_updated_at, groups.active as group_active " +
 		"FROM listeners INNER JOIN groups ON listeners.group_refer = groups.id WHERE listeners.id = $1;"
 	//SQLGetListeners get all listeners
 	SQLGetListeners = "SELECT listeners.id, listeners.created_at, listeners.updated_at, listeners.name, listeners.o_auth," +
-		"listeners.active, listeners.strip_path, listeners.listen_path, listeners.upstream_url, listeners.method, listeners.group_refer," +
+		"listeners.active, listeners.strip_path, listeners.listen_path, listeners.upstream_url, listeners.method, listeners.group_refer, listeners.roles," +
 		"groups.name as group_name, groups.created_at as group_created_at, groups.updated_at as group_updated_at, groups.active as group_active " +
 		"FROM listeners INNER JOIN groups ON listeners.group_refer = groups.id"
 	//SQLGetListenersActive get all listeners by active
