@@ -94,7 +94,7 @@ func IsAdmin() func(http.Handler) http.Handler {
 			}
 			w.WriteHeader(http.StatusForbidden)
 			b, _ := json.Marshal(errorInvalidTokenMsg)
-			log.Warn(ErrInvalidRole)
+			log.Warn(ErrAccessForbidden)
 			w.Write([]byte(b))
 		})
 	}
@@ -112,7 +112,7 @@ func CheckUserRole(targetRoles []string) func(http.Handler) http.Handler {
 			}
 			w.WriteHeader(http.StatusForbidden)
 			b, _ := json.Marshal(errorInvalidTokenMsg)
-			log.Warn(ErrAccessForbidden)
+			log.WithField("Role", w.Header().Get(userRoleHeaderName)).Warn(ErrInvalidRole)
 			w.Write([]byte(b))
 		})
 	}
