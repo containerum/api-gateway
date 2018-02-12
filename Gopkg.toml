@@ -22,6 +22,10 @@
 
 
 [[constraint]]
+  branch = "develop"
+  name = "git.containerum.net/ch/json-types"
+
+[[constraint]]
   name = "github.com/Sirupsen/logrus"
   version = "1.0.3"
 
