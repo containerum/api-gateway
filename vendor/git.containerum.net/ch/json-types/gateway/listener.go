@@ -1,12 +1,12 @@
 package gateway
 
 type ListenerJSON struct {
-	ID        *string `json:"id,omitempty"`
-	CreatedAt *int64  `json:"created_at,omitempty"`
-	UpdatedAt *int64  `json:"updated_at,omitempty"`
-	DeletedAt *int64  `json:"deleted_at,omitempty"`
-	Name      *string `json:"name,omitempty"`
-	// Roles       []Role   `json:"deleted_at,omitempty"`
+	ID          *string    `json:"id,omitempty"`
+	CreatedAt   *int64     `json:"created_at,omitempty"`
+	UpdatedAt   *int64     `json:"updated_at,omitempty"`
+	DeletedAt   *int64     `json:"deleted_at,omitempty"`
+	Name        *string    `json:"name,omitempty"`
+	Roles       []string   `json:"roles,omitempty"`
 	OAuth       *bool      `json:"o_auth,omitempty"`
 	Active      *bool      `json:"active,omitempty"`
 	Group       *GroupJSON `json:"group,omitempty"`

@@ -1,6 +1,7 @@
 package model
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -68,7 +69,8 @@ type Listener struct {
 	UpstreamURL string `db:"upstream_url"`
 	Method      string `db:"method"`
 
-	Roles []string `db:"roles"`
+	Roles sql.RawBytes `db:"roles"`
+	roles []string
 	// Plugins []Plugin
 }
 
@@ -92,6 +94,7 @@ func (l Listener) MarshalJSON() ([]byte, error) {
 		ListenPath:  &l.ListenPath,
 		UpstreamURL: &l.UpstreamURL,
 		Method:      &l.Method,
+		Roles:       l.GetRoles(),
 	}
 	return json.Marshal(listener)
 }
@@ -167,6 +170,14 @@ func (l *Listener) Validate() (err []error) {
 		err = append(err, ErrInvalidListenPathURLProtocol)
 	}
 	return
+}
+
+func (l *Listener) SetRoles(r []string) {
+	l.roles = r
+}
+
+func (l *Listener) GetRoles() []string {
+	return l.roles
 }
 
 //GetSnakeName return Listerner name in snake case

@@ -13,7 +13,7 @@ var (
 		"FROM listeners INNER JOIN groups ON listeners.group_refer = groups.id"
 	//SQLGetListenersActive get all listeners by active
 	SQLGetListenersActive = "SELECT id, created_at, updated_at, name, o_auth," +
-		"active, strip_path, listen_path, upstream_url, method, group_refer FROM listeners " +
+		"active, strip_path, listen_path, upstream_url, method, group_refer, roles FROM listeners " +
 		" WHERE active = $1;"
 	//SQLCreateListener create listener
 	SQLCreateListener = "INSERT INTO listeners (name, o_auth, active, strip_path, listen_path, upstream_url, method, group_refer) " +

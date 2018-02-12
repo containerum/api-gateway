@@ -3,6 +3,7 @@ package datastore
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
@@ -93,7 +94,7 @@ func scanListenerGroup(rows *sqlx.Rows) (*model.Listener, error) {
 		log.WithError(err).Warn(ErrUnableScanListener)
 		return nil, ErrUnableScanListener
 	}
-	return &model.Listener{
+	listener := &model.Listener{
 		DefaultModel: model.DefaultModel{
 			ID:        localListener.ID,
 			CreatedAt: localListener.CreatedAt,
@@ -116,5 +117,16 @@ func scanListenerGroup(rows *sqlx.Rows) (*model.Listener, error) {
 		UpstreamURL: localListener.UpstreamURL,
 		Method:      localListener.Method,
 		Roles:       localListener.Roles,
-	}, nil
+	}
+	listener.SetRoles(parseRoles(localListener.Roles))
+	return listener, nil
+}
+
+func parseRoles(br []byte) []string {
+	var roles []string
+	str := string(br)
+	str = strings.TrimLeft(str, "{")
+	str = strings.TrimRight(str, "}")
+	roles = strings.Split(str, ",")
+	return roles
 }

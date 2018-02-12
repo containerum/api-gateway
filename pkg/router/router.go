@@ -203,7 +203,7 @@ func (r *Router) addRoute(target model.Listener) {
 	if target.OAuth {
 		r.With(
 			middleware.CheckAuthToken(r.authClient),
-			middleware.CheckUserRole(target.Roles),
+			middleware.CheckUserRole(target.GetRoles()),
 		).MethodFunc(method, target.ListenPath, func(w http.ResponseWriter, req *http.Request) {
 			buildProxy(&target, w, req)
 		})
