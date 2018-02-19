@@ -61,7 +61,7 @@ deploy to production:
   <<: *create_tag
   image: mastanggt/kubectl:latest
   stage: production
-  tags: [build]
+  tags: [production]
   when: manual
   script:
     - export ZONE=PROD
