@@ -67,3 +67,6 @@ deploy to production:
     - echo $PRODUCTION_KUBE_CONFIG | base64 -d > admin.conf
     - cat deploy-template.yaml | envsubst | envsubst > deploy.yaml
     - kubectl --kubeconfig=admin.conf replace -f deploy.yaml
+  only:
+    - develop
+    - master
