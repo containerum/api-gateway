@@ -58,9 +58,10 @@ deploy-to-kubernetes-develop:
     - develop
 
 deploy to production:
+  <<: *create_tag
   image: mastanggt/kubectl:latest
   stage: production
-  tags: [production]
+  tags: [build]
   when: manual
   script:
     - export ZONE=PROD
@@ -71,3 +72,4 @@ deploy to production:
   only:
     - develop
     - master
+
