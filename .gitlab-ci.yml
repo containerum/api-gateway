@@ -58,6 +58,7 @@ deploy-to-kubernetes-develop:
     - develop
 
 deploy to production:
+  <<: *create_tag
   image: mastanggt/kubectl:latest
   stage: production
   tags: [build]
