@@ -42,8 +42,6 @@ build-and-push-develop:
   only:
     - develop
 
-
-
 deploy-to-kubernetes-develop:
   <<: *create_tag
   image: mastanggt/kubectl:latest
@@ -59,12 +57,9 @@ deploy-to-kubernetes-develop:
   only:
     - develop
 
-
-
-
 deploy to production:
   stage: production
-  tags: production
+  tags: [production]
   when: manual
   script:
     - export ZONE=PROD
