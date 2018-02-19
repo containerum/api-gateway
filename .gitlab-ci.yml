@@ -60,14 +60,13 @@ deploy-to-kubernetes-develop:
 deploy to production:
   image: mastanggt/kubectl:latest
   stage: production
-  tags: [production]
+  tags: [build]
   when: manual
   script:
     - export ZONE=PROD
     - export IMAGE="$CI_REGISTRY_IMAGE:${TAG}"
     - echo $PRODUCTION_KUBE_CONFIG | base64 -d > admin.conf
     - cat deploy-template.yaml | envsubst | envsubst > deploy.yaml
+    - cat deploy.yaml
+    - exit 0
     - kubectl --kubeconfig=admin.conf replace -f deploy.yaml
-  only:
-    - develop
-    - master
