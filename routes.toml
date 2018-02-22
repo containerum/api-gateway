@@ -1,0 +1,46 @@
+[routes]
+
+[[route.user]]
+active = true
+name = "Test route"
+short = "test_route"
+roles = ["*"]
+rate = 3
+methods = ["GET"]
+upstream = "http://localhost:80"
+listen = "/test"
+strip = false
+
+
+[[route.user]]
+active = true
+name = "Test route"
+short = "test_route"
+roles = ["*"]
+rate = 3
+methods = ["GET"]
+upstream = "http://localhost:80"
+listen = "/test"
+strip = false
+
+[[route.user]]
+active = true
+name = "Test route"
+short = "test_route"
+roles = ["*"]
+rate = 3
+methods = ["GET"]
+upstream = "http://localhost:80"
+listen = "/test"
+strip = false
+
+[[route.user]]
+active = true
+name = "Test route"
+short = "test_route"
+roles = ["*"]
+rate = 3
+methods = ["GET"]
+upstream = "http://localhost:80"
+listen = "/test"
+strip = false

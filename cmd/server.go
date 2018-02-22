@@ -14,6 +14,23 @@ func runServer(c *cli.Context) error {
 	if conf, err = getConfig(); err != nil {
 		return err
 	}
+
+	// sigs := make(chan os.Signal, 1)
+	// done := make(chan bool, 1)
+	// signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	//
+	// go func() {
+	// 	sig := <-sigs
+	// 	fmt.Println(sig)
+	// 	done <- true
+	// }()
+	//
+	// fmt.Println("awaiting signal")
+	// <-done
+	// fmt.Println("exiting")
+	//
+	// return nil
+
 	setupLogger(c)
 	serve := setupServer(c)
 	if conf.TLS.Enable {
