@@ -1,6 +1,10 @@
 package main
 
 import (
+	"fmt"
+
+	"git.containerum.net/ch/api-gateway/pkg/model"
+	"github.com/BurntSushi/toml"
 	"github.com/urfave/cli"
 )
 
@@ -31,16 +35,24 @@ func runServer(c *cli.Context) error {
 	//
 	// return nil
 
-	setupLogger(c)
-	serve := setupServer(c)
-	if conf.TLS.Enable {
-		cert, key, err := setupTSL(c)
-		if err != nil {
-			return err
-		}
-		return serve.Run(port, cert, key)
+	// setupLogger(c)
+	// serve := setupServer(c)
+	// if conf.TLS.Enable {
+	// 	cert, key, err := setupTSL(c)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	return serve.Run(port, cert, key)
+	// }
+	// return serve.Run(port, "", "")
+
+	var routes model.Routes
+	if _, err := toml.DecodeFile("routes.toml", &routes); err != nil {
+		return err
 	}
-	return serve.Run(port, "", "")
+	fmt.Println(routes)
+
+	return nil
 }
 
 //GetVersion return app version
