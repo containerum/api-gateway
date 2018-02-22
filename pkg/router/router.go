@@ -34,6 +34,18 @@ type Router struct {
 	rateClient             *ratelimiter.PerIPLimiter
 	clickhouseLoggerClient *clickhouse.LogClient
 	stopSync               chan struct{}
+
+	id      string
+	created time.Time
+}
+
+//RouterNEW keeps all http routes
+type RouterNEW struct {
+	*chi.Mux
+	store                  *store.Store
+	authClient             *auth.AuthClient
+	rateClient             *ratelimiter.PerIPLimiter
+	clickhouseLoggerClient *clickhouse.LogClient
 }
 
 const (
@@ -44,6 +56,37 @@ var (
 	//ErrUnbaleGetListenersForSync - error when unable to get listeners
 	ErrUnbaleGetListenersForSync = errors.New("Unable to get listeners for Synchronization")
 )
+
+//CreateRouterNEW returns new router for listeners
+func CreateRouterNEW(listeners []model.Listener,
+	store *store.Store,
+	authClient *auth.AuthClient,
+	rateClient *ratelimiter.PerIPLimiter,
+	clickhouseLoggerClient *clickhouse.LogClient) (*RouterNEW, error) {
+	r := &RouterNEW{
+		chi.NewRouter(),
+		store,
+		authClient,
+		rateClient,
+		clickhouseLoggerClient,
+	}
+	r.InitRoutes()
+	return r, nil
+}
+
+func (r *RouterNEW) InitRoutes() {
+	//Init middleware
+	r.Use(middleware.EnableCors)
+	r.Use(middleware.ClearXHeaders)
+	r.Use(middleware.TranslateUserXHeaders)
+	r.Use(middleware.CheckRequiredXHeaders)
+	r.Use(middleware.RequestID)
+	r.Use(middleware.Rate(r.rateClient))
+	r.Use(chimid.Recoverer)
+
+	r.NotFound(noRouteHandler())          //Init Not Found page handler
+	r.HandleFunc("/", rootRouteHandler()) //Init root route handler
+}
 
 //CreateRouter create and return HTTP handle router
 func CreateRouter(router *Router) *Router {
@@ -74,6 +117,7 @@ func CreateRouter(router *Router) *Router {
 //TODO: Add compression middleware
 func (r *Router) InitRoutes() {
 	//Init middleware
+	r.Use(middleware.EnableCors)
 	r.Use(middleware.ClearXHeaders)
 	r.Use(middleware.TranslateUserXHeaders)
 	r.Use(middleware.CheckRequiredXHeaders)

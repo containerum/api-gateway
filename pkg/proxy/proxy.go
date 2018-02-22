@@ -21,10 +21,28 @@ func CreateProxy(target *model.Listener, headers http.Header) *httputil.ReverseP
 		Director: direct,
 		Transport: &http.Transport{
 			Dial: (&net.Dialer{
-				Timeout:   5 * time.Second, //TODO: Get it from ENV
+				Timeout:   5 * time.Second,
 				KeepAlive: 30 * time.Second,
 			}).Dial,
 		},
+	}
+}
+
+func ProxyHandler(targetURL string, curPort int) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		proxy := httputil.ReverseProxy{
+			Director: func(r *http.Request) {
+				target, _ := url.Parse(fmt.Sprintf("%s:%v", targetURL, curPort))
+				r.URL = target
+			},
+			Transport: &http.Transport{
+				Dial: (&net.Dialer{
+					Timeout:   5 * time.Second,
+					KeepAlive: 30 * time.Second,
+				}).Dial,
+			},
+		}
+		proxy.ServeHTTP(w, r)
 	}
 }
 

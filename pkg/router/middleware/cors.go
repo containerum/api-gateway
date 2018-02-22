@@ -1,19 +1,20 @@
 package middleware
 
 import (
-	"github.com/rs/cors"
+	"net/http"
+
+	"github.com/go-chi/cors"
 )
 
-// TODO: Write own ServeHTTP
-// TODO: Add Requred Headers
-
-//Cors make return Allowed CORS for server
-func Cors() *cors.Cors {
-	return cors.New(cors.Options{
+//EnableCors make return Allowed CORS for server
+func EnableCors(next http.Handler) http.Handler {
+	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
-		AllowCredentials: true,
 		AllowedMethods:   []string{"GET", "POST", "DELETE", "PUT", "PATH", "OPTIONS"},
-		AllowedHeaders:   []string{"Content-Type", "User-Client", "User-Token", "Authorization"},
-		Debug:            false,
+		AllowedHeaders:   []string{"Origin", "Content-Type", "User-Client", "User-Token", "Authorization"},
+		ExposedHeaders:   []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           300,
 	})
+	return c.Handler(next)
 }

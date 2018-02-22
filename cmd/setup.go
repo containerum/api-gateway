@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
+	"git.containerum.net/ch/api-gateway/pkg/server"
 	"git.containerum.net/ch/api-gateway/pkg/store"
 
 	clickhouse "git.containerum.net/ch/api-gateway/pkg/utils/clickhouselog"
@@ -21,8 +22,46 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
+func setupServer(c *cli.Context) *server.Server {
+	serv := server.New(time.Second * 5)
+	if conf.Store.Enable {
+		serv.RegisterStore(setupStore(c))
+	}
+	if conf.Auth.Enable {
+		serv.RegisterAuth(setupAuth(c))
+	}
+	if conf.Rate.Enable {
+		serv.RegisterRatelimiter(setupRatelimiter(c))
+	}
+	if conf.Clickhouse.Enable {
+		serv.RegisterClickhouseLogger(setupClickhouseLogger(c))
+	}
+	return serv
+}
+
+func setupLogger(c *cli.Context) {
+	if c.Bool("debug") {
+		log.SetFormatter(&log.TextFormatter{})
+		log.SetLevel(log.DebugLevel)
+		log.Debug("Application running in Debug mode")
+		return
+	}
+	log.SetFormatter(&log.JSONFormatter{})
+	log.SetLevel(log.InfoLevel)
+}
+
 //setup DB and migration imp. in Store
 func setupStore(c *cli.Context) *store.Store {
+	log.WithFields(log.Fields{
+		"PG_USER":       c.String("pg-user"),
+		"PG_PASSWORD":   c.String("pg-password"),
+		"PG_DATABASE":   c.String("pg-database"),
+		"PG_ADDRESS":    c.String("pg-address"),
+		"PG_PORT":       c.String("pg-port"),
+		"PG_MIGRATIONS": c.Bool("pg-migrations"),
+		"PG_DEBUG":      c.Bool("pg-debug"),
+	}).Debug("Setup DB connection")
+
 	st, err := store.New(model.DatabaseConfig{
 		User:       c.String("pg-user"),
 		Password:   c.String("pg-password"),
@@ -119,28 +158,3 @@ func setupTSL(c *cli.Context) (certFile string, keyFile string, err error) {
 	}
 	return c.String("tls-cert"), c.String("tls-key"), nil
 }
-
-// _, err = client.CheckToken(context.Background(), &auth.CheckTokenRequest{
-// 	AccessToken: "sss",
-// 	UserAgent:   "chrome",
-// 	FingerPrint: "x1x2",
-// 	UserIp:      "192.168.0.1",
-// })
-// if err != nil {
-// 	log.WithFields(log.Fields{
-// 		"Err": grpc.ErrorDesc(err),
-// 	}).Error("CheckToken error")
-// }
-
-// res, err := client.CreateToken(context.Background(), &auth.CreateTokenRequest{
-// 	UserAgent:   "Mozilla/5.0 (X11; Linux x86_64; rv:57.0) Gecko/20100101 Firefox/57.0",
-// 	Fingerprint: "550e8400-e29b-41d4-a716-446655440000",
-// 	UserId:      &common.UUID{Value: "550e8400-e29b-41d4-a716-446655440000"},
-// 	UserIp:      "127.0.0.1",
-// 	UserRole:    auth.Role_USER,
-// })
-// if err != nil {
-// 	log.WithFields(log.Fields{
-// 		"Err": grpc.ErrorDesc(err),
-// 	}).Error("CreateToken error")
-// }

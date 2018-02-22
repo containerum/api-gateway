@@ -2,7 +2,7 @@ package main
 
 import "github.com/urfave/cli"
 
-const usageText = "Awesome Golang API Gateway. \"Not Safety\" migrations runs only migrate mode!"
+const usageText = "Awesome Golang API Gateway."
 
 var flags = []cli.Flag{
 	cli.BoolFlag{
@@ -110,5 +110,11 @@ var flags = []cli.Flag{
 		Name:   "tls-key",
 		Usage:  "Key.pem for HTTPS",
 		Value:  "key.pem",
+	},
+	cli.StringFlag{
+		EnvVar: "PROMETHEUS_GATEWAY",
+		Name:   "prometheus",
+		Usage:  "Url for Prometheus Pushgateway",
+		Value:  "localhost:9091",
 	},
 }

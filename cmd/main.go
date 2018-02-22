@@ -17,7 +17,6 @@ func main() {
 	app.Flags = flags
 	app.Usage = usageText
 	app.Action = runServer
-	app.Before = setLogFormat
 
 	if err := app.Run(os.Args); err != nil {
 		fmt.Fprintln(os.Stderr, err)
