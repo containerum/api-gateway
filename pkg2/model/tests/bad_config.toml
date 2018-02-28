@@ -1,9 +1,10 @@
-port = 8082
+[tls]
+enable = true
 
 [tls]
-enable = false
+enable = true
 
-[auth]
+[store]
 enable = true
 
 [clickhouse]
@@ -15,4 +16,4 @@ enable = true
 
 [rate]
 enable = true
-type = "local"
+type = "redis"

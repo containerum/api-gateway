@@ -5,19 +5,18 @@ name = "Test route"
 roles = ["*"]
 rate = 3
 method = "GET"
-upstream = "http://httpbin.org/get"
+upstream = "http://localhost:80"
 listen = "/test"
-strip = true
+strip = false
 group = "user"
 
-
-[routes.test_route2]
+[routes.test_route_2]
 active = true
 name = "Test route"
 roles = ["*"]
 rate = 3
 method = "GET"
-upstream = "http://httpbin.org/response-headers"
-listen = "/head"
-strip = true
+upstream = "http://localhost:80"
+listen = "/test"
+strip = false
 group = "user"

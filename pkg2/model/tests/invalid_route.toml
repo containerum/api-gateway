@@ -1,0 +1,33 @@
+[routes]
+[routes.test_route]
+active = true
+name = "Test route"
+roles = ["*"]
+rate = 3
+method = "INVALID"
+upstream = "http://localhost:80"
+listen = "/test"
+strip = false
+group = "user"
+
+[routes.test_route_2]
+active = true
+name = "Test route"
+roles = ["*"]
+rate = 3
+method = "GET"
+upstream = "INVALID"
+listen = "/test"
+strip = false
+group = "user"
+
+[routes.test_route_3]
+active = true
+name = "Test route"
+roles = ["*"]
+rate = -3
+method = "GET"
+upstream = "INVALID"
+listen = "/test"
+strip = false
+group = "user"

@@ -1,0 +1,32 @@
+[routes]
+active = true
+name = "Test route"
+roles = ["*"]
+rate = 3
+method = "GET"
+upstream = "http://localhost:80"
+listen = "/test"
+strip = false
+group = "user"
+
+[routes]
+active = true
+name = "Test route"
+roles = ["*"]
+rate = 3
+method = "GET"
+upstream = "http://localhost:80"
+listen = "/test"
+strip = false
+group = "user"
+
+[routes]
+active = true
+name = "Test route"
+roles = ["*"]
+rate = 3
+method = "GET"
+upstream = "http://localhost:80"
+listen = "/test"
+strip = false
+group = "user"
