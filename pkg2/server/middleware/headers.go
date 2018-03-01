@@ -18,18 +18,20 @@ const (
 	userAgentXHeader      = "X-User-Agent"
 	userIPXHeader         = "X-Client-IP"
 	tokenIDXHeader        = "X-Token-ID"
-	userRoleHeader        = "X-User-Role"
+	userRoleXHeader       = "X-User-Role"
 	userNamespacesXHeader = "X-User-Namespace"
 	userVolumesXHeader    = "X-User-Volume"
 	userHideDataXHeader   = "X-User-Hide-Data"
 )
 
 const (
-	userClientHeader = "User-Client"
+	userClientHeader    = "User-Client"
+	authorizationHeader = "User-Token"
 )
 
 var (
-	xHeaderRegexp, _    = regexp.Compile("^X-[a-zA-Z0-9]+")
+	//XHeaderRegexp keeps regexp for detecting X-Headers
+	XHeaderRegexp, _    = regexp.Compile("^X-[a-zA-Z0-9]+")
 	userClientRegexp, _ = regexp.Compile("^[a-f0-9]{32}$")
 )
 
@@ -43,8 +45,6 @@ func ClearXHeaders() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		clearHeaders(&c.Request.Header, "request")
 		c.Next()
-		responseHeader := c.Writer.Header()
-		clearHeaders(&responseHeader, "response")
 	}
 }
 
@@ -86,7 +86,7 @@ func setHeader(h *http.Header, key string, value string) {
 
 func clearHeaders(h *http.Header, source string) {
 	for k, v := range *h {
-		if xHeaderRegexp.MatchString(k) {
+		if XHeaderRegexp.MatchString(k) {
 			h.Del(k)
 			log.WithFields(log.Fields{
 				"Header": k,

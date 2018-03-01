@@ -3,7 +3,6 @@
 active = true
 name = "Test route"
 roles = ["*"]
-rate = 3
 method = "GET"
 upstream = "http://httpbin.org/get"
 listen = "/test"
@@ -15,9 +14,27 @@ group = "user"
 active = true
 name = "Test route"
 roles = ["*"]
-rate = 3
 method = "GET"
 upstream = "http://httpbin.org/response-headers"
 listen = "/head"
 strip = true
+group = "user"
+
+[routes.test_route3]
+active = true
+name = "Test route"
+roles = ["*"]
+method = "GET"
+upstream = "http://localhost:32770"
+listen = "/"
+strip = true
+group = "user"
+
+[routes.login]
+active = true
+name = "Login Basic"
+method = "POST"
+upstream = "http://192.168.88.200:8111"
+listen = "/login/basic"
+strip = false
 group = "user"

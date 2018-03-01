@@ -1,7 +1,7 @@
 port = 8082
 
 [tls]
-enable = false
+enable = true
 
 [auth]
 enable = true
@@ -15,4 +15,5 @@ enable = true
 
 [rate]
 enable = true
+limit = 3
 type = "local"

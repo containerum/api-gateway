@@ -3,7 +3,6 @@
 active = true
 name = "Test route"
 roles = ["*"]
-rate = 3
 method = "GET"
 upstream = "http://localhost:80"
 listen = "/test"
@@ -14,7 +13,6 @@ group = "user"
 active = true
 name = "Test route"
 roles = ["*"]
-rate = 3
 method = "GET"
 upstream = "http://localhost:80"
 listen = "/test"

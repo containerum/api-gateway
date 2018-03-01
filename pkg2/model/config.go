@@ -29,8 +29,8 @@ type Config struct {
 	}
 	Rate struct {
 		Enable
-		Default int
-		Type    string
+		Limit int
+		Type  string
 	}
 	Clickhouse struct {
 		Enable
@@ -39,6 +39,7 @@ type Config struct {
 }
 
 //Validate return array or invalid inputs
+//TODO: Add rate limit validation
 func (c *Config) Validate() []error {
 	var errs []error
 	if !valid.IsIn(c.Rate.Type, rateTypes...) {

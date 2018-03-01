@@ -6,11 +6,6 @@ import (
 	valid "github.com/asaskevich/govalidator"
 )
 
-const (
-	rateMin = 0 //IF 0 then Default Rate from config
-	rateMax = 30
-)
-
 var (
 	roles         = []string{"*", "user", "admin"}
 	methods       = []string{"GET", "POST"}
@@ -19,8 +14,6 @@ var (
 	ErrInvalidRoles = fmt.Errorf("Invalid roles. Options: %v", roles)
 	//ErrInvalidMethod returns when method is wrong
 	ErrInvalidMethod = fmt.Errorf("Invalid method. Options: %v", methods)
-	//ErrInvalidRateLimit returns when rate limit is incorrect
-	ErrInvalidRateLimit = fmt.Errorf("Invalid rate limit. Min: %v, Max: %v", rateMin, rateMax)
 	//ErrInvalidUpstreamProtocol return when usptream is incorrect
 	ErrInvalidUpstreamProtocol = fmt.Errorf("Invalid usptream protocol. Options: %v", upstreamProto)
 	//ErrInvalidListen returns when listen path is wrong
@@ -36,7 +29,6 @@ type Route struct {
 	Desc     string
 	Active   bool
 	Roles    []string
-	Rate     int
 	Method   string
 	Upstream string
 	Listen   string
@@ -57,10 +49,6 @@ func (rs *Routes) Validate() []error {
 		//Validate Method
 		if !valid.IsIn(route.Method, methods...) {
 			errs = append(errs, ErrInvalidMethod)
-		}
-		//Validate rate limit
-		if !valid.InRangeInt(route.Rate, rateMin, rateMax) {
-			errs = append(errs, ErrInvalidRateLimit)
 		}
 		//Validate Upstream protocol
 		if !valid.Matches(route.Upstream, "^"+upstreamProto+"://") {

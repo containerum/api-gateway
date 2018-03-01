@@ -26,6 +26,7 @@ func main() {
 
 //TODO: Rewrite IF noodles
 func runServer(c *cli.Context) error {
+	setupLogs(c)
 	if err := setupConfig(c); err != nil {
 		return err
 	}
@@ -33,6 +34,9 @@ func runServer(c *cli.Context) error {
 		return err
 	}
 	if err := setupTLS(c); err != nil {
+		return err
+	}
+	if err := setupAuth(c); err != nil {
 		return err
 	}
 	serv, err := setupServer(c)
