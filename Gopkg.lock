@@ -8,19 +8,13 @@
     "auth",
     "common"
   ]
-  revision = "88c149b05138ce6362b2ffd66842176c6cfe4c8d"
+  revision = "3650097fee157162fc079fb87570279cbed50989"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
   packages = ["."]
   revision = "b26d9c308763d68093482582cea63d69be07a0f0"
   version = "v0.3.0"
-
-[[projects]]
-  name = "github.com/Sirupsen/logrus"
-  packages = ["."]
-  revision = "f006c2ac4710855cf0f916dd6b77acf6b048dc6e"
-  version = "v1.0.3"
 
 [[projects]]
   name = "github.com/asaskevich/govalidator"
@@ -68,7 +62,6 @@
   version = "v1.2"
 
 [[projects]]
-  branch = "master"
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -78,13 +71,14 @@
     "ptypes/empty",
     "ptypes/timestamp"
   ]
-  revision = "1e59b77b52bf8e4b449a57e6f79f21226d571845"
+  revision = "925541529c1fa6821df4e44ce2723319eb2be768"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
   name = "github.com/gopherjs/gopherjs"
   packages = ["js"]
-  revision = "296de816d4fe28b61803072c3f89360e9d1823ff"
+  revision = "df18d38287ab2ed3138d564e7c8cbe4d5a249d87"
 
 [[projects]]
   name = "github.com/jtolds/gls"
@@ -149,8 +143,8 @@
 [[projects]]
   name = "github.com/satori/go.uuid"
   packages = ["."]
-  revision = "879c5887cd475cd7864858769793b2ceb0d44feb"
-  version = "v1.1.0"
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/sirupsen/logrus"
@@ -165,8 +159,8 @@
     "internal/go-render/render",
     "internal/oglematchers"
   ]
-  revision = "0b37b35ec7434b77e77a4bb29b79677cced992ea"
-  version = "1.8.1"
+  revision = "7678a5452ebea5b7090a6b163f844c133f523da2"
+  version = "1.8.3"
 
 [[projects]]
   name = "github.com/smartystreets/goconvey"
@@ -194,7 +188,7 @@
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  revision = "2509b142fb2b797aa7587dad548f113b2c0f20ce"
+  revision = "91a49db82a88618983a78a06c1cbd4e00ab749ab"
 
 [[projects]]
   branch = "master"
@@ -208,7 +202,7 @@
     "lex/httplex",
     "trace"
   ]
-  revision = "a8b9294777976932365dabb6640cf1468d95c70f"
+  revision = "22ae77b79946ea320088417e4d50825671d82d57"
 
 [[projects]]
   branch = "master"
@@ -223,10 +217,9 @@
     "unix",
     "windows"
   ]
-  revision = "661970f62f5897bc0cd5fdca7e087ba8a98a8fa1"
+  revision = "dd2ff4accc098aceecb86b36eaa7829b2a17b1c9"
 
 [[projects]]
-  branch = "master"
   name = "golang.org/x/text"
   packages = [
     "collate",
@@ -244,7 +237,8 @@
     "unicode/norm",
     "unicode/rangetable"
   ]
-  revision = "75cc3cad82b5f47d3fb229ddda8c5167da14f294"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [[projects]]
   branch = "master"
@@ -256,18 +250,20 @@
   branch = "master"
   name = "google.golang.org/genproto"
   packages = ["googleapis/rpc/status"]
-  revision = "7f0da29060c682909f650ad8ed4e515bd74fa12a"
+  revision = "2c5e7ac708aaa719366570dd82bda44541ca2a63"
 
 [[projects]]
   name = "google.golang.org/grpc"
   packages = [
     ".",
     "balancer",
+    "balancer/base",
     "balancer/roundrobin",
     "codes",
     "connectivity",
     "credentials",
     "encoding",
+    "encoding/proto",
     "grpclb/grpc_lb_v1/messages",
     "grpclog",
     "internal",
@@ -283,8 +279,8 @@
     "tap",
     "transport"
   ]
-  revision = "5a9f7b402fe85096d2e1d0383435ee1876e863d0"
-  version = "v1.8.0"
+  revision = "8e4536a86ab602859c20df5ebfd0bd4228d08655"
+  version = "v1.10.0"
 
 [[projects]]
   name = "gopkg.in/go-playground/validator.v8"
@@ -301,6 +297,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3d5078ee1971c49e9d5f542ef2a7b9ff54998a0462d2939fcaf5900419be22ab"
+  inputs-digest = "fbf34ab0cbb5c0557be3ca3710062b3bdbe1928fa2a08b066cf74842cbfaa054"
   solver-name = "gps-cdcl"
   solver-version = 1

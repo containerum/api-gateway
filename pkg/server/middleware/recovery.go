@@ -3,8 +3,8 @@ package middleware
 import (
 	"time"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 // Recovery returns a middleware that recovers from any panics and writes a 500 if there was one.

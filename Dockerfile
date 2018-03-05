@@ -4,10 +4,7 @@ FROM golang:1.9-alpine as builder
 WORKDIR src/git.containerum.net/ch/api-gateway
 COPY . .
 
-RUN CGO_ENABLED=0 go build -v -o /bin/ch-gateway \
-    -ldflags "-X git.containerum.net/ch/api-gateway/main.version=${APP_VERSION}" cmd/*
-
-COPY pkg/store/migrations /pkg/store/migrations
+RUN CGO_ENABLED=0 go build -v -o /bin/ch-gateway cmd/*
 
 #### Generate Cert Step ####
 FROM alpine as generator
@@ -26,7 +23,6 @@ FROM ubuntu
 
 # Copy bin and migrations
 COPY --from=builder /bin/ch-gateway /
-COPY --from=builder /pkg/store/migrations /pkg/store/migrations
 
 # Copy certs
 COPY --from=generator /cert /cert
