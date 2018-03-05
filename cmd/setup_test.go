@@ -3,7 +3,7 @@ package main
 import (
 	"testing"
 
-	"git.containerum.net/ch/api-gateway/pkg2/model"
+	"git.containerum.net/ch/api-gateway/pkg/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

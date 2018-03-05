@@ -1,34 +1,4 @@
 [routes]
-[routes.test_route]
-active = true
-name = "Test route"
-roles = ["*"]
-method = "GET"
-upstream = "http://httpbin.org/get"
-listen = "/test"
-strip = true
-group = "user"
-
-
-[routes.test_route2]
-active = true
-name = "Test route"
-roles = ["*"]
-method = "GET"
-upstream = "http://httpbin.org/response-headers"
-listen = "/head"
-strip = true
-group = "user"
-
-[routes.test_route3]
-active = true
-name = "Test route"
-roles = ["*"]
-method = "GET"
-upstream = "http://localhost:32770"
-listen = "/"
-strip = true
-group = "user"
 
 [routes.login]
 active = true
@@ -36,5 +6,16 @@ name = "Login Basic"
 method = "POST"
 upstream = "http://192.168.88.200:8111"
 listen = "/login/basic"
+strip = false
+group = "user"
+
+
+[routes.logs_get]
+active = true
+name = "Get Logs"
+method = "GET"
+roles = ["*"]
+upstream = "http://192.168.88.200:1214"
+listen = "/namespaces/:namespace/pods/:pod/log"
 strip = false
 group = "user"

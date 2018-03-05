@@ -12,6 +12,7 @@ crypt = true
 
 [prometheus]
 enable = true
+port = 8282
 
 [rate]
 enable = true

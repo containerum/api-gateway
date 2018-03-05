@@ -3,158 +3,159 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
-	"strconv"
-	"time"
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	"git.containerum.net/ch/api-gateway/pkg/server"
-	"git.containerum.net/ch/api-gateway/pkg/store"
-
-	clickhouse "git.containerum.net/ch/api-gateway/pkg/utils/clickhouselog"
 	"git.containerum.net/ch/grpc-proto-files/auth"
-	rate "git.containerum.net/ch/ratelimiter"
-
-	"github.com/cactus/go-statsd-client/statsd"
+	"github.com/BurntSushi/toml"
+	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/urfave/cli"
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
-func setupServer(c *cli.Context) *server.Server {
-	serv := server.New(time.Second * 5)
-	if conf.Store.Enable {
-		serv.RegisterStore(setupStore(c))
-	}
-	if conf.Auth.Enable {
-		serv.RegisterAuth(setupAuth(c))
-	}
-	if conf.Rate.Enable {
-		serv.RegisterRatelimiter(setupRatelimiter(c))
-	}
-	if conf.Clickhouse.Enable {
-		serv.RegisterClickhouseLogger(setupClickhouseLogger(c))
-	}
-	return serv
+type tomlFile interface {
+	Validate() []error
 }
 
-func setupLogger(c *cli.Context) {
+var (
+	g errgroup.Group
+
+	config     model.Config
+	routes     model.Routes
+	cert, key  string
+	authClient *auth.AuthClient
+	metrics    *model.Metrics
+)
+
+var (
+	errUnableReadConfig   = errors.New("Unable to read config file")
+	errUnableReadRoutes   = errors.New("Unable to read routes file")
+	errUnableOpenCertFile = errors.New("Unable to open cert.pem")
+	errUnableOpenKeyFile  = errors.New("Unable to open key.pem")
+
+	errGrpcDialFailed = errors.New("Dial to auth grpc failed")
+)
+
+//TODO: parse flags
+func setupLogs(c *cli.Context) {
+	gin.SetMode(gin.ReleaseMode)
 	if c.Bool("debug") {
-		log.SetFormatter(&log.TextFormatter{})
 		log.SetLevel(log.DebugLevel)
-		log.Debug("Application running in Debug mode")
 		return
 	}
 	log.SetFormatter(&log.JSONFormatter{})
-	log.SetLevel(log.InfoLevel)
 }
 
-//setup DB and migration imp. in Store
-func setupStore(c *cli.Context) *store.Store {
-	log.WithFields(log.Fields{
-		"PG_USER":       c.String("pg-user"),
-		"PG_PASSWORD":   c.String("pg-password"),
-		"PG_DATABASE":   c.String("pg-database"),
-		"PG_ADDRESS":    c.String("pg-address"),
-		"PG_PORT":       c.String("pg-port"),
-		"PG_MIGRATIONS": c.Bool("pg-migrations"),
-		"PG_DEBUG":      c.Bool("pg-debug"),
-	}).Debug("Setup DB connection")
-
-	st, err := store.New(model.DatabaseConfig{
-		User:       c.String("pg-user"),
-		Password:   c.String("pg-password"),
-		Database:   c.String("pg-database"),
-		Address:    c.String("pg-address"),
-		Port:       c.String("pg-port"),
-		Debug:      c.Bool("pg-debug"),
-		Migrations: c.Bool("pg-migrations"),
-	})
-	if err != nil {
-		panic(err)
+func setupConfig(c *cli.Context) error {
+	if err := readToml(c.String(configPath), &config); err != nil {
+		return fmt.Errorf("%v. %v", errUnableReadConfig, err)
 	}
-	return &st
+	return nil
 }
 
-func setupAuth(c *cli.Context) *auth.AuthClient {
+func setupRoutes(c *cli.Context) error {
+	if err := readToml(c.String(routesPath), &routes); err != nil {
+		return fmt.Errorf("%v. %v", errUnableReadRoutes, err)
+	}
+	for key := range routes.Routes {
+		if route, ok := routes.Routes[key]; ok {
+			route.ID = key
+			routes.Routes[key] = route
+		}
+	}
+	return nil
+}
+
+func setupTLS(c *cli.Context) error {
+	if !config.TLS.Enable {
+		return nil
+	}
+	if _, e := os.Stat(c.String(tlsCertPath)); os.IsNotExist(e) {
+		log.WithError(e).Error(errUnableOpenCertFile)
+		return errUnableOpenCertFile
+	}
+	if _, e := os.Stat(c.String(tlsKeyPath)); os.IsNotExist(e) {
+		log.WithError(e).Error(errUnableOpenKeyFile)
+		return errUnableOpenKeyFile
+	}
+	cert = c.String(tlsCertPath)
+	key = c.String(tlsKeyPath)
+	config.TLS.Cert = cert
+	config.TLS.Key = key
+	log.WithField("Key", key).WithField("Cert", cert).Debug("TLS")
+	return nil
+}
+
+func setupAuth(c *cli.Context) error {
+	if !config.Auth.Enable {
+		return nil
+	}
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithInsecure())
-	addr := fmt.Sprintf("%s:%s", c.String("grpc-auth-address"), c.String("grpc-auth-port"))
-
+	addr := fmt.Sprintf("%s:%s", c.String(authAddr), c.String(authPort))
 	con, err := grpc.Dial(addr, opts...)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Err": err,
-		}).Error("Dial to auth grpc failed")
+		}).Error(errGrpcDialFailed)
+		return errGrpcDialFailed
 	}
-
 	client := auth.NewAuthClient(con)
-	return &client
+	authClient = &client
+	return nil
 }
 
-func setupRatelimiter(c *cli.Context) *rate.PerIPLimiter {
-	maxRate, err := strconv.Atoi(c.String("rate-limit"))
-	if err != nil {
-		log.WithFields(log.Fields{
-			"Err": err,
-		}).Error("Rate limit parse error")
+func setupServer(c *cli.Context) (*server.Server, error) {
+	opt := &server.ServerOptions{
+		Routes:  &routes,
+		Config:  &config,
+		Auth:    authClient,
+		Metrics: metrics,
 	}
-
-	ratelimiter, err := rate.NewPerIPLimiter(&rate.PerIPLimiterConfig{
-		RedisAddress:  c.String("redis-address"),
-		RedisPassword: c.String("redis-password"),
-		RedisDB:       1,
-		Timeout:       time.Second,
-		RateLimit:     maxRate,
-	})
-	if err != nil {
-		log.WithFields(log.Fields{
-			"Err": err,
-		}).Error("Connection redis limiter failed")
-	}
-	return ratelimiter
+	return server.New(opt)
 }
 
-func setupStatsd(c *cli.Context) *statsd.Statter {
-	std, err := statsd.NewBufferedClient(
-		c.String("statsd-address"),
-		c.String("statsd-prefix"),
-		time.Microsecond*time.Duration(c.Int("statsd-buffer-time")),
-		0,
-	)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"Err":         err,
-			"Address":     c.String("statsd-address"),
-			"Prefix":      c.String("statsd-prefix"),
-			"Buffer-Time": c.Int("statsd-buffer-time"),
-		}).Warning("Setup Statsd failed")
-	}
-	return &std
+func setupMetrics(c *cli.Context) error {
+	metrics = model.CreateMetrics()
+	prometheus.MustRegister(metrics.RTotal, metrics.RUserIP)
+	return nil
 }
 
-func setupClickhouseLogger(c *cli.Context) *clickhouse.LogClient {
-	client, err := clickhouse.OpenConenction(c.String("clickhouse-logger"))
-	if err != nil {
-		log.WithFields(log.Fields{
-			"Err":     err,
-			"Address": c.String("clickhouse-logger"),
-		}).Warning("Setup Clickhouse Logger failed")
+func startMetrics() error {
+	if config.Prometheus.Enable {
+		return http.ListenAndServe(fmt.Sprintf(":%d", config.Prometheus.Port), promhttp.Handler())
 	}
-	return client
+	return nil
 }
 
-func setupTSL(c *cli.Context) (certFile string, keyFile string, err error) {
-	if _, e := os.Stat(c.String("tls-cert")); os.IsNotExist(e) {
-		log.WithError(err).Error("Unable to open cert.pem")
-		err = errors.New("Unable to open cert.pem")
-		return
+func getVersion() string {
+	if Version == "" {
+		return "1.0.0-dev"
 	}
-	if _, e := os.Stat(c.String("tls-key")); os.IsNotExist(e) {
-		log.WithError(err).Error("Unable to open key.pem")
-		err = errors.New("Unable to open key.pem")
-		return
+	return Version
+}
+
+func readToml(file string, out tomlFile) error {
+	if _, err := toml.DecodeFile(file, out); err != nil {
+		return err
 	}
-	return c.String("tls-cert"), c.String("tls-key"), nil
+	if errs := out.Validate(); errs != nil {
+		var err error
+		for i, e := range errs {
+			if i == 0 {
+				err = fmt.Errorf("%s", e.Error())
+			} else {
+				err = fmt.Errorf("%s\n%s", err.Error(), e.Error())
+			}
+		}
+		return err
+	}
+	return nil
 }
