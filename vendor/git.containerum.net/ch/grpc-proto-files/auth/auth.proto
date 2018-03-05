@@ -58,8 +58,13 @@ message ExtendTokenResponse {
     string refresh_token = 2;
 }
 
-message UpdateAccessRequest {
+message UpdateAccessRequestElement {
     UUID user_id = 1;
+    ResourcesAccess access = 2;
+}
+
+message UpdateAccessRequest {
+    repeated UpdateAccessRequestElement users = 1;
 }
 
 message GetUserTokensRequest {

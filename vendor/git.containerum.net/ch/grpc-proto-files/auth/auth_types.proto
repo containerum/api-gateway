@@ -1,6 +1,8 @@
 syntax = "proto3";
 
 import "common/uuid.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
 
 option go_package = "git.containerum.net/ch/grpc-proto-files/auth";
 
@@ -16,6 +18,8 @@ message StoredToken {
     bool rw_access = 9;
     string user_ip = 10;
     UUID part_token_id = 11;
+    google.protobuf.Timestamp created_at = 12;
+    google.protobuf.Duration life_time = 13;
 }
 
 message AccessObject {
