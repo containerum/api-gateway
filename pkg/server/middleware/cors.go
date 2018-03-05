@@ -10,8 +10,7 @@ import (
 //Cors return cors rules
 func Cors() gin.HandlerFunc {
 	c := cors.New(cors.Config{
-		AllowAllOrigins: true,
-		// AllowOrigins:     []string{"*"},
+		AllowAllOrigins:  true,
 		AllowMethods:     []string{"GET", "POST", "DELETE", "PUT", "PATH", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "User-Client", "User-Token", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
