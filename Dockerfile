@@ -22,6 +22,8 @@ RUN openssl req -subj '/CN=containerum.io/O=Containerum/C=LV' -new -newkey rsa:2
 FROM ubuntu
 
 # Copy bin and migrations
+COPY --from=builder /go/src/git.containerum.net/ch/api-gateway/config.toml /
+COPY --from=builder /go/src/git.containerum.net/ch/api-gateway/routes.toml /
 COPY --from=builder /bin/ch-gateway /
 
 # Copy certs
