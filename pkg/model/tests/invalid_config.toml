@@ -1,0 +1,19 @@
+[tls]
+enable = true
+
+[auth]
+enable = true
+
+[store]
+enable = true
+
+[clickhouse]
+enable = true
+crypt = true
+
+[prometheus]
+enable = true
+
+[rate]
+enable = true
+type = "invalid"

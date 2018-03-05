@@ -1,0 +1,21 @@
+[routes]
+
+[routes.login]
+active = true
+name = "Login Basic"
+method = "POST"
+upstream = "http://192.168.88.200:8111"
+listen = "/login/basic"
+strip = false
+group = "user"
+
+
+[routes.logs_get]
+active = true
+name = "Get Logs"
+method = "GET"
+roles = ["*"]
+upstream = "http://192.168.88.200:1214"
+listen = "/namespaces/:namespace/pods/:pod/log"
+strip = false
+group = "user"
