@@ -1,2 +1,0 @@
-ALTER TABLE "listeners"
-DROP COLUMN IF EXISTS roles;
