@@ -1,6 +1,6 @@
 [routes]
 
-[routes.login]
+[routes.login_basic]
 active = true
 name = "Login Basic"
 method = "POST"
@@ -9,6 +9,14 @@ listen = "/login/basic"
 strip = false
 group = "user"
 
+[routes.login_double]
+active = true
+name = "Login Double"
+method = "POST"
+upstream = "http://192.168.88.200:8111"
+listen = "/login"
+strip = false
+group = "user"
 
 [routes.logs_get]
 active = true
