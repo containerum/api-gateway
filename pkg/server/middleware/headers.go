@@ -44,6 +44,9 @@ var (
 //ClearXHeaders clear all request and response X-Headers
 func ClearXHeaders() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
+		log.WithField("Headers", c.Request.Header).Debug("Header")
+
 		clearHeaders(&c.Request.Header, "request")
 		c.Next()
 	}
@@ -55,6 +58,20 @@ func SetMainUserXHeaders() gin.HandlerFunc {
 		setHeader(&c.Request.Header, userIPXHeader, c.ClientIP())
 		setHeader(&c.Request.Header, userClientXHeader, c.GetHeader(userClientHeader))
 		setHeader(&c.Request.Header, userAgentXHeader, c.Request.UserAgent())
+	}
+}
+
+//SetMainUserXHeaders write X-User-IP, X-User-Client, X-User-Agent for next services
+func SetHeaderFromQuery() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		userClient, _ := c.GetQuery(userClientHeader)
+		userToken, _ := c.GetQuery(authorizationHeader)
+		if c.GetHeader(userClientHeader) == "" && userClient != "" {
+			c.Request.Header.Add(userClientHeader, userClient)
+		}
+		if c.GetHeader(authorizationHeader) == "" && userToken != "" {
+			c.Request.Header.Add(authorizationHeader, userToken)
+		}
 	}
 }
 

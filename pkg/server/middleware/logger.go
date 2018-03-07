@@ -31,6 +31,10 @@ func Logger(m *model.Metrics) gin.HandlerFunc {
 		status := c.Writer.Status()
 		ip := c.ClientIP()
 		method := c.Request.Method
+		route := c.GetHeader(requestNameXHeader)
+		if route == "" {
+			route = "unknow"
+		}
 		log.WithFields(log.Fields{
 			"Time":    time.Now().Format(timeFormat),
 			"Latency": latency,
@@ -38,12 +42,17 @@ func Logger(m *model.Metrics) gin.HandlerFunc {
 			"Method":  method,
 			"Code":    status,
 			"Path":    path,
+			"Route":   route,
 		}).Info("Request")
 
 		reqCount := m.RTotal.(*prometheus.CounterVec)
 		reqCount.WithLabelValues(method, getStatus(status)).Inc()
 		reqCountIP := m.RUserIP.(*prometheus.CounterVec)
 		reqCountIP.WithLabelValues(method, getStatus(status), ip).Inc()
+		reqCountRoute := m.RRoute.(*prometheus.CounterVec)
+		reqCountRoute.WithLabelValues(method, getStatus(status), route).Inc()
+		reqCountUserAgent := m.RUserAgent.(*prometheus.CounterVec)
+		reqCountUserAgent.WithLabelValues(method, getStatus(status), route, c.Request.UserAgent()).Inc()
 	}
 }
 
