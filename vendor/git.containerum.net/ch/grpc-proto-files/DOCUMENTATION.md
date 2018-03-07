@@ -10,14 +10,26 @@
   
   
 
+- [timestamp.proto](#timestamp.proto)
+    - [Timestamp](#google.protobuf.Timestamp)
+  
+  
+  
+  
+
+- [duration.proto](#duration.proto)
+    - [Duration](#google.protobuf.Duration)
+  
+  
+  
+  
+
 - [auth_types.proto](#auth_types.proto)
     - [AccessObject](#.AccessObject)
     - [ResourcesAccess](#.ResourcesAccess)
     - [StoredToken](#.StoredToken)
     - [StoredTokenForUser](#.StoredTokenForUser)
   
-    - [AccessLevel](#.AccessLevel)
-    - [Role](#.Role)
   
   
   
@@ -41,6 +53,7 @@
     - [GetUserTokensRequest](#.GetUserTokensRequest)
     - [GetUserTokensResponse](#.GetUserTokensResponse)
     - [UpdateAccessRequest](#.UpdateAccessRequest)
+    - [UpdateAccessRequestElement](#.UpdateAccessRequestElement)
   
   
   
@@ -82,6 +95,202 @@ Represents UUID in standart format
 
 
 
+<a name="timestamp.proto"/>
+<p align="right"><a href="#top">Top</a></p>
+
+## timestamp.proto
+
+
+
+<a name="google.protobuf.Timestamp"/>
+
+### Timestamp
+A Timestamp represents a point in time independent of any time zone
+or calendar, represented as seconds and fractions of seconds at
+nanosecond resolution in UTC Epoch time. It is encoded using the
+Proleptic Gregorian Calendar which extends the Gregorian calendar
+backwards to year one. It is encoded assuming all minutes are 60
+seconds long, i.e. leap seconds are &#34;smeared&#34; so that no leap second
+table is needed for interpretation. Range is from
+0001-01-01T00:00:00Z to 9999-12-31T23:59:59.999999999Z.
+By restricting to that range, we ensure that we can convert to
+and from  RFC 3339 date strings.
+See [https://www.ietf.org/rfc/rfc3339.txt](https://www.ietf.org/rfc/rfc3339.txt).
+
+# Examples
+
+Example 1: Compute Timestamp from POSIX `time()`.
+
+Timestamp timestamp;
+timestamp.set_seconds(time(NULL));
+timestamp.set_nanos(0);
+
+Example 2: Compute Timestamp from POSIX `gettimeofday()`.
+
+struct timeval tv;
+gettimeofday(&amp;tv, NULL);
+
+Timestamp timestamp;
+timestamp.set_seconds(tv.tv_sec);
+timestamp.set_nanos(tv.tv_usec * 1000);
+
+Example 3: Compute Timestamp from Win32 `GetSystemTimeAsFileTime()`.
+
+FILETIME ft;
+GetSystemTimeAsFileTime(&amp;ft);
+UINT64 ticks = (((UINT64)ft.dwHighDateTime) &lt;&lt; 32) | ft.dwLowDateTime;
+
+A Windows tick is 100 nanoseconds. Windows epoch 1601-01-01T00:00:00Z
+is 11644473600 seconds before Unix epoch 1970-01-01T00:00:00Z.
+Timestamp timestamp;
+timestamp.set_seconds((INT64) ((ticks / 10000000) - 11644473600LL));
+timestamp.set_nanos((INT32) ((ticks % 10000000) * 100));
+
+Example 4: Compute Timestamp from Java `System.currentTimeMillis()`.
+
+long millis = System.currentTimeMillis();
+
+Timestamp timestamp = Timestamp.newBuilder().setSeconds(millis / 1000)
+.setNanos((int) ((millis % 1000) * 1000000)).build();
+
+
+Example 5: Compute Timestamp from current time in Python.
+
+timestamp = Timestamp()
+timestamp.GetCurrentTime()
+
+# JSON Mapping
+
+In JSON format, the Timestamp type is encoded as a string in the
+[RFC 3339](https://www.ietf.org/rfc/rfc3339.txt) format. That is, the
+format is &#34;{year}-{month}-{day}T{hour}:{min}:{sec}[.{frac_sec}]Z&#34;
+where {year} is always expressed using four digits while {month}, {day},
+{hour}, {min}, and {sec} are zero-padded to two digits each. The fractional
+seconds, which can go up to 9 digits (i.e. up to 1 nanosecond resolution),
+are optional. The &#34;Z&#34; suffix indicates the timezone (&#34;UTC&#34;); the timezone
+is required, though only UTC (as indicated by &#34;Z&#34;) is presently supported.
+
+For example, &#34;2017-01-15T01:30:15.01Z&#34; encodes 15.01 seconds past
+01:30 UTC on January 15, 2017.
+
+In JavaScript, one can convert a Date object to this format using the
+standard [toISOString()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString]
+method. In Python, a standard `datetime.datetime` object can be converted
+to this format using [`strftime`](https://docs.python.org/2/library/time.html#time.strftime)
+with the time format spec &#39;%Y-%m-%dT%H:%M:%S.%fZ&#39;. Likewise, in Java, one
+can use the Joda Time&#39;s [`ISODateTimeFormat.dateTime()`](
+http://joda-time.sourceforge.net/apidocs/org/joda/time/format/ISODateTimeFormat.html#dateTime())
+to obtain a formatter capable of generating timestamps in this format.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| seconds | [int64](#int64) |  | Represents seconds of UTC time since Unix epoch 1970-01-01T00:00:00Z. Must be from 0001-01-01T00:00:00Z to 9999-12-31T23:59:59Z inclusive. |
+| nanos | [int32](#int32) |  | Non-negative fractions of a second at nanosecond resolution. Negative second values with fractions must still have non-negative nanos values that count forward in time. Must be from 0 to 999,999,999 inclusive. |
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+
+<a name="duration.proto"/>
+<p align="right"><a href="#top">Top</a></p>
+
+## duration.proto
+
+
+
+<a name="google.protobuf.Duration"/>
+
+### Duration
+A Duration represents a signed, fixed-length span of time represented
+as a count of seconds and fractions of seconds at nanosecond
+resolution. It is independent of any calendar and concepts like &#34;day&#34;
+or &#34;month&#34;. It is related to Timestamp in that the difference between
+two Timestamp values is a Duration and it can be added or subtracted
+from a Timestamp. Range is approximately &#43;-10,000 years.
+
+# Examples
+
+Example 1: Compute Duration from two Timestamps in pseudo code.
+
+Timestamp start = ...;
+Timestamp end = ...;
+Duration duration = ...;
+
+duration.seconds = end.seconds - start.seconds;
+duration.nanos = end.nanos - start.nanos;
+
+if (duration.seconds &lt; 0 &amp;&amp; duration.nanos &gt; 0) {
+duration.seconds &#43;= 1;
+duration.nanos -= 1000000000;
+} else if (durations.seconds &gt; 0 &amp;&amp; duration.nanos &lt; 0) {
+duration.seconds -= 1;
+duration.nanos &#43;= 1000000000;
+}
+
+Example 2: Compute Timestamp from Timestamp &#43; Duration in pseudo code.
+
+Timestamp start = ...;
+Duration duration = ...;
+Timestamp end = ...;
+
+end.seconds = start.seconds &#43; duration.seconds;
+end.nanos = start.nanos &#43; duration.nanos;
+
+if (end.nanos &lt; 0) {
+end.seconds -= 1;
+end.nanos &#43;= 1000000000;
+} else if (end.nanos &gt;= 1000000000) {
+end.seconds &#43;= 1;
+end.nanos -= 1000000000;
+}
+
+Example 3: Compute Duration from datetime.timedelta in Python.
+
+td = datetime.timedelta(days=3, minutes=10)
+duration = Duration()
+duration.FromTimedelta(td)
+
+# JSON Mapping
+
+In JSON format, the Duration type is encoded as a string rather than an
+object, where the string ends in the suffix &#34;s&#34; (indicating seconds) and
+is preceded by the number of seconds, with nanoseconds expressed as
+fractional seconds. For example, 3 seconds with 0 nanoseconds should be
+encoded in JSON format as &#34;3s&#34;, while 3 seconds and 1 nanosecond should
+be expressed in JSON format as &#34;3.000000001s&#34;, and 3 seconds and 1
+microsecond should be expressed in JSON format as &#34;3.000001s&#34;.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| seconds | [int64](#int64) |  | Signed seconds of the span of time. Must be from -315,576,000,000 to &#43;315,576,000,000 inclusive. Note: these bounds are computed from: 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years |
+| nanos | [int32](#int32) |  | Signed fractions of a second at nanosecond resolution of the span of time. Durations less than one second are represented with a 0 `seconds` field and a positive or negative `nanos` field. For durations of one second or more, a non-zero value for the `nanos` field must be of the same sign as the `seconds` field. Must be from -999,999,999 to &#43;999,999,999 inclusive. |
+
+
+
+
+
+ 
+
+ 
+
+ 
+
+ 
+
+
+
 <a name="auth_types.proto"/>
 <p align="right"><a href="#top">Top</a></p>
 
@@ -99,7 +308,7 @@ Represents UUID in standart format
 | ----- | ---- | ----- | ----------- |
 | label | [string](#string) |  |  |
 | id | [string](#string) |  |  |
-| access | [.AccessLevel](#..AccessLevel) |  |  |
+| access | [string](#string) |  |  |
 
 
 
@@ -135,12 +344,14 @@ Represents UUID in standart format
 | platform | [string](#string) |  |  |
 | fingerprint | [string](#string) |  |  |
 | user_id | [.UUID](#..UUID) |  |  |
-| user_role | [.Role](#..Role) |  |  |
+| user_role | [string](#string) |  |  |
 | user_namespace | [string](#string) |  |  |
 | user_volume | [string](#string) |  |  |
 | rw_access | [bool](#bool) |  |  |
 | user_ip | [string](#string) |  |  |
 | part_token_id | [.UUID](#..UUID) |  |  |
+| created_at | [.google.protobuf.Timestamp](#..google.protobuf.Timestamp) |  |  |
+| life_time | [.google.protobuf.Duration](#..google.protobuf.Duration) |  |  |
 
 
 
@@ -165,28 +376,6 @@ Represents UUID in standart format
 
 
  
-
-
-<a name=".AccessLevel"/>
-
-### AccessLevel
-
-
-| Name | Number | Description |
-| ---- | ------ | ----------- |
-| OWNER | 0 |  |
-
-
-
-<a name=".Role"/>
-
-### Role
-
-
-| Name | Number | Description |
-| ---- | ------ | ----------- |
-| USER | 0 |  |
-
 
  
 
@@ -265,7 +454,7 @@ The JSON representation for `Empty` is empty JSON object `{}`.
 | ----- | ---- | ----- | ----------- |
 | access | [.ResourcesAccess](#..ResourcesAccess) |  |  |
 | user_id | [.UUID](#..UUID) |  |  |
-| user_role | [.Role](#..Role) |  |  |
+| user_role | [string](#string) |  |  |
 | token_id | [.UUID](#..UUID) |  |  |
 | part_token_id | [.UUID](#..UUID) |  |  |
 
@@ -286,7 +475,7 @@ The JSON representation for `Empty` is empty JSON object `{}`.
 | fingerprint | [string](#string) |  |  |
 | user_id | [.UUID](#..UUID) |  |  |
 | user_ip | [string](#string) |  |  |
-| user_role | [.Role](#..Role) |  |  |
+| user_role | [string](#string) |  |  |
 | rw_access | [bool](#bool) |  |  |
 | access | [.ResourcesAccess](#..ResourcesAccess) |  |  |
 | part_token_id | [.UUID](#..UUID) |  |  |
@@ -413,7 +602,23 @@ The JSON representation for `Empty` is empty JSON object `{}`.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
+| users | [.UpdateAccessRequestElement](#..UpdateAccessRequestElement) | repeated |  |
+
+
+
+
+
+
+<a name=".UpdateAccessRequestElement"/>
+
+### UpdateAccessRequestElement
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
 | user_id | [.UUID](#..UUID) |  |  |
+| access | [.ResourcesAccess](#..ResourcesAccess) |  |  |
 
 
 

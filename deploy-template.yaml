@@ -29,33 +29,33 @@ spec:
         name: ch-gateway
         env:
         - name: PG_USER
-          value: '${PG_USER}'
+          value: '${${ZONE}_PG_USER}'
         - name: PG_PASSWORD
-          value: '${PG_PASSWORD}'
+          value: '${${ZONE}_PG_PASSWORD}'
         - name: PG_DATABASE
-          value: '${PG_DATABASE}'
+          value: '${${ZONE}_PG_DATABASE}'
         - name: PG_ADDRESS
-          value: '${PG_ADDRESS}'
+          value: '${${ZONE}_PG_ADDRESS}'
         - name: PG_PORT
-          value: '${PG_PORT}'
+          value: '${${ZONE}_PG_PORT}'
         - name: PG_DEBUG
-          value: '${PG_DEBUG}'
+          value: '${${ZONE}_PG_DEBUG}'
         - name: STATSD_ADDRESS
-          value: '${STATSD_ADDRESS}'
+          value: '${${ZONE}_STATSD_ADDRESS}'
         - name: REDIS_ADDRESS
-          value: '${REDIS_ADDRESS}'
+          value: '${${ZONE}_REDIS_ADDRESS}'
         - name: STATSD_PREFIX
-          value: '${STATSD_PREFIX}'
+          value: '${${ZONE}_STATSD_PREFIX}'
         - name: STATSD_BUFFER_TIME
-          value: '${STATSD_BUFFER_TIME}'
+          value: '${${ZONE}_STATSD_BUFFER_TIME}'
         - name: GATEWAY_DEBUG
-          value: '${GATEWAY_DEBUG}'
+          value: '${${ZONE}_GATEWAY_DEBUG}'
         - name: GRPC_AUTH_ADDRESS
-          value: '${GRPC_AUTH_ADDRESS}'
+          value: '${${ZONE}_GRPC_AUTH_ADDRESS}'
         - name: GRPC_AUTH_PORT
-          value: '${GRPC_AUTH_PORT}'
+          value: '${${ZONE}_GRPC_AUTH_PORT}'
         - name: CLICKHOUSE_LOGGER
-          value: '${CLICKHOUSE_LOGGER}'
+          value: '${${ZONE}_CLICKHOUSE_LOGGER}'
         volumeMounts:
         - mountPath: /cert/
           name: config

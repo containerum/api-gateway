@@ -1,0 +1,62 @@
+[routes]
+
+[routes.login_basic]
+active = true
+name = "Login Basic"
+method = "POST"
+upstream = "http://user-manager:8111"
+listen = "/login/basic"
+strip = false
+group = "user"
+
+[routes.login_double]
+active = true
+name = "Login Double"
+method = "POST"
+upstream = "http://user-manager:8111"
+listen = "/login"
+strip = false
+group = "user"
+
+[routes.refresh_token]
+active = true
+name = "Refresh token"
+method = "PUT"
+upstream = "http://ch-auth:1111"
+listen = "/token/:refresh_token"
+strip = false
+group = "auth"
+
+
+[routes.logs_get]
+active = true
+name = "Get Logs"
+method = "GET"
+roles = ["*"]
+upstream = "http://kube-api:1214"
+listen = "/namespaces/:namespace/pods/:pod/log"
+strip = false
+group = "kube-api"
+ws = true
+
+
+[routes.profile_get]
+active = true
+name = "Get Profile"
+method = "GET"
+roles = ["*"]
+upstream = "http://ch-web-api.web.svc.cluster.local:5000"
+listen = "/api/profile"
+strip = false
+group = "web-api"
+
+
+[routes.balance_get]
+active = true
+name = "Get Balance"
+method = "GET"
+roles = ["*"]
+upstream = "http://ch-web-api.web.svc.cluster.local:5000"
+listen = "/api/profile/balance"
+strip = false
+group = "web-api"

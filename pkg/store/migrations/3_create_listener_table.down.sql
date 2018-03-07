@@ -1,3 +1,0 @@
-DROP TYPE IF EXISTS "method";
-
-DROP TABLE IF EXISTS "listeners";

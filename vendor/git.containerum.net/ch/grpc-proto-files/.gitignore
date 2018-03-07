@@ -1,7 +1,7 @@
 .idea
 
 #grpc for golang compiler residues
-git.containerum.com
+git.containerum.net
 
 #special file to track if docker build environment is ready
 .dockerenv

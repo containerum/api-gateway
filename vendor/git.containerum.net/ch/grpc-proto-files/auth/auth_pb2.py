@@ -22,7 +22,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='auth/auth.proto',
   package='',
   syntax='proto3',
-  serialized_pb=_b('\n\x0f\x61uth/auth.proto\x1a\x11\x63ommon/uuid.proto\x1a\x15\x61uth/auth_types.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xd3\x01\n\x12\x43reateTokenRequest\x12\x12\n\nuser_agent\x18\x01 \x01(\t\x12\x13\n\x0b\x66ingerprint\x18\x02 \x01(\t\x12\x16\n\x07user_id\x18\x03 \x01(\x0b\x32\x05.UUID\x12\x0f\n\x07user_ip\x18\x04 \x01(\t\x12\x18\n\tuser_role\x18\x05 \x01(\x0e\x32\x05.Role\x12\x11\n\trw_access\x18\x06 \x01(\x08\x12 \n\x06\x61\x63\x63\x65ss\x18\x07 \x01(\x0b\x32\x10.ResourcesAccess\x12\x1c\n\rpart_token_id\x18\x08 \x01(\x0b\x32\x05.UUID\"B\n\x13\x43reateTokenResponse\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x15\n\rrefresh_token\x18\x02 \x01(\t\"d\n\x11\x43heckTokenRequest\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x12\n\nuser_agent\x18\x02 \x01(\t\x12\x14\n\x0c\x66inger_print\x18\x03 \x01(\t\x12\x0f\n\x07user_ip\x18\x04 \x01(\t\"\x9f\x01\n\x12\x43heckTokenResponse\x12 \n\x06\x61\x63\x63\x65ss\x18\x01 \x01(\x0b\x32\x10.ResourcesAccess\x12\x16\n\x07user_id\x18\x02 \x01(\x0b\x32\x05.UUID\x12\x18\n\tuser_role\x18\x03 \x01(\x0e\x32\x05.Role\x12\x17\n\x08token_id\x18\x04 \x01(\x0b\x32\x05.UUID\x12\x1c\n\rpart_token_id\x18\x05 \x01(\x0b\x32\x05.UUID\"@\n\x12\x45xtendTokenRequest\x12\x15\n\rrefresh_token\x18\x01 \x01(\t\x12\x13\n\x0b\x66ingerprint\x18\x02 \x01(\t\"B\n\x13\x45xtendTokenResponse\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x15\n\rrefresh_token\x18\x02 \x01(\t\"-\n\x13UpdateAccessRequest\x12\x16\n\x07user_id\x18\x01 \x01(\x0b\x32\x05.UUID\".\n\x14GetUserTokensRequest\x12\x16\n\x07user_id\x18\x01 \x01(\x0b\x32\x05.UUID\"<\n\x15GetUserTokensResponse\x12#\n\x06tokens\x18\x01 \x03(\x0b\x32\x13.StoredTokenForUser\"E\n\x12\x44\x65leteTokenRequest\x12\x17\n\x08token_id\x18\x01 \x01(\x0b\x32\x05.UUID\x12\x16\n\x07user_id\x18\x02 \x01(\x0b\x32\x05.UUID\"1\n\x17\x44\x65leteUserTokensRequest\x12\x16\n\x07user_id\x18\x01 \x01(\x0b\x32\x05.UUID2\xbf\x03\n\x04\x41uth\x12:\n\x0b\x43reateToken\x12\x13.CreateTokenRequest\x1a\x14.CreateTokenResponse\"\x00\x12\x37\n\nCheckToken\x12\x12.CheckTokenRequest\x1a\x13.CheckTokenResponse\"\x00\x12:\n\x0b\x45xtendToken\x12\x13.ExtendTokenRequest\x1a\x14.ExtendTokenResponse\"\x00\x12>\n\x0cUpdateAccess\x12\x14.UpdateAccessRequest\x1a\x16.google.protobuf.Empty\"\x00\x12@\n\rGetUserTokens\x12\x15.GetUserTokensRequest\x1a\x16.GetUserTokensResponse\"\x00\x12<\n\x0b\x44\x65leteToken\x12\x13.DeleteTokenRequest\x1a\x16.google.protobuf.Empty\"\x00\x12\x46\n\x10\x44\x65leteUserTokens\x12\x18.DeleteUserTokensRequest\x1a\x16.google.protobuf.Empty\"\x00\x42.Z,git.containerum.net/ch/grpc-proto-files/authb\x06proto3')
+  serialized_pb=_b('\n\x0f\x61uth/auth.proto\x1a\x11\x63ommon/uuid.proto\x1a\x15\x61uth/auth_types.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xcc\x01\n\x12\x43reateTokenRequest\x12\x12\n\nuser_agent\x18\x01 \x01(\t\x12\x13\n\x0b\x66ingerprint\x18\x02 \x01(\t\x12\x16\n\x07user_id\x18\x03 \x01(\x0b\x32\x05.UUID\x12\x0f\n\x07user_ip\x18\x04 \x01(\t\x12\x11\n\tuser_role\x18\x05 \x01(\t\x12\x11\n\trw_access\x18\x06 \x01(\x08\x12 \n\x06\x61\x63\x63\x65ss\x18\x07 \x01(\x0b\x32\x10.ResourcesAccess\x12\x1c\n\rpart_token_id\x18\x08 \x01(\x0b\x32\x05.UUID\"B\n\x13\x43reateTokenResponse\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x15\n\rrefresh_token\x18\x02 \x01(\t\"d\n\x11\x43heckTokenRequest\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x12\n\nuser_agent\x18\x02 \x01(\t\x12\x14\n\x0c\x66inger_print\x18\x03 \x01(\t\x12\x0f\n\x07user_ip\x18\x04 \x01(\t\"\x98\x01\n\x12\x43heckTokenResponse\x12 \n\x06\x61\x63\x63\x65ss\x18\x01 \x01(\x0b\x32\x10.ResourcesAccess\x12\x16\n\x07user_id\x18\x02 \x01(\x0b\x32\x05.UUID\x12\x11\n\tuser_role\x18\x03 \x01(\t\x12\x17\n\x08token_id\x18\x04 \x01(\x0b\x32\x05.UUID\x12\x1c\n\rpart_token_id\x18\x05 \x01(\x0b\x32\x05.UUID\"@\n\x12\x45xtendTokenRequest\x12\x15\n\rrefresh_token\x18\x01 \x01(\t\x12\x13\n\x0b\x66ingerprint\x18\x02 \x01(\t\"B\n\x13\x45xtendTokenResponse\x12\x14\n\x0c\x61\x63\x63\x65ss_token\x18\x01 \x01(\t\x12\x15\n\rrefresh_token\x18\x02 \x01(\t\"V\n\x1aUpdateAccessRequestElement\x12\x16\n\x07user_id\x18\x01 \x01(\x0b\x32\x05.UUID\x12 \n\x06\x61\x63\x63\x65ss\x18\x02 \x01(\x0b\x32\x10.ResourcesAccess\"A\n\x13UpdateAccessRequest\x12*\n\x05users\x18\x01 \x03(\x0b\x32\x1b.UpdateAccessRequestElement\".\n\x14GetUserTokensRequest\x12\x16\n\x07user_id\x18\x01 \x01(\x0b\x32\x05.UUID\"<\n\x15GetUserTokensResponse\x12#\n\x06tokens\x18\x01 \x03(\x0b\x32\x13.StoredTokenForUser\"E\n\x12\x44\x65leteTokenRequest\x12\x17\n\x08token_id\x18\x01 \x01(\x0b\x32\x05.UUID\x12\x16\n\x07user_id\x18\x02 \x01(\x0b\x32\x05.UUID\"1\n\x17\x44\x65leteUserTokensRequest\x12\x16\n\x07user_id\x18\x01 \x01(\x0b\x32\x05.UUID2\xbf\x03\n\x04\x41uth\x12:\n\x0b\x43reateToken\x12\x13.CreateTokenRequest\x1a\x14.CreateTokenResponse\"\x00\x12\x37\n\nCheckToken\x12\x12.CheckTokenRequest\x1a\x13.CheckTokenResponse\"\x00\x12:\n\x0b\x45xtendToken\x12\x13.ExtendTokenRequest\x1a\x14.ExtendTokenResponse\"\x00\x12>\n\x0cUpdateAccess\x12\x14.UpdateAccessRequest\x1a\x16.google.protobuf.Empty\"\x00\x12@\n\rGetUserTokens\x12\x15.GetUserTokensRequest\x1a\x16.GetUserTokensResponse\"\x00\x12<\n\x0b\x44\x65leteToken\x12\x13.DeleteTokenRequest\x1a\x16.google.protobuf.Empty\"\x00\x12\x46\n\x10\x44\x65leteUserTokens\x12\x18.DeleteUserTokensRequest\x1a\x16.google.protobuf.Empty\"\x00\x42.Z,git.containerum.net/ch/grpc-proto-files/authb\x06proto3')
   ,
   dependencies=[common_dot_uuid__pb2.DESCRIPTOR,auth_dot_auth__types__pb2.DESCRIPTOR,google_dot_protobuf_dot_empty__pb2.DESCRIPTOR,])
 
@@ -66,8 +66,8 @@ _CREATETOKENREQUEST = _descriptor.Descriptor(
       options=None),
     _descriptor.FieldDescriptor(
       name='user_role', full_name='CreateTokenRequest.user_role', index=4,
-      number=5, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
+      number=5, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -105,7 +105,7 @@ _CREATETOKENREQUEST = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=91,
-  serialized_end=302,
+  serialized_end=295,
 )
 
 
@@ -142,8 +142,8 @@ _CREATETOKENRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=304,
-  serialized_end=370,
+  serialized_start=297,
+  serialized_end=363,
 )
 
 
@@ -194,8 +194,8 @@ _CHECKTOKENREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=372,
-  serialized_end=472,
+  serialized_start=365,
+  serialized_end=465,
 )
 
 
@@ -222,8 +222,8 @@ _CHECKTOKENRESPONSE = _descriptor.Descriptor(
       options=None),
     _descriptor.FieldDescriptor(
       name='user_role', full_name='CheckTokenResponse.user_role', index=2,
-      number=3, type=14, cpp_type=8, label=1,
-      has_default_value=False, default_value=0,
+      number=3, type=9, cpp_type=9, label=1,
+      has_default_value=False, default_value=_b("").decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
@@ -253,8 +253,8 @@ _CHECKTOKENRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=475,
-  serialized_end=634,
+  serialized_start=468,
+  serialized_end=620,
 )
 
 
@@ -291,8 +291,8 @@ _EXTENDTOKENREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=636,
-  serialized_end=700,
+  serialized_start=622,
+  serialized_end=686,
 )
 
 
@@ -329,21 +329,28 @@ _EXTENDTOKENRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=702,
-  serialized_end=768,
+  serialized_start=688,
+  serialized_end=754,
 )
 
 
-_UPDATEACCESSREQUEST = _descriptor.Descriptor(
-  name='UpdateAccessRequest',
-  full_name='UpdateAccessRequest',
+_UPDATEACCESSREQUESTELEMENT = _descriptor.Descriptor(
+  name='UpdateAccessRequestElement',
+  full_name='UpdateAccessRequestElement',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='user_id', full_name='UpdateAccessRequest.user_id', index=0,
+      name='user_id', full_name='UpdateAccessRequestElement.user_id', index=0,
       number=1, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='access', full_name='UpdateAccessRequestElement.access', index=1,
+      number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -360,8 +367,39 @@ _UPDATEACCESSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=770,
-  serialized_end=815,
+  serialized_start=756,
+  serialized_end=842,
+)
+
+
+_UPDATEACCESSREQUEST = _descriptor.Descriptor(
+  name='UpdateAccessRequest',
+  full_name='UpdateAccessRequest',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='users', full_name='UpdateAccessRequest.users', index=0,
+      number=1, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  syntax='proto3',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=844,
+  serialized_end=909,
 )
 
 
@@ -391,8 +429,8 @@ _GETUSERTOKENSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=817,
-  serialized_end=863,
+  serialized_start=911,
+  serialized_end=957,
 )
 
 
@@ -422,8 +460,8 @@ _GETUSERTOKENSRESPONSE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=865,
-  serialized_end=925,
+  serialized_start=959,
+  serialized_end=1019,
 )
 
 
@@ -460,8 +498,8 @@ _DELETETOKENREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=927,
-  serialized_end=996,
+  serialized_start=1021,
+  serialized_end=1090,
 )
 
 
@@ -491,20 +529,20 @@ _DELETEUSERTOKENSREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=998,
-  serialized_end=1047,
+  serialized_start=1092,
+  serialized_end=1141,
 )
 
 _CREATETOKENREQUEST.fields_by_name['user_id'].message_type = common_dot_uuid__pb2._UUID
-_CREATETOKENREQUEST.fields_by_name['user_role'].enum_type = auth_dot_auth__types__pb2._ROLE
 _CREATETOKENREQUEST.fields_by_name['access'].message_type = auth_dot_auth__types__pb2._RESOURCESACCESS
 _CREATETOKENREQUEST.fields_by_name['part_token_id'].message_type = common_dot_uuid__pb2._UUID
 _CHECKTOKENRESPONSE.fields_by_name['access'].message_type = auth_dot_auth__types__pb2._RESOURCESACCESS
 _CHECKTOKENRESPONSE.fields_by_name['user_id'].message_type = common_dot_uuid__pb2._UUID
-_CHECKTOKENRESPONSE.fields_by_name['user_role'].enum_type = auth_dot_auth__types__pb2._ROLE
 _CHECKTOKENRESPONSE.fields_by_name['token_id'].message_type = common_dot_uuid__pb2._UUID
 _CHECKTOKENRESPONSE.fields_by_name['part_token_id'].message_type = common_dot_uuid__pb2._UUID
-_UPDATEACCESSREQUEST.fields_by_name['user_id'].message_type = common_dot_uuid__pb2._UUID
+_UPDATEACCESSREQUESTELEMENT.fields_by_name['user_id'].message_type = common_dot_uuid__pb2._UUID
+_UPDATEACCESSREQUESTELEMENT.fields_by_name['access'].message_type = auth_dot_auth__types__pb2._RESOURCESACCESS
+_UPDATEACCESSREQUEST.fields_by_name['users'].message_type = _UPDATEACCESSREQUESTELEMENT
 _GETUSERTOKENSREQUEST.fields_by_name['user_id'].message_type = common_dot_uuid__pb2._UUID
 _GETUSERTOKENSRESPONSE.fields_by_name['tokens'].message_type = auth_dot_auth__types__pb2._STOREDTOKENFORUSER
 _DELETETOKENREQUEST.fields_by_name['token_id'].message_type = common_dot_uuid__pb2._UUID
@@ -516,6 +554,7 @@ DESCRIPTOR.message_types_by_name['CheckTokenRequest'] = _CHECKTOKENREQUEST
 DESCRIPTOR.message_types_by_name['CheckTokenResponse'] = _CHECKTOKENRESPONSE
 DESCRIPTOR.message_types_by_name['ExtendTokenRequest'] = _EXTENDTOKENREQUEST
 DESCRIPTOR.message_types_by_name['ExtendTokenResponse'] = _EXTENDTOKENRESPONSE
+DESCRIPTOR.message_types_by_name['UpdateAccessRequestElement'] = _UPDATEACCESSREQUESTELEMENT
 DESCRIPTOR.message_types_by_name['UpdateAccessRequest'] = _UPDATEACCESSREQUEST
 DESCRIPTOR.message_types_by_name['GetUserTokensRequest'] = _GETUSERTOKENSREQUEST
 DESCRIPTOR.message_types_by_name['GetUserTokensResponse'] = _GETUSERTOKENSRESPONSE
@@ -565,6 +604,13 @@ ExtendTokenResponse = _reflection.GeneratedProtocolMessageType('ExtendTokenRespo
   ))
 _sym_db.RegisterMessage(ExtendTokenResponse)
 
+UpdateAccessRequestElement = _reflection.GeneratedProtocolMessageType('UpdateAccessRequestElement', (_message.Message,), dict(
+  DESCRIPTOR = _UPDATEACCESSREQUESTELEMENT,
+  __module__ = 'auth.auth_pb2'
+  # @@protoc_insertion_point(class_scope:UpdateAccessRequestElement)
+  ))
+_sym_db.RegisterMessage(UpdateAccessRequestElement)
+
 UpdateAccessRequest = _reflection.GeneratedProtocolMessageType('UpdateAccessRequest', (_message.Message,), dict(
   DESCRIPTOR = _UPDATEACCESSREQUEST,
   __module__ = 'auth.auth_pb2'
@@ -610,8 +656,8 @@ _AUTH = _descriptor.ServiceDescriptor(
   file=DESCRIPTOR,
   index=0,
   options=None,
-  serialized_start=1050,
-  serialized_end=1497,
+  serialized_start=1144,
+  serialized_end=1591,
   methods=[
   _descriptor.MethodDescriptor(
     name='CreateToken',
