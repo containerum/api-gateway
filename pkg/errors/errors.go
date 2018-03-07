@@ -8,6 +8,7 @@ type Error struct {
 
 type ID struct {
 	Service string
+	Kind    int
 }
 
 func New(msg string, details ...string) Error {
@@ -15,6 +16,7 @@ func New(msg string, details ...string) Error {
 		Message: msg,
 		ID: ID{
 			Service: "gateway",
+			Kind:    1,
 		},
 		Details: details,
 	}
