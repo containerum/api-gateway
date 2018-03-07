@@ -8,7 +8,7 @@ import (
 
 var (
 	roles         = []string{"*", "user", "admin"}
-	methods       = []string{"GET", "POST"}
+	methods       = []string{"GET", "POST", "PUT", "DELETE"}
 	upstreamProto = "http"
 	//ErrInvalidRoles returns when roles is wrong
 	ErrInvalidRoles = fmt.Errorf("Invalid roles. Options: %v", roles)
@@ -35,6 +35,7 @@ type Route struct {
 	Listen   string
 	Strip    bool
 	Group    string
+	WS       bool
 }
 
 //Validate return array or invalid inputs
@@ -51,10 +52,10 @@ func (rs *Routes) Validate() []error {
 		if !valid.IsIn(route.Method, methods...) {
 			errs = append(errs, ErrInvalidMethod)
 		}
-		//Validate Upstream protocol
-		if !valid.Matches(route.Upstream, "^"+upstreamProto+"://") {
-			errs = append(errs, ErrInvalidUpstreamProtocol)
-		}
+		// //Validate Upstream protocol
+		// if !valid.Matches(route.Upstream, "^"+upstreamProto+"://") {
+		// 	errs = append(errs, ErrInvalidUpstreamProtocol)
+		// }
 		//Validate Listen
 		if !valid.Matches(route.Listen, "^/") {
 			errs = append(errs, ErrInvalidListen)

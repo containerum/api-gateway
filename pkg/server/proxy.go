@@ -13,6 +13,7 @@ import (
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	"git.containerum.net/ch/api-gateway/pkg/server/middleware"
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -20,6 +21,16 @@ import (
 type proxyTransport struct {
 	header http.Header
 }
+
+var (
+	defaultUpgrader = &websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
+)
 
 func (pt proxyTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	transport := http.Transport{Dial: (&net.Dialer{
@@ -44,8 +55,47 @@ func (pt proxyTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 
 func proxyHandler(route model.Route) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		p := createProxy(&route)
-		p.ServeHTTP(c.Writer, c.Request)
+		u, _ := url.Parse("ws://localhost:8080/ws")
+		log.WithField("IsUpgrade", websocket.IsWebSocketUpgrade(c.Request)).WithField("Route", route).Debug("WS")
+		if route.WS {
+			connPub, err := defaultUpgrader.Upgrade(c.Writer, c.Request, nil)
+			if err != nil {
+				log.WithError(err).Error("Unable to upgrade to WebSocket")
+				return
+			}
+			defer connPub.Close()
+
+			connBackend, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+			if err != nil {
+				log.WithError(err).Error("Unable to dial to WebSocket")
+				return
+			}
+			defer connBackend.Close()
+
+			errc := make(chan error, 2)
+			replicateWebsocketConn := func(dst, src *websocket.Conn, dstName, srcName string) {
+				var err error
+				for {
+					msgType, msg, err := src.ReadMessage()
+					if err != nil {
+						log.Printf("websocketproxy: error when copying from %s to %s using ReadMessage: %v", srcName, dstName, err)
+						break
+					}
+					err = dst.WriteMessage(msgType, msg)
+					if err != nil {
+						log.Printf("websocketproxy: error when copying from %s to %s using WriteMessage: %v", srcName, dstName, err)
+						break
+					}
+				}
+				errc <- err
+			}
+			go replicateWebsocketConn(connPub, connBackend, "client", "backend")
+			go replicateWebsocketConn(connBackend, connPub, "backend", "client")
+			<-errc
+		} else {
+			p := createProxy(&route)
+			p.ServeHTTP(c.Writer, c.Request)
+		}
 	}
 }
 

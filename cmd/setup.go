@@ -124,7 +124,7 @@ func setupServer(c *cli.Context) (*server.Server, error) {
 
 func setupMetrics(c *cli.Context) error {
 	metrics = model.CreateMetrics()
-	prometheus.MustRegister(metrics.RTotal, metrics.RUserIP)
+	prometheus.MustRegister(metrics.RTotal, metrics.RUserIP, metrics.RRoute, metrics.RUserAgent)
 	return nil
 }
 

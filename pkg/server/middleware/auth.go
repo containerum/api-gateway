@@ -10,6 +10,7 @@ import (
 	errs "git.containerum.net/ch/api-gateway/pkg/errors"
 	"git.containerum.net/ch/grpc-proto-files/auth"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -31,11 +32,18 @@ func CheckAuth(roles []string, authClient *auth.AuthClient) gin.HandlerFunc {
 			return
 		}
 		accessToken := c.Request.Header.Get(authorizationHeader)
+		userIP := c.ClientIP()
+		log.WithFields(log.Fields{
+			"AccessToken": accessToken,
+			"UserAgent":   c.GetHeader(userAgentXHeader),
+			"FingerPrint": c.GetHeader(userClientXHeader),
+			"UserIp":      userIP,
+		}).Debug("Check token")
 		token, err := (*authClient).CheckToken(context.Background(), &auth.CheckTokenRequest{
 			AccessToken: accessToken,
 			UserAgent:   c.GetHeader(userAgentXHeader),
 			FingerPrint: c.GetHeader(userClientXHeader),
-			UserIp:      c.GetHeader(userIPXHeader),
+			UserIp:      userIP,
 		})
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, errs.New(errCheckToken.Error(), errInvalidToken.Error()))

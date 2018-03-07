@@ -60,7 +60,7 @@ func createHandler(opt *ServerOptions) (http.Handler, error) {
 	//Add middlewares
 	router.Use(middle.Logger(opt.Metrics), middle.Recovery(), middle.Cors())
 	router.Use(limiter.Limit())
-	router.Use(middle.ClearXHeaders(), middle.SetRequestID())
+	router.Use(middle.SetHeaderFromQuery(), middle.ClearXHeaders(), middle.SetRequestID())
 	router.Use(middle.CheckUserClientHeader(), middle.SetMainUserXHeaders())
 	//Add routes
 	for _, route := range opt.Routes.Routes {
