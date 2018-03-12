@@ -55,9 +55,15 @@ func (pt proxyTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 
 func proxyHandler(route model.Route) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		u, _ := url.Parse("ws://localhost:8080/ws")
 		log.WithField("IsUpgrade", websocket.IsWebSocketUpgrade(c.Request)).WithField("Route", route).Debug("WS")
 		if route.WS {
+			u := c.Request.URL
+			t, _ := url.Parse(route.Upstream)
+			u.Scheme = "ws"
+			u.Host = t.Host
+
+			log.WithField("IsUpgrade", websocket.IsWebSocketUpgrade(c.Request)).WithField("U", u).Debug("WS")
+
 			connPub, err := defaultUpgrader.Upgrade(c.Writer, c.Request, nil)
 			if err != nil {
 				log.WithError(err).Error("Unable to upgrade to WebSocket")
@@ -65,7 +71,12 @@ func proxyHandler(route model.Route) gin.HandlerFunc {
 			}
 			defer connPub.Close()
 
-			connBackend, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
+			c.Request.Header.Del("Connection")
+			c.Request.Header.Del("Sec-Websocket-Key")
+			c.Request.Header.Del("Sec-Websocket-Version")
+			c.Request.Header.Del("Sec-Websocket-Extensions")
+			c.Request.Header.Del("Upgrade")
+			connBackend, _, err := websocket.DefaultDialer.Dial(u.String(), c.Request.Header)
 			if err != nil {
 				log.WithError(err).Error("Unable to dial to WebSocket")
 				return
