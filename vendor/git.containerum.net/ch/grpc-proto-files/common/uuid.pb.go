@@ -29,6 +29,7 @@ const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 // Represents UUID in standart format
 type UUID struct {
+	// @inject_tag: binding:"uuid4"
 	Value string `protobuf:"bytes,1,opt,name=value" json:"value,omitempty"`
 }
 

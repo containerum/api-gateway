@@ -51,9 +51,10 @@ var _ = math.Inf
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type CreateTokenRequest struct {
-	UserAgent   string           `protobuf:"bytes,1,opt,name=user_agent,json=userAgent" json:"user_agent,omitempty"`
-	Fingerprint string           `protobuf:"bytes,2,opt,name=fingerprint" json:"fingerprint,omitempty"`
-	UserId      *uuid.UUID       `protobuf:"bytes,3,opt,name=user_id,json=userId" json:"user_id,omitempty"`
+	UserAgent   string     `protobuf:"bytes,1,opt,name=user_agent,json=userAgent" json:"user_agent,omitempty"`
+	Fingerprint string     `protobuf:"bytes,2,opt,name=fingerprint" json:"fingerprint,omitempty"`
+	UserId      *uuid.UUID `protobuf:"bytes,3,opt,name=user_id,json=userId" json:"user_id,omitempty"`
+	// @inject_tag: binding:"ip"
 	UserIp      string           `protobuf:"bytes,4,opt,name=user_ip,json=userIp" json:"user_ip,omitempty"`
 	UserRole    string           `protobuf:"bytes,5,opt,name=user_role,json=userRole" json:"user_role,omitempty"`
 	RwAccess    bool             `protobuf:"varint,6,opt,name=rw_access,json=rwAccess" json:"rw_access,omitempty"`
@@ -150,7 +151,8 @@ type CheckTokenRequest struct {
 	AccessToken string `protobuf:"bytes,1,opt,name=access_token,json=accessToken" json:"access_token,omitempty"`
 	UserAgent   string `protobuf:"bytes,2,opt,name=user_agent,json=userAgent" json:"user_agent,omitempty"`
 	FingerPrint string `protobuf:"bytes,3,opt,name=finger_print,json=fingerPrint" json:"finger_print,omitempty"`
-	UserIp      string `protobuf:"bytes,4,opt,name=user_ip,json=userIp" json:"user_ip,omitempty"`
+	// @inject_tag: binding:"ip"
+	UserIp string `protobuf:"bytes,4,opt,name=user_ip,json=userIp" json:"user_ip,omitempty"`
 }
 
 func (m *CheckTokenRequest) Reset()                    { *m = CheckTokenRequest{} }

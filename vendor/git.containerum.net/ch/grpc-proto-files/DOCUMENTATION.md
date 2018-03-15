@@ -79,7 +79,7 @@ Represents UUID in standart format
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| value | [string](#string) |  |  |
+| value | [string](#string) |  | @inject_tag: binding:&#34;uuid4&#34; |
 
 
 
@@ -307,7 +307,7 @@ microsecond should be expressed in JSON format as &#34;3.000001s&#34;.
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | label | [string](#string) |  |  |
-| id | [string](#string) |  |  |
+| id | [string](#string) |  | @inject_tag: binding:&#34;uuid4&#34; |
 | access | [string](#string) |  |  |
 
 
@@ -348,7 +348,7 @@ microsecond should be expressed in JSON format as &#34;3.000001s&#34;.
 | user_namespace | [string](#string) |  |  |
 | user_volume | [string](#string) |  |  |
 | rw_access | [bool](#bool) |  |  |
-| user_ip | [string](#string) |  |  |
+| user_ip | [string](#string) |  | @inject_tag: binding:&#34;ip&#34; |
 | part_token_id | [.UUID](#..UUID) |  |  |
 | created_at | [.google.protobuf.Timestamp](#..google.protobuf.Timestamp) |  |  |
 | life_time | [.google.protobuf.Duration](#..google.protobuf.Duration) |  |  |
@@ -368,7 +368,7 @@ microsecond should be expressed in JSON format as &#34;3.000001s&#34;.
 | ----- | ---- | ----- | ----------- |
 | token_id | [.UUID](#..UUID) |  |  |
 | user_agent | [string](#string) |  |  |
-| ip | [string](#string) |  |  |
+| ip | [string](#string) |  | @inject_tag: binding:&#34;ip&#34; |
 | created_at | [string](#string) |  |  |
 
 
@@ -437,7 +437,7 @@ The JSON representation for `Empty` is empty JSON object `{}`.
 | access_token | [string](#string) |  |  |
 | user_agent | [string](#string) |  |  |
 | finger_print | [string](#string) |  |  |
-| user_ip | [string](#string) |  |  |
+| user_ip | [string](#string) |  | @inject_tag: binding:&#34;ip&#34; |
 
 
 
@@ -474,7 +474,7 @@ The JSON representation for `Empty` is empty JSON object `{}`.
 | user_agent | [string](#string) |  |  |
 | fingerprint | [string](#string) |  |  |
 | user_id | [.UUID](#..UUID) |  |  |
-| user_ip | [string](#string) |  |  |
+| user_ip | [string](#string) |  | @inject_tag: binding:&#34;ip&#34; |
 | user_role | [string](#string) |  |  |
 | rw_access | [bool](#bool) |  |  |
 | access | [.ResourcesAccess](#..ResourcesAccess) |  |  |

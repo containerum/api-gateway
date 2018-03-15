@@ -16,6 +16,7 @@ message StoredToken {
     string user_namespace = 7;
     string user_volume = 8;
     bool rw_access = 9;
+    // @inject_tag: binding:"ip"
     string user_ip = 10;
     UUID part_token_id = 11;
     google.protobuf.Timestamp created_at = 12;
@@ -24,6 +25,7 @@ message StoredToken {
 
 message AccessObject {
     string label = 1;
+    // @inject_tag: binding:"uuid4"
     string id = 2;
     string access = 3;
 }
@@ -36,6 +38,7 @@ message ResourcesAccess {
 message StoredTokenForUser {
     UUID token_id = 1;
     string user_agent = 2;
+    // @inject_tag: binding:"ip"
     string ip = 3;
     string created_at = 4;
 }

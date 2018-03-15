@@ -23,7 +23,8 @@
           "type": "string"
         },
         "id": {
-          "type": "string"
+          "type": "string",
+          "title": "@inject_tag: binding:\"uuid4\""
         },
         "access": {
           "type": "string"
@@ -110,7 +111,8 @@
           "type": "string"
         },
         "ip": {
-          "type": "string"
+          "type": "string",
+          "title": "@inject_tag: binding:\"ip\""
         },
         "created_at": {
           "type": "string"
@@ -121,7 +123,8 @@
       "type": "object",
       "properties": {
         "value": {
-          "type": "string"
+          "type": "string",
+          "title": "@inject_tag: binding:\"uuid4\""
         }
       },
       "title": "Represents UUID in standart format"

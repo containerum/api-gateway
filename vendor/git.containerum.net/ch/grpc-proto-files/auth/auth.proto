@@ -21,6 +21,7 @@ message CreateTokenRequest {
     string user_agent = 1;
     string fingerprint = 2;
     UUID user_id = 3;
+    // @inject_tag: binding:"ip"
     string user_ip = 4;
     string user_role = 5;
     bool rw_access = 6;
@@ -37,6 +38,7 @@ message CheckTokenRequest {
     string access_token = 1;
     string user_agent = 2;
     string finger_print = 3;
+    // @inject_tag: binding:"ip"
     string user_ip = 4;
 }
 

@@ -8,7 +8,7 @@
     "auth",
     "common"
   ]
-  revision = "3650097fee157162fc079fb87570279cbed50989"
+  revision = "d42e01553667e97a503636e968f23c51faa6393d"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"

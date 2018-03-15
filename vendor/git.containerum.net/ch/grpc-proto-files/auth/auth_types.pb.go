@@ -16,19 +16,20 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 type StoredToken struct {
-	TokenId       *uuid.UUID                 `protobuf:"bytes,1,opt,name=token_id,json=tokenId" json:"token_id,omitempty"`
-	UserAgent     string                     `protobuf:"bytes,2,opt,name=user_agent,json=userAgent" json:"user_agent,omitempty"`
-	Platform      string                     `protobuf:"bytes,3,opt,name=platform" json:"platform,omitempty"`
-	Fingerprint   string                     `protobuf:"bytes,4,opt,name=fingerprint" json:"fingerprint,omitempty"`
-	UserId        *uuid.UUID                 `protobuf:"bytes,5,opt,name=user_id,json=userId" json:"user_id,omitempty"`
-	UserRole      string                     `protobuf:"bytes,6,opt,name=user_role,json=userRole" json:"user_role,omitempty"`
-	UserNamespace string                     `protobuf:"bytes,7,opt,name=user_namespace,json=userNamespace" json:"user_namespace,omitempty"`
-	UserVolume    string                     `protobuf:"bytes,8,opt,name=user_volume,json=userVolume" json:"user_volume,omitempty"`
-	RwAccess      bool                       `protobuf:"varint,9,opt,name=rw_access,json=rwAccess" json:"rw_access,omitempty"`
-	UserIp        string                     `protobuf:"bytes,10,opt,name=user_ip,json=userIp" json:"user_ip,omitempty"`
-	PartTokenId   *uuid.UUID                 `protobuf:"bytes,11,opt,name=part_token_id,json=partTokenId" json:"part_token_id,omitempty"`
-	CreatedAt     *google_protobuf.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt" json:"created_at,omitempty"`
-	LifeTime      *google_protobuf1.Duration `protobuf:"bytes,13,opt,name=life_time,json=lifeTime" json:"life_time,omitempty"`
+	TokenId       *uuid.UUID `protobuf:"bytes,1,opt,name=token_id,json=tokenId" json:"token_id,omitempty"`
+	UserAgent     string     `protobuf:"bytes,2,opt,name=user_agent,json=userAgent" json:"user_agent,omitempty"`
+	Platform      string     `protobuf:"bytes,3,opt,name=platform" json:"platform,omitempty"`
+	Fingerprint   string     `protobuf:"bytes,4,opt,name=fingerprint" json:"fingerprint,omitempty"`
+	UserId        *uuid.UUID `protobuf:"bytes,5,opt,name=user_id,json=userId" json:"user_id,omitempty"`
+	UserRole      string     `protobuf:"bytes,6,opt,name=user_role,json=userRole" json:"user_role,omitempty"`
+	UserNamespace string     `protobuf:"bytes,7,opt,name=user_namespace,json=userNamespace" json:"user_namespace,omitempty"`
+	UserVolume    string     `protobuf:"bytes,8,opt,name=user_volume,json=userVolume" json:"user_volume,omitempty"`
+	RwAccess      bool       `protobuf:"varint,9,opt,name=rw_access,json=rwAccess" json:"rw_access,omitempty"`
+	// @inject_tag: binding:"ip"
+	UserIp      string                     `protobuf:"bytes,10,opt,name=user_ip,json=userIp" json:"user_ip,omitempty"`
+	PartTokenId *uuid.UUID                 `protobuf:"bytes,11,opt,name=part_token_id,json=partTokenId" json:"part_token_id,omitempty"`
+	CreatedAt   *google_protobuf.Timestamp `protobuf:"bytes,12,opt,name=created_at,json=createdAt" json:"created_at,omitempty"`
+	LifeTime    *google_protobuf1.Duration `protobuf:"bytes,13,opt,name=life_time,json=lifeTime" json:"life_time,omitempty"`
 }
 
 func (m *StoredToken) Reset()                    { *m = StoredToken{} }
@@ -128,7 +129,8 @@ func (m *StoredToken) GetLifeTime() *google_protobuf1.Duration {
 }
 
 type AccessObject struct {
-	Label  string `protobuf:"bytes,1,opt,name=label" json:"label,omitempty"`
+	Label string `protobuf:"bytes,1,opt,name=label" json:"label,omitempty"`
+	// @inject_tag: binding:"uuid4"
 	Id     string `protobuf:"bytes,2,opt,name=id" json:"id,omitempty"`
 	Access string `protobuf:"bytes,3,opt,name=access" json:"access,omitempty"`
 }
@@ -186,8 +188,9 @@ func (m *ResourcesAccess) GetVolume() []*AccessObject {
 type StoredTokenForUser struct {
 	TokenId   *uuid.UUID `protobuf:"bytes,1,opt,name=token_id,json=tokenId" json:"token_id,omitempty"`
 	UserAgent string     `protobuf:"bytes,2,opt,name=user_agent,json=userAgent" json:"user_agent,omitempty"`
-	Ip        string     `protobuf:"bytes,3,opt,name=ip" json:"ip,omitempty"`
-	CreatedAt string     `protobuf:"bytes,4,opt,name=created_at,json=createdAt" json:"created_at,omitempty"`
+	// @inject_tag: binding:"ip"
+	Ip        string `protobuf:"bytes,3,opt,name=ip" json:"ip,omitempty"`
+	CreatedAt string `protobuf:"bytes,4,opt,name=created_at,json=createdAt" json:"created_at,omitempty"`
 }
 
 func (m *StoredTokenForUser) Reset()                    { *m = StoredTokenForUser{} }
