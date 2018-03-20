@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-option go_package = "git.containerum.net/ch/grpc-proto-files/common";
-
-// Represents UUID in standart format
-message UUID {
-    // @inject_tag: binding:"uuid4"
-    string value = 1;
-}
