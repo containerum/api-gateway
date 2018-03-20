@@ -8,7 +8,7 @@ import (
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	"git.containerum.net/ch/api-gateway/pkg/server"
-	"git.containerum.net/ch/grpc-proto-files/auth"
+	"git.containerum.net/ch/auth/proto"
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
@@ -30,7 +30,7 @@ var (
 	config     model.Config
 	routes     model.Routes
 	cert, key  string
-	authClient *auth.AuthClient
+	authClient *authProto.AuthClient
 	metrics    *model.Metrics
 )
 
@@ -107,7 +107,7 @@ func setupAuth(c *cli.Context) error {
 		}).Error(errGrpcDialFailed)
 		return errGrpcDialFailed
 	}
-	client := auth.NewAuthClient(con)
+	client := authProto.NewAuthClient(con)
 	authClient = &client
 	return nil
 }
