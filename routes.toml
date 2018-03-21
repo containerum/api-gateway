@@ -81,6 +81,26 @@ listen = "/namespaces"
 strip = false
 group = "kube-api"
 
+[routes.allingresseslist_get]
+active = true
+name = "Get All User Ingresses List"
+method = "GET"
+roles = ["*"]
+upstream = "http://kube-api:1214"
+listen = "/ingresses"
+strip = false
+group = "kube-api"
+
+[routes.ingress_create]
+active = true
+name = "Create Ingress"
+method = "POST"
+roles = ["*"]
+upstream = "http://kube-api:1214"
+listen = "/namespaces/:namespace/ingresses"
+strip = false
+group = "kube-api"
+
 [routes.namespace_create]
 active = true
 name = "Create Namespace"
