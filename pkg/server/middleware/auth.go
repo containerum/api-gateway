@@ -4,20 +4,13 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
-	"errors"
-	"net/http"
 
-	errs "git.containerum.net/ch/api-gateway/pkg/errors"
 	"git.containerum.net/ch/auth/proto"
+	"git.containerum.net/ch/kube-client/pkg/cherry"
+	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/gonic"
+	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-)
-
-var (
-	errCheckToken          = errors.New("Unable to check token")
-	errInvalidToken        = errors.New("Invalid token")
-	errUnableGetAccess     = errors.New("Unable to get user access")
-	errUserPermisionDenied = errors.New("User permission denied")
 )
 
 //CheckAuth check user token and roles
@@ -28,7 +21,8 @@ func CheckAuth(roles []string, authClient *authProto.AuthClient) gin.HandlerFunc
 			return
 		}
 		if authClient == nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
+			log.Errorf("auth client not set up")
+			gonic.Gonic(gatewayErrors.ErrInternal(), c)
 			return
 		}
 		accessToken := c.Request.Header.Get(authorizationHeader)
@@ -46,16 +40,17 @@ func CheckAuth(roles []string, authClient *authProto.AuthClient) gin.HandlerFunc
 			UserIp:      userIP,
 		})
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, errs.New(errCheckToken.Error(), errInvalidToken.Error()))
+			gonic.Gonic(err.(*cherry.Err), c)
 			return
 		}
 		if ok := checkUserRole(token.UserRole, roles); !ok {
-			c.AbortWithStatusJSON(http.StatusForbidden, errs.New(errCheckToken.Error(), errUserPermisionDenied.Error()))
+			gonic.Gonic(gatewayErrors.ErrUserPermissionDenied(), c)
 			return
 		}
 		ns, vol, err := encodeAccessToBase64(token.GetAccess())
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, errs.New(errCheckToken.Error(), errUnableGetAccess.Error()))
+			log.Error(err)
+			gonic.Gonic(gatewayErrors.ErrInternal(), c)
 			return
 		}
 		setHeader(&c.Request.Header, tokenIDXHeader, token.TokenId)

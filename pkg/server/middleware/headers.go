@@ -1,11 +1,11 @@
 package middleware
 
 import (
-	"errors"
 	"net/http"
 	"regexp"
 
-	errs "git.containerum.net/ch/api-gateway/pkg/errors"
+	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/gonic"
+	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -34,11 +34,6 @@ var (
 	//XHeaderRegexp keeps regexp for detecting X-Headers
 	XHeaderRegexp, _    = regexp.Compile("^X-[a-zA-Z0-9]+")
 	userClientRegexp, _ = regexp.Compile("^[a-f0-9]{32}$")
-)
-
-var (
-	//ErrInvalidUserClientHeader returns if User-Client header is empty or invalid
-	ErrInvalidUserClientHeader = errors.New("Invalid User-Client header")
 )
 
 //ClearXHeaders clear all request and response X-Headers
@@ -79,15 +74,15 @@ func SetHeaderFromQuery() gin.HandlerFunc {
 func CheckUserClientHeader() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if c.GetHeader(userClientHeader) == "" {
-			c.AbortWithStatusJSON(http.StatusBadRequest, errs.New(ErrInvalidUserClientHeader.Error(), "Not provided"))
+			gonic.Gonic(gatewayErrors.ErrHeaderNotProvided().AddDetailF("header %s required", userClientHeader), c)
 			return
 		}
 		if !userClientRegexp.MatchString(c.GetHeader(userClientHeader)) {
 			log.WithFields(log.Fields{
 				"Header": userClientHeader,
 				"Value":  c.GetHeader(userClientHeader),
-			}).Debug(ErrInvalidUserClientHeader)
-			c.AbortWithStatusJSON(http.StatusBadRequest, errs.New(ErrInvalidUserClientHeader.Error(), "Invalid format"))
+			}).Warnf("invalid header format")
+			gonic.Gonic(gatewayErrors.ErrInvalidformat().AddDetailF("header %s has invalid format", userClientHeader), c)
 			return
 		}
 		c.Next()

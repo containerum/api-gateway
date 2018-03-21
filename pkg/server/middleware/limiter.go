@@ -1,12 +1,10 @@
 package middleware
 
 import (
-	"errors"
-	"fmt"
-	"net/http"
 	"time"
 
-	errs "git.containerum.net/ch/api-gateway/pkg/errors"
+	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/gonic"
+	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
 	"github.com/gin-gonic/gin"
@@ -18,15 +16,11 @@ type Limiter struct {
 	rate int
 }
 
-var (
-	errTooManyRequests = errors.New("Too many requests per second")
-)
-
 //CreateLimiter return rate limiter for http
 func CreateLimiter(rate int) *Limiter {
-	limiter := tollbooth.NewLimiter(float64(rate), &limiter.ExpirableOptions{DefaultExpirationTTL: time.Hour})
-	limiter.SetIPLookups([]string{"X-Client-IP", "X-Forwarded-For", "X-Real-IP"})
-	return &Limiter{limiter, rate}
+	limit := tollbooth.NewLimiter(float64(rate), &limiter.ExpirableOptions{DefaultExpirationTTL: time.Hour})
+	limit.SetIPLookups([]string{"X-Client-IP", "X-Forwarded-For", "X-Real-IP"})
+	return &Limiter{limit, rate}
 }
 
 //Limit middleware for limiting http requests
@@ -34,7 +28,7 @@ func (l *Limiter) Limit() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		httpError := tollbooth.LimitByKeys(l.Limiter, []string{c.ClientIP()})
 		if httpError != nil {
-			c.AbortWithStatusJSON(http.StatusTooManyRequests, errs.New(errTooManyRequests.Error(), fmt.Sprintf("Max request count: %v", l.rate)))
+			gonic.Gonic(gatewayErrors.ErrTooManyRequests().AddDetailF("max request count: %v", l.rate), c)
 		} else {
 			c.Next()
 		}
