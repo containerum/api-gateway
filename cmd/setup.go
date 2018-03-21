@@ -9,8 +9,12 @@ import (
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	"git.containerum.net/ch/api-gateway/pkg/server"
 	"git.containerum.net/ch/auth/proto"
+	"git.containerum.net/ch/kube-client/pkg/cherry"
+	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/cherrygrpc"
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/urfave/cli"
@@ -99,6 +103,14 @@ func setupAuth(c *cli.Context) error {
 	}
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithInsecure())
+
+	opts = append(opts, grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
+		cherrygrpc.UnaryClientInterceptor(func(i ...func(*cherry.Err)) *cherry.Err {
+			return &cherry.Err{}
+		}), //FIXME
+		grpc_logrus.UnaryClientInterceptor(log.WithField("component", "auth_client")),
+	)))
+
 	addr := fmt.Sprintf("%s:%s", c.String(authAddr), c.String(authPort))
 	con, err := grpc.Dial(addr, opts...)
 	if err != nil {
