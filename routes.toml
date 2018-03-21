@@ -90,3 +90,43 @@ upstream = "http://resource-service:1213"
 listen = "/namespace"
 strip = false
 group = "resource-service"
+
+[routes.volume_create]
+active = true
+name = "Create volume"
+method = "POST"
+roles = "*"
+upstream = "http://resource-service:1213"
+listen = "/volume"
+strip = false
+group = "resource-service"
+
+[routes.volume_get]
+active = true
+name = "Get volume"
+method = "GET"
+roles = "*"
+upstream = "http://resource-service:1213"
+listen = "/volume/:volume"
+strip = false
+group = "resource-service"
+
+[routes.volumelist_get]
+active = true
+name = "Get volume list"
+method = "GET"
+roles = "*"
+upstream = "http://resource-service:1213"
+listen = "/volume"
+strip = false
+group = "resource-service"
+
+[routes.volume_delete]
+active = true
+name = "Delete volume"
+method = "DELETE"
+roles = "*"
+upstream = "http://resource-service:1213"
+listen = "/volume/:volume"
+strip = false
+group = "resource-service"
