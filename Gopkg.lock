@@ -12,6 +12,8 @@
   packages = [
     "pkg/cherry",
     "pkg/cherry/adaptors/cherrygrpc",
+    "pkg/cherry/adaptors/cherrylog",
+    "pkg/cherry/adaptors/gonic",
     "pkg/cherry/api-gateway"
   ]
   revision = "3eca5969b92e15876bef6f9e3d9c8a5b77df91c7"
@@ -325,6 +327,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0c4d44b57f6081b3e4948519064a7d2b9beb9d3cb53d81286502db13c25e2970"
+  inputs-digest = "98fb6e7cd35d38eed460d05a10fda06ea22ccc91f9d213a81346a1d147be23aa"
   solver-name = "gps-cdcl"
   solver-version = 1

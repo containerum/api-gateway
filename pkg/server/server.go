@@ -9,6 +9,9 @@ import (
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	middle "git.containerum.net/ch/api-gateway/pkg/server/middleware"
 	"git.containerum.net/ch/auth/proto"
+	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/cherrylog"
+	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/gonic"
+	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
 	"github.com/gin-gonic/gin"
 
 	log "github.com/sirupsen/logrus"
@@ -58,7 +61,8 @@ func createHandler(opt *ServerOptions) (http.Handler, error) {
 	router := gin.New()
 	limiter := middle.CreateLimiter(opt.Config.Rate.Limit)
 	//Add middlewares
-	router.Use(middle.Logger(opt.Metrics), middle.Recovery(), middle.Cors())
+	router.Use(gonic.Recovery(gatewayErrors.ErrInternal, cherrylog.NewLogrusAdapter(log.WithField("component", "gin_recovery"))))
+	router.Use(middle.Logger(opt.Metrics), middle.Cors())
 	router.Use(limiter.Limit())
 	router.Use(middle.SetHeaderFromQuery(), middle.ClearXHeaders(), middle.SetRequestID())
 	router.Use(middle.CheckUserClientHeader(), middle.SetMainUserXHeaders())
