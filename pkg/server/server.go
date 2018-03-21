@@ -8,7 +8,7 @@ import (
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	middle "git.containerum.net/ch/api-gateway/pkg/server/middleware"
-	"git.containerum.net/ch/grpc-proto-files/auth"
+	"git.containerum.net/ch/auth/proto"
 	"github.com/gin-gonic/gin"
 
 	log "github.com/sirupsen/logrus"
@@ -23,7 +23,7 @@ type Server struct {
 type ServerOptions struct {
 	Routes  *model.Routes
 	Config  *model.Config
-	Auth    *auth.AuthClient
+	Auth    *authProto.AuthClient
 	Metrics *model.Metrics
 }
 

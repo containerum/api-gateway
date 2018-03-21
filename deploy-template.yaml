@@ -59,9 +59,16 @@ spec:
         volumeMounts:
         - mountPath: /cert/
           name: config
+        - mountPath: /routes.toml
+          name: routes
+          subPath: routes.toml
       imagePullSecrets:
       - name: regsecret
       volumes:
         - name: config
           configMap:
             name: ch-gateway
+        - name: routes
+          configMap:
+            name: routes
+          

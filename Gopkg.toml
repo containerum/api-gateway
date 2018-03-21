@@ -20,6 +20,23 @@
 #  name = "github.com/x/y"
 #  version = "2.4.0"
 
+[prune]
+    non-go = true
+    go-tests = true
+    unused-packages = true
+
 [[constraint]]
   name = "github.com/satori/go.uuid"
   version = "1.1.0"
+
+[[constraint]]
+  branch = "develop"
+  name = "git.containerum.net/ch/auth"
+
+[[constraint]]
+  name = "git.containerum.net/ch/kube-client"
+  version = "~0.2.0"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"

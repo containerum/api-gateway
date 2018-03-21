@@ -87,7 +87,7 @@ func CheckUserClientHeader() gin.HandlerFunc {
 				"Header": userClientHeader,
 				"Value":  c.GetHeader(userClientHeader),
 			}).Debug(ErrInvalidUserClientHeader)
-			c.AbortWithStatusJSON(http.StatusInternalServerError, errs.New(ErrInvalidUserClientHeader.Error(), "Invalid format"))
+			c.AbortWithStatusJSON(http.StatusBadRequest, errs.New(ErrInvalidUserClientHeader.Error(), "Invalid format"))
 			return
 		}
 		c.Next()

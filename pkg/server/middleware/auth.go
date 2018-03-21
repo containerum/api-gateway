@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	errs "git.containerum.net/ch/api-gateway/pkg/errors"
-	"git.containerum.net/ch/grpc-proto-files/auth"
+	"git.containerum.net/ch/auth/proto"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
@@ -21,7 +21,7 @@ var (
 )
 
 //CheckAuth check user token and roles
-func CheckAuth(roles []string, authClient *auth.AuthClient) gin.HandlerFunc {
+func CheckAuth(roles []string, authClient *authProto.AuthClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if len(roles) == 0 {
 			c.Next()
@@ -39,7 +39,7 @@ func CheckAuth(roles []string, authClient *auth.AuthClient) gin.HandlerFunc {
 			"FingerPrint": c.GetHeader(userClientXHeader),
 			"UserIp":      userIP,
 		}).Debug("Check token")
-		token, err := (*authClient).CheckToken(context.Background(), &auth.CheckTokenRequest{
+		token, err := (*authClient).CheckToken(context.Background(), &authProto.CheckTokenRequest{
 			AccessToken: accessToken,
 			UserAgent:   c.GetHeader(userAgentXHeader),
 			FingerPrint: c.GetHeader(userClientXHeader),
@@ -58,8 +58,8 @@ func CheckAuth(roles []string, authClient *auth.AuthClient) gin.HandlerFunc {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, errs.New(errCheckToken.Error(), errUnableGetAccess.Error()))
 			return
 		}
-		setHeader(&c.Request.Header, tokenIDXHeader, token.TokenId.Value)
-		setHeader(&c.Request.Header, userIDXHeader, token.UserId.Value)
+		setHeader(&c.Request.Header, tokenIDXHeader, token.TokenId)
+		setHeader(&c.Request.Header, userIDXHeader, token.UserId)
 		setHeader(&c.Request.Header, userRoleXHeader, token.UserRole)
 		setHeader(&c.Request.Header, userNamespacesXHeader, ns)
 		setHeader(&c.Request.Header, userVolumesXHeader, vol)
@@ -87,7 +87,7 @@ func checkUserRole(userRole string, roles []string) bool {
 	return false
 }
 
-func encodeAccessToBase64(access *auth.ResourcesAccess) (ns string, vol string, err error) {
+func encodeAccessToBase64(access *authProto.ResourcesAccess) (ns string, vol string, err error) {
 	userNamespaces := access.GetNamespace()
 	userVolumes := access.GetVolume()
 	bNs, e := json.Marshal(userNamespaces)

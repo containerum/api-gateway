@@ -2,13 +2,20 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "git.containerum.net/ch/grpc-proto-files"
+  branch = "develop"
+  name = "git.containerum.net/ch/auth"
+  packages = ["proto"]
+  revision = "ebda5563c0496e82523f17755cda8b73c33104da"
+
+[[projects]]
+  name = "git.containerum.net/ch/kube-client"
   packages = [
-    "auth",
-    "common"
+    "pkg/cherry",
+    "pkg/cherry/adaptors/cherrygrpc",
+    "pkg/cherry/api-gateway"
   ]
-  revision = "3650097fee157162fc079fb87570279cbed50989"
+  revision = "3eca5969b92e15876bef6f9e3d9c8a5b77df91c7"
+  version = "v0.2.5"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -62,17 +69,19 @@
   version = "v1.2"
 
 [[projects]]
+  branch = "master"
   name = "github.com/golang/protobuf"
   packages = [
+    "jsonpb",
     "proto",
     "ptypes",
     "ptypes/any",
     "ptypes/duration",
     "ptypes/empty",
+    "ptypes/struct",
     "ptypes/timestamp"
   ]
-  revision = "925541529c1fa6821df4e44ce2723319eb2be768"
-  version = "v1.0.0"
+  revision = "bbd03ef6da3a115852eaf24c8a1c46aeb39aa175"
 
 [[projects]]
   branch = "master"
@@ -85,6 +94,19 @@
   packages = ["."]
   revision = "ea4d1f681babbce9545c9c5f3d5194a789c89f5b"
   version = "v1.2.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  packages = [
+    ".",
+    "logging",
+    "logging/logrus",
+    "logging/logrus/ctxlogrus",
+    "tags",
+    "tags/logrus"
+  ]
+  revision = "eb23b08d08bbe930113a6512a7a829050341448c"
 
 [[projects]]
   name = "github.com/jtolds/gls"
@@ -303,6 +325,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e1ded8dcac7926db070e53aefcc85e9ecc2a2752deb8cc6827de6dc91e70c8c9"
+  inputs-digest = "0c4d44b57f6081b3e4948519064a7d2b9beb9d3cb53d81286502db13c25e2970"
   solver-name = "gps-cdcl"
   solver-version = 1

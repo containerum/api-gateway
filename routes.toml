@@ -60,3 +60,93 @@ upstream = "http://ch-web-api.web.svc.cluster.local:5000"
 listen = "/api/profile/balance"
 strip = false
 group = "web-api"
+
+[routes.namespace_get]
+active = true
+name = "Get Namespace"
+method = "GET"
+roles = ["*"]
+upstream = "http://kube-api:1214"
+listen = "/namespaces/:namespace"
+strip = false
+group = "kube-api"
+
+[routes.namespacelist_get]
+active = true
+name = "Get Namespace List"
+method = "GET"
+roles = ["*"]
+upstream = "http://kube-api:1214"
+listen = "/namespaces"
+strip = false
+group = "kube-api"
+
+[routes.allingresseslist_get]
+active = true
+name = "Get All User Ingresses List"
+method = "GET"
+roles = ["*"]
+upstream = "http://kube-api:1214"
+listen = "/ingresses"
+strip = false
+group = "kube-api"
+
+[routes.ingress_create]
+active = true
+name = "Create Ingress"
+method = "POST"
+roles = ["*"]
+upstream = "http://kube-api:1214"
+listen = "/namespaces/:namespace/ingresses"
+strip = false
+group = "kube-api"
+
+[routes.namespace_create]
+active = true
+name = "Create Namespace"
+method = "POST"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespace"
+strip = false
+group = "resource-service"
+
+[routes.volume_create]
+active = true
+name = "Create volume"
+method = "POST"
+roles = "*"
+upstream = "http://resource-service:1213"
+listen = "/volume"
+strip = false
+group = "resource-service"
+
+[routes.volume_get]
+active = true
+name = "Get volume"
+method = "GET"
+roles = "*"
+upstream = "http://resource-service:1213"
+listen = "/volume/:volume"
+strip = false
+group = "resource-service"
+
+[routes.volumelist_get]
+active = true
+name = "Get volume list"
+method = "GET"
+roles = "*"
+upstream = "http://resource-service:1213"
+listen = "/volume"
+strip = false
+group = "resource-service"
+
+[routes.volume_delete]
+active = true
+name = "Delete volume"
+method = "DELETE"
+roles = "*"
+upstream = "http://resource-service:1213"
+listen = "/volume/:volume"
+strip = false
+group = "resource-service"
