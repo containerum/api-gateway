@@ -2,13 +2,10 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "git.containerum.net/ch/grpc-proto-files"
-  packages = [
-    "auth",
-    "common"
-  ]
-  revision = "d42e01553667e97a503636e968f23c51faa6393d"
+  branch = "develop"
+  name = "git.containerum.net/ch/auth"
+  packages = ["proto"]
+  revision = "ebda5563c0496e82523f17755cda8b73c33104da"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -303,6 +300,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e1ded8dcac7926db070e53aefcc85e9ecc2a2752deb8cc6827de6dc91e70c8c9"
+  inputs-digest = "e1dab5177f2dfa034044629ed05429df44e0ab5c34cc1f57a1409375ff9b2684"
   solver-name = "gps-cdcl"
   solver-version = 1
