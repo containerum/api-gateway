@@ -40,6 +40,7 @@ func CheckAuth(roles []string, authClient *authProto.AuthClient) gin.HandlerFunc
 			UserIp:      userIP,
 		})
 		if err != nil {
+			log.WithError(err).Warnf("CheckToken() error")
 			gonic.Gonic(err.(*cherry.Err), c)
 			return
 		}
