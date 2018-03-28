@@ -41,9 +41,9 @@ func New(opt *ServerOptions) (*Server, error) {
 		Server: http.Server{
 			Addr:              fmt.Sprintf("0.0.0.0:%v", opt.Config.Port),
 			Handler:           handlers,
-			ReadTimeout:       4 * time.Second,
-			ReadHeaderTimeout: 2 * time.Second,
-			WriteTimeout:      8 * time.Second,
+			ReadTimeout:       8 * time.Second,
+			ReadHeaderTimeout: 4 * time.Second,
+			WriteTimeout:      16 * time.Second,
 			ErrorLog:          slog.New(log.New().Writer(), "server", 0),
 		},
 	}, nil

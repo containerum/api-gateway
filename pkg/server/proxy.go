@@ -34,7 +34,7 @@ var (
 
 func (pt proxyTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 	transport := http.Transport{Dial: (&net.Dialer{
-		Timeout:   5 * time.Second,
+		Timeout:   15 * time.Second,
 		KeepAlive: 30 * time.Second,
 	}).Dial,
 	}
