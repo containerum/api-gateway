@@ -1,7 +1,7 @@
 port = 8082
 
 [tls]
-enable = false
+enable = true
 
 [auth]
 enable = true
