@@ -5,6 +5,8 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
+	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
+
 	"git.containerum.net/ch/auth/proto"
 	"git.containerum.net/ch/kube-client/pkg/cherry"
 	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/gonic"
@@ -39,12 +41,26 @@ func CheckAuth(roles []string, authClient *authProto.AuthClient) gin.HandlerFunc
 			FingerPrint: c.GetHeader(userClientXHeader),
 			UserIp:      userIP,
 		})
-		if err != nil {
+		switch err := err.(type) {
+		case nil:
+			// pass
+		case *cherry.Err:
 			log.WithError(err).Warnf("CheckToken() error")
-			gonic.Gonic(err.(*cherry.Err), c)
+			switch {
+			case cherry.In(autherr.ErrInvalidToken(),
+				autherr.ErrTokenNotOwnedBySender()):
+				gonic.Gonic(autherr.ErrInvalidToken(), c)
+			default:
+				gonic.Gonic(err, c)
+			}
+			return
+		default:
+			log.WithError(err).Errorf("internal error while token checking")
+			gonic.Gonic(gatewayErrors.ErrInternal(), c)
 			return
 		}
 		if ok := checkUserRole(token.UserRole, roles); !ok {
+			log.WithError(gatewayErrors.ErrUserPermissionDenied()).Warnf("user permission denied")
 			gonic.Gonic(gatewayErrors.ErrUserPermissionDenied(), c)
 			return
 		}
