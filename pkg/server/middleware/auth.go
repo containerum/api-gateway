@@ -5,8 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 
-	"git.containerum.net/ch/kube-client/pkg/cherry/auth"
-
 	"git.containerum.net/ch/auth/proto"
 	"git.containerum.net/ch/kube-client/pkg/cherry"
 	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/gonic"
@@ -46,17 +44,11 @@ func CheckAuth(roles []string, authClient *authProto.AuthClient) gin.HandlerFunc
 			// pass
 		case *cherry.Err:
 			log.WithError(err).Warnf("CheckToken() error")
-			switch {
-			case cherry.In(autherr.ErrInvalidToken(),
-				autherr.ErrTokenNotOwnedBySender()):
-				gonic.Gonic(autherr.ErrInvalidToken(), c)
-			default:
-				gonic.Gonic(err, c)
-			}
+			c.AbortWithStatusJSON(err.StatusHTTP, err)
 			return
 		default:
 			log.WithError(err).Errorf("internal error while token checking")
-			gonic.Gonic(gatewayErrors.ErrInternal(), c)
+			c.AbortWithError(500, err)
 			return
 		}
 		if ok := checkUserRole(token.UserRole, roles); !ok {
