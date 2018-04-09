@@ -28,6 +28,8 @@ strip = false
 group = "auth"
 
 
+#include "config.toml"
+
 [routes.logs_get]
 active = true
 name = "Get Logs"
