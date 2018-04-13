@@ -20,15 +20,15 @@ spec:
        app: {{ template "name" . }}-{{ .Values.name }}
        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     spec:
+      volumes:
+      - name: config
+        configMap:
+          name: ch-gateway
+      - name: routes
+        configMap:
+          name: routes
       imagePullSecrets:
         - name: {{ .Values.image.secret }}
-      volumes:
-      - configMap:
-        name: ch-gateway
-      name: config
-      - configMap:
-        name: routes
-      name: routes
       containers:
         - name: {{ .Chart.Name }}-{{ .Values.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
