@@ -22,9 +22,22 @@ spec:
     spec:
       imagePullSecrets:
         - name: {{ .Values.image.secret }}
+       volumes:
+      - configMap:
+          name: ch-gateway
+        name: config
+      - configMap:
+          name: routes
+        name: routes
       containers:
         - name: {{ .Chart.Name }}-{{ .Values.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          volumeMounts:
+          - mountPath: /cert/
+            name: config
+          - mountPath: /routes.toml
+            name: routes
+            subPath: routes.toml
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             {{- range $key, $val := .Values.env }}
