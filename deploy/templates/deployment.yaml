@@ -23,12 +23,12 @@ spec:
       imagePullSecrets:
         - name: {{ .Values.image.secret }}
        volumes:
-      - configMap:
+        - configMap:
           name: ch-gateway
-        name: config
-      - configMap:
+          name: config
+        - configMap:
           name: routes
-        name: routes
+          name: routes
       containers:
         - name: {{ .Chart.Name }}-{{ .Values.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
