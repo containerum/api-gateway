@@ -25,10 +25,10 @@ spec:
       volumes:
         - configMap:
           name: ch-gateway
-          name: config
+        name: config
         - configMap:
           name: routes
-          name: routes
+        name: routes
       containers:
         - name: {{ .Chart.Name }}-{{ .Values.name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
