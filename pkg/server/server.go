@@ -4,8 +4,6 @@ import (
 	"fmt"
 	slog "log"
 	"net/http"
-	"time"
-
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	middle "git.containerum.net/ch/api-gateway/pkg/server/middleware"
 	"git.containerum.net/ch/auth/proto"
@@ -15,6 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	log "github.com/sirupsen/logrus"
+	"net"
 )
 
 //Server keeps HTTP sever and it configs
@@ -41,9 +40,9 @@ func New(opt *ServerOptions) (*Server, error) {
 		Server: http.Server{
 			Addr:              fmt.Sprintf("0.0.0.0:%v", opt.Config.Port),
 			Handler:           handlers,
-			ReadTimeout:       8 * time.Second,
-			ReadHeaderTimeout: 4 * time.Second,
-			WriteTimeout:      16 * time.Second,
+			//ReadTimeout:       8 * time.Second,
+			//ReadHeaderTimeout: 4 * time.Second,
+			//WriteTimeout:      16 * time.Second,
 			ErrorLog:          slog.New(log.New().Writer(), "server", 0),
 		},
 	}, nil
@@ -51,6 +50,9 @@ func New(opt *ServerOptions) (*Server, error) {
 
 //Start return http or https ListenServer
 func (s *Server) Start() error {
+	s.ConnState = func(c net.Conn, st http.ConnState) {
+		log.Info(fmt.Sprintf("ConnState: %v\n", st.String()))
+	}
 	if s.options.Config.TLS.Enable {
 		return s.Server.ListenAndServeTLS(s.options.Config.TLS.Cert, s.options.Config.TLS.Key)
 	}
