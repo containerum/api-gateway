@@ -1,3 +1,5 @@
+# Use #include "routes-file.toml" for compile from multiple files
+
 [routes]
 
 [routes.login_basic]

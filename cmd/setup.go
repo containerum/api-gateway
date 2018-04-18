@@ -8,6 +8,7 @@ import (
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	"git.containerum.net/ch/api-gateway/pkg/server"
+	"git.containerum.net/ch/api-gateway/pkg/utils/preproc"
 	"git.containerum.net/ch/auth/proto"
 	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/cherrygrpc"
 	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
@@ -153,7 +154,13 @@ func getVersion() string {
 }
 
 func readToml(file string, out tomlFile) error {
-	if _, err := toml.DecodeFile(file, out); err != nil {
+	// Preprocessor
+	r, err := preproc.Preprocess(file)
+	if err != nil {
+		return err
+	}
+
+	if _, err := toml.DecodeReader(r, out); err != nil {
 		return err
 	}
 	if errs := out.Validate(); errs != nil {

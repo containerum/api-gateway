@@ -4,6 +4,7 @@ import (
 	"fmt"
 	slog "log"
 	"net/http"
+
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	middle "git.containerum.net/ch/api-gateway/pkg/server/middleware"
 	"git.containerum.net/ch/auth/proto"
@@ -12,8 +13,9 @@ import (
 	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
 	"github.com/gin-gonic/gin"
 
-	log "github.com/sirupsen/logrus"
 	"net"
+
+	log "github.com/sirupsen/logrus"
 )
 
 //Server keeps HTTP sever and it configs
@@ -38,12 +40,9 @@ func New(opt *ServerOptions) (*Server, error) {
 	return &Server{
 		options: opt,
 		Server: http.Server{
-			Addr:              fmt.Sprintf("0.0.0.0:%v", opt.Config.Port),
-			Handler:           handlers,
-			//ReadTimeout:       8 * time.Second,
-			//ReadHeaderTimeout: 4 * time.Second,
-			//WriteTimeout:      16 * time.Second,
-			ErrorLog:          slog.New(log.New().Writer(), "server", 0),
+			Addr:     fmt.Sprintf("0.0.0.0:%v", opt.Config.Port),
+			Handler:  handlers,
+			ErrorLog: slog.New(log.New().Writer(), "server", 0),
 		},
 	}, nil
 }
