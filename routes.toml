@@ -1,3 +1,5 @@
+# Use #include "routes-file.toml" for compile from multiple files
+
 [routes]
 
 [routes.login_basic]
@@ -27,8 +29,6 @@ listen = "/token/:refresh_token"
 strip = false
 group = "auth"
 
-
-#include "config.toml"
 
 [routes.logs_get]
 active = true

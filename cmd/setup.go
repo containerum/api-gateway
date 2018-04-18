@@ -159,9 +159,6 @@ func readToml(file string, out tomlFile) error {
 	if err != nil {
 		return err
 	}
-	// reader := bufio.NewReader(r)
-	// str, _ := reader.ReadString('\r')
-	// fmt.Print(str)
 
 	if _, err := toml.DecodeReader(r, out); err != nil {
 		return err
