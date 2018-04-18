@@ -13,6 +13,8 @@ import (
 	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
 	"github.com/gin-gonic/gin"
 
+	"net"
+
 	log "github.com/sirupsen/logrus"
 )
 
@@ -47,6 +49,9 @@ func New(opt *ServerOptions) (*Server, error) {
 
 //Start return http or https ListenServer
 func (s *Server) Start() error {
+	s.ConnState = func(c net.Conn, st http.ConnState) {
+		log.Info(fmt.Sprintf("ConnState: %v\n", st.String()))
+	}
 	if s.options.Config.TLS.Enable {
 		return s.Server.ListenAndServeTLS(s.options.Config.TLS.Cert, s.options.Config.TLS.Key)
 	}

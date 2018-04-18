@@ -18,8 +18,8 @@ WORKDIR /cert
 RUN openssl req -subj '/CN=containerum.io/O=Containerum/C=LV' -new -newkey rsa:2048 -sha256 -days 365 -nodes -x509 -keyout key.pem -out cert.pem
 
 #### Run Step ####
-# FROM scratch
-FROM ubuntu
+FROM scratch
+# FROM ubuntu
 
 # Copy bin and migrations
 COPY --from=builder /go/src/git.containerum.net/ch/api-gateway/config.toml /

@@ -1,0 +1,5 @@
+env:
+  GRPC_AUTH_ADDRESS: "ch-auth"
+  GRPC_AUTH_PORT: "1112"
+  TLS_CERT: "/cert/tls.crt"
+  TLS_KEY: "/cert/tls.key"

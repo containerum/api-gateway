@@ -39,12 +39,20 @@ func CheckAuth(roles []string, authClient *authProto.AuthClient) gin.HandlerFunc
 			FingerPrint: c.GetHeader(userClientXHeader),
 			UserIp:      userIP,
 		})
-		if err != nil {
+		switch err := err.(type) {
+		case nil:
+			// pass
+		case *cherry.Err:
 			log.WithError(err).Warnf("CheckToken() error")
-			gonic.Gonic(err.(*cherry.Err), c)
+			c.AbortWithStatusJSON(err.StatusHTTP, err)
+			return
+		default:
+			log.WithError(err).Errorf("internal error while token checking")
+			c.AbortWithError(500, err)
 			return
 		}
 		if ok := checkUserRole(token.UserRole, roles); !ok {
+			log.WithError(gatewayErrors.ErrUserPermissionDenied()).Warnf("user permission denied")
 			gonic.Gonic(gatewayErrors.ErrUserPermissionDenied(), c)
 			return
 		}
