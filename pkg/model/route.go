@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	valid "github.com/asaskevich/govalidator"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -52,14 +53,25 @@ func (rs *Routes) Validate() []error {
 		if !valid.IsIn(route.Method, methods...) {
 			errs = append(errs, ErrInvalidMethod)
 		}
-		// //Validate Upstream protocol
-		// if !valid.Matches(route.Upstream, "^"+upstreamProto+"://") {
-		// 	errs = append(errs, ErrInvalidUpstreamProtocol)
-		// }
 		//Validate Listen
 		if !valid.Matches(route.Listen, "^/") {
 			errs = append(errs, ErrInvalidListen)
 		}
 	}
 	return errs
+}
+
+//Entry return logrus entry with route params
+func (r *Route) Entry() *log.Entry {
+	return log.WithFields(log.Fields{
+		"ID":       r.ID,
+		"Name":     r.Name,
+		"Roles":    r.Roles,
+		"Method":   r.Method,
+		"Upstream": r.Upstream,
+		"Listen":   r.Listen,
+		"Strip":    r.Strip,
+		"Group":    r.Group,
+		"WS":       r.WS,
+	})
 }

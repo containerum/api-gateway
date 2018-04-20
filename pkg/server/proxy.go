@@ -30,24 +30,30 @@ var (
 			return true
 		},
 	}
-)
-
-func (pt proxyTransport) RoundTrip(r *http.Request) (*http.Response, error) {
-	transport := http.Transport{Dial: (&net.Dialer{
+	httpDialer = &net.Dialer{
 		Timeout:   15 * time.Second,
 		KeepAlive: 30 * time.Second,
-	}).Dial,
 	}
-	resp, err := transport.RoundTrip(r)
-	for k, v := range resp.Header {
-		if middleware.XHeaderRegexp.MatchString(k) {
-			log.WithFields(log.Fields{
-				"Header": k,
-				"Value":  v,
-			}).Debug("Header deleted from response")
+	httpTransport = http.Transport{Dial: httpDialer.Dial}
+	wsUpgrader    = &websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
+)
+
+func (pt proxyTransport) RoundTrip(r *http.Request) (resp *http.Response, err error) {
+	if resp, err = httpTransport.RoundTrip(r); err != nil {
+		return resp, err
+	}
+	for header, value := range resp.Header {
+		if middleware.XHeaderRegexp.MatchString(header) {
+			middleware.HeaderEntry(header, value).Debug("Header deleted from response")
 			continue
 		}
-		pt.header.Add(k, v[0])
+		pt.header.Add(header, value[0])
 	}
 	resp.Header = pt.header
 	return resp, err
@@ -55,7 +61,6 @@ func (pt proxyTransport) RoundTrip(r *http.Request) (*http.Response, error) {
 
 func proxyHandler(route model.Route) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		log.WithField("IsUpgrade", websocket.IsWebSocketUpgrade(c.Request)).WithField("Route", route).Debug("WS")
 		if route.WS {
 			u := c.Request.URL
 			t, _ := url.Parse(route.Upstream)

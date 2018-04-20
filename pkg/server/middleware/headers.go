@@ -108,3 +108,11 @@ func clearHeaders(h *http.Header, source string) {
 		}
 	}
 }
+
+//HeaderEntry return logrus Entry with Header and Value params
+func HeaderEntry(header string, value interface{}) *log.Entry {
+	return log.WithFields(log.Fields{
+		"Header": header,
+		"Value":  value,
+	})
+}

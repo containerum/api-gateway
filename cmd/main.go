@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 
+	"git.containerum.net/ch/api-gateway/pkg/server"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/urfave/cli"
 )
 
-//Version keeps curent app version
 var Version string
 
 func main() {
@@ -24,30 +26,29 @@ func main() {
 	}
 }
 
-//TODO: Rewrite IF noodles
 func runServer(c *cli.Context) error {
-	setupLogs(c)
-	if err := setupConfig(c); err != nil {
+	var serv *server.Server
+	var err error
+	if err = setup(c, setupLogs, setupConfig, setupRoutes, setupTLS, setupAuth, setupMetrics); err != nil {
 		return err
 	}
-	if err := setupRoutes(c); err != nil {
+	if serv, err = setupServer(c); err != nil {
 		return err
 	}
-	if err := setupTLS(c); err != nil {
-		return err
-	}
-	if err := setupAuth(c); err != nil {
-		return err
-	}
-	if err := setupMetrics(c); err != nil {
-		return err
-	}
-	serv, err := setupServer(c)
-	if err != nil {
-		return err
-	}
-	go func() {
-		startMetrics()
-	}()
+	go startMetrics()
 	return serv.Start()
+}
+
+func getVersion() string {
+	if Version == "" {
+		return "1.0.0-dev"
+	}
+	return Version
+}
+
+func startMetrics() error {
+	if config.Prometheus.Enable {
+		return http.ListenAndServe(fmt.Sprintf(":%d", config.Prometheus.Port), promhttp.Handler())
+	}
+	return nil
 }
