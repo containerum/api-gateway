@@ -121,7 +121,7 @@ func setupAuth(c *cli.Context) (err error) {
 }
 
 func setupServer(c *cli.Context) (*server.Server, error) {
-	opt := &server.ServerOptions{
+	opt := &server.Options{
 		Routes:  &routes,
 		Config:  &config,
 		Auth:    authClient,

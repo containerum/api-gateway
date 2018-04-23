@@ -19,10 +19,11 @@ import (
 //Server keeps HTTP sever and it configs
 type Server struct {
 	http.Server
-	options *ServerOptions
+	options *Options
 }
 
-type ServerOptions struct {
+//Options keeps params for gateway server runtime
+type Options struct {
 	Routes  *model.Routes
 	Config  *model.Config
 	Auth    *authProto.AuthClient
@@ -30,7 +31,7 @@ type ServerOptions struct {
 }
 
 //New return configurated server with all handlers
-func New(opt *ServerOptions) (serve *Server, err error) {
+func New(opt *Options) (serve *Server, err error) {
 	var handlers http.Handler
 	if handlers, err = createHandler(opt); err != nil {
 		return nil, err
@@ -54,7 +55,7 @@ func (s *Server) Start() error {
 	return s.ListenAndServe()
 }
 
-func registreMiddlewares(router *gin.Engine, opt *ServerOptions, limiter *middle.Limiter) {
+func registreMiddlewares(router *gin.Engine, opt *Options, limiter *middle.Limiter) {
 	router.Use(gonic.Recovery(gatewayErrors.ErrInternal, cherrylog.NewLogrusAdapter(log.WithField("component", "gin_recovery"))))
 	router.Use(middle.Logger(opt.Metrics), middle.Cors())
 	router.Use(limiter.Limit())
@@ -62,7 +63,7 @@ func registreMiddlewares(router *gin.Engine, opt *ServerOptions, limiter *middle
 	router.Use(middle.CheckUserClientHeader(), middle.SetMainUserXHeaders())
 }
 
-func createHandler(opt *ServerOptions) (http.Handler, error) {
+func createHandler(opt *Options) (http.Handler, error) {
 	router := gin.New()
 	registreMiddlewares(router, opt, middle.CreateLimiter(opt.Config.Rate.Limit))
 	for _, route := range opt.Routes.Routes {

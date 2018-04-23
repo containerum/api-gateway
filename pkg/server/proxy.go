@@ -22,22 +22,23 @@ type proxyTransport struct {
 	header http.Header
 }
 
+const (
+	wsReadBuffer  = 1024
+	wsWriteBuffer = 1024
+	httpTimeout   = 15 * time.Second
+	httpKeepAlive = 30 * time.Second
+)
+
 var (
-	defaultUpgrader = &websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
-		CheckOrigin: func(r *http.Request) bool {
-			return true
-		},
-	}
-	httpDialer = &net.Dialer{
-		Timeout:   15 * time.Second,
-		KeepAlive: 30 * time.Second,
+	headersToDelete = []string{"Connection", "Sec-Websocket-Key", "Sec-Websocket-Version", "Sec-Websocket-Extensions", "Upgrade"}
+	httpDialer      = &net.Dialer{
+		Timeout:   httpTimeout,
+		KeepAlive: httpKeepAlive,
 	}
 	httpTransport = http.Transport{Dial: httpDialer.Dial}
 	wsUpgrader    = &websocket.Upgrader{
-		ReadBufferSize:  1024,
-		WriteBufferSize: 1024,
+		ReadBufferSize:  wsReadBuffer,
+		WriteBufferSize: wsWriteBuffer,
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		},
@@ -62,66 +63,77 @@ func (pt proxyTransport) RoundTrip(r *http.Request) (resp *http.Response, err er
 func proxyHandler(route model.Route) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if route.WS {
-			u := c.Request.URL
-			t, _ := url.Parse(route.Upstream)
-			u.Scheme = "ws"
-			u.Host = t.Host
-
-			log.WithField("IsUpgrade", websocket.IsWebSocketUpgrade(c.Request)).WithField("U", u).Debug("WS")
-
-			connPub, err := defaultUpgrader.Upgrade(c.Writer, c.Request, nil)
-			if err != nil {
-				log.WithError(err).Error("Unable to upgrade to WebSocket")
+			request := c.Request.URL
+			target, _ := url.Parse(route.Upstream)
+			request.Scheme, request.Host = "ws", target.Host
+			if err := proxyWS(c, request); err != nil {
 				return
 			}
-			defer connPub.Close()
-
-			c.Request.Header.Del("Connection")
-			c.Request.Header.Del("Sec-Websocket-Key")
-			c.Request.Header.Del("Sec-Websocket-Version")
-			c.Request.Header.Del("Sec-Websocket-Extensions")
-			c.Request.Header.Del("Upgrade")
-			connBackend, _, err := websocket.DefaultDialer.Dial(u.String(), c.Request.Header)
-			if err != nil {
-				log.WithError(err).Error("Unable to dial to WebSocket")
-				return
-			}
-			defer connBackend.Close()
-
-			errc := make(chan error, 2)
-			replicateWebsocketConn := func(dst, src *websocket.Conn, dstName, srcName string) {
-				var err error
-				for {
-					msgType, msg, err := src.ReadMessage()
-					if err != nil {
-						log.Printf("websocketproxy: error when copying from %s to %s using ReadMessage: %v", srcName, dstName, err)
-						break
-					}
-					err = dst.WriteMessage(msgType, msg)
-					if err != nil {
-						log.Printf("websocketproxy: error when copying from %s to %s using WriteMessage: %v", srcName, dstName, err)
-						break
-					}
-				}
-				errc <- err
-			}
-			go replicateWebsocketConn(connPub, connBackend, "client", "backend")
-			go replicateWebsocketConn(connBackend, connPub, "backend", "client")
-			<-errc
+			proxyWS(c, request)
 		} else {
-			p := createProxy(&route)
+			p := proxyHTTP(&route)
 			p.ServeHTTP(c.Writer, c.Request)
 		}
 	}
 }
 
-func createProxy(target *model.Route) *httputil.ReverseProxy {
+func proxyHTTP(target *model.Route) *httputil.ReverseProxy {
 	direct := createDirector(target)
 	return &httputil.ReverseProxy{
 		Director: direct,
 		Transport: proxyTransport{
 			header: http.Header{},
 		},
+	}
+}
+
+func proxyWS(c *gin.Context, backend *url.URL) error {
+	deleteHeaders(&c.Request.Header, headersToDelete...)
+	conn, connBackend, err := makeWSconnections(c, backend)
+	if err != nil {
+		return err
+	}
+	errc := make(chan error, 2)
+	replicateWebsocketConn := func(dst, src *websocket.Conn, dstName, srcName string) {
+		var err error
+		var msgType int
+		var msg []byte
+		for {
+			msgType, msg, err = src.ReadMessage()
+			if err != nil {
+				log.Errorf("WebSocketProxy: Error when copying from %s to %s using ReadMessage: %v", srcName, dstName, err)
+				break
+			}
+			err = dst.WriteMessage(msgType, msg)
+			if err != nil {
+				log.Errorf("WebSocketProxy: Error when copying from %s to %s using WriteMessage: %v", srcName, dstName, err)
+				break
+			}
+		}
+		errc <- err
+	}
+	go replicateWebsocketConn(conn, connBackend, "client", "backend")
+	go replicateWebsocketConn(connBackend, conn, "backend", "client")
+	<-errc
+	return nil
+}
+
+func makeWSconnections(c *gin.Context, backend *url.URL) (conn, connBackend *websocket.Conn, err error) {
+	if conn, err = wsUpgrader.Upgrade(c.Writer, c.Request, nil); err != nil {
+		log.WithError(err).Error("Unable to upgrade to WebSocket")
+		return
+	}
+	if connBackend, _, err = websocket.DefaultDialer.Dial(backend.String(), c.Request.Header); err != nil {
+		log.WithError(err).Error("Unable to dial to WebSocket")
+		return
+	}
+	return
+}
+
+func deleteHeaders(header *http.Header, keys ...string) {
+	for _, key := range keys {
+		middleware.HeaderEntry(key, header.Get(key)).Debug("Header deleted")
+		header.Del(key)
 	}
 }
 

@@ -4,13 +4,24 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
+	"net/http"
 
+	h "git.containerum.net/ch/api-gateway/pkg/utils/headers"
 	"git.containerum.net/ch/auth/proto"
 	"git.containerum.net/ch/kube-client/pkg/cherry"
 	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/gonic"
 	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
+
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+)
+
+var (
+	//ErrAuthClientNotSet returns if grpc client is nil
+	ErrAuthClientNotSet = errors.New("Auth client not set up")
+	//ErrUserPermissionDenied return if user don't have permissions
+	ErrUserPermissionDenied = errors.New("User permission denied")
 )
 
 //CheckAuth check user token and roles
@@ -21,38 +32,36 @@ func CheckAuth(roles []string, authClient *authProto.AuthClient) gin.HandlerFunc
 			return
 		}
 		if authClient == nil {
-			log.Errorf("auth client not set up")
+			log.Error(ErrAuthClientNotSet.Error())
 			gonic.Gonic(gatewayErrors.ErrInternal(), c)
 			return
 		}
-		accessToken := c.Request.Header.Get(authorizationHeader)
+		accessToken := c.Request.Header.Get(h.AuthorizationHeader)
+		userAgent, userFinger := c.GetHeader(h.UserAgentXHeader), c.GetHeader(h.UserClientXHeader)
 		userIP := c.ClientIP()
-		log.WithFields(log.Fields{
-			"AccessToken": accessToken,
-			"UserAgent":   c.GetHeader(userAgentXHeader),
-			"FingerPrint": c.GetHeader(userClientXHeader),
-			"UserIp":      userIP,
-		}).Debug("Check token")
+		getTokenEntry(accessToken, userAgent, userFinger, userIP).Debug("Check token")
 		token, err := (*authClient).CheckToken(context.Background(), &authProto.CheckTokenRequest{
 			AccessToken: accessToken,
-			UserAgent:   c.GetHeader(userAgentXHeader),
-			FingerPrint: c.GetHeader(userClientXHeader),
+			UserAgent:   userAgent,
+			FingerPrint: userFinger,
 			UserIp:      userIP,
 		})
+
 		switch err := err.(type) {
 		case nil:
 			// pass
 		case *cherry.Err:
-			log.WithError(err).Warnf("CheckToken() error")
+			log.WithError(err).Warnf("CheckToken error")
 			c.AbortWithStatusJSON(err.StatusHTTP, err)
 			return
 		default:
-			log.WithError(err).Errorf("internal error while token checking")
-			c.AbortWithError(500, err)
+			log.WithError(err).Errorf("Something is wrong with Auth server")
+			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
+
 		if ok := checkUserRole(token.UserRole, roles); !ok {
-			log.WithError(gatewayErrors.ErrUserPermissionDenied()).Warnf("user permission denied")
+			log.WithError(gatewayErrors.ErrUserPermissionDenied()).Warnf(ErrUserPermissionDenied.Error())
 			gonic.Gonic(gatewayErrors.ErrUserPermissionDenied(), c)
 			return
 		}
@@ -62,11 +71,11 @@ func CheckAuth(roles []string, authClient *authProto.AuthClient) gin.HandlerFunc
 			gonic.Gonic(gatewayErrors.ErrInternal(), c)
 			return
 		}
-		setHeader(&c.Request.Header, tokenIDXHeader, token.TokenId)
-		setHeader(&c.Request.Header, userIDXHeader, token.UserId)
-		setHeader(&c.Request.Header, userRoleXHeader, token.UserRole)
-		setHeader(&c.Request.Header, userNamespacesXHeader, ns)
-		setHeader(&c.Request.Header, userVolumesXHeader, vol)
+		setHeader(&c.Request.Header, h.TokenIDXHeader, token.TokenId)
+		setHeader(&c.Request.Header, h.UserIDXHeader, token.UserId)
+		setHeader(&c.Request.Header, h.UserRoleXHeader, token.UserRole)
+		setHeader(&c.Request.Header, h.UserNamespacesXHeader, ns)
+		setHeader(&c.Request.Header, h.UserVolumesXHeader, vol)
 	}
 }
 
@@ -107,4 +116,13 @@ func encodeAccessToBase64(access *authProto.ResourcesAccess) (ns string, vol str
 	}
 	vol = base64.StdEncoding.EncodeToString(bVol)
 	return
+}
+
+func getTokenEntry(token, agent, finger, ip string) *log.Entry {
+	return log.WithFields(log.Fields{
+		"AccessToken": token,
+		"UserAgent":   agent,
+		"FingerPrint": finger,
+		"UserIp":      ip,
+	})
 }
