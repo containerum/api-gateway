@@ -8,6 +8,13 @@
       "in": "header",
       "required": true
     },
+    "UserIDHeader": {
+      "name": "X-User-ID",
+      "type": "string",
+      "format": "uuid",
+      "in": "header",
+      "required": true
+    },
     "RequestNameHeader": {
       "name": "X-Request-Name",
       "type": "string",
