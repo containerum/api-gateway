@@ -19,10 +19,11 @@ import (
 //Server keeps HTTP sever and it configs
 type Server struct {
 	http.Server
-	options *ServerOptions
+	options *Options
 }
 
-type ServerOptions struct {
+//Options keeps params for gateway server runtime
+type Options struct {
 	Routes  *model.Routes
 	Config  *model.Config
 	Auth    *authProto.AuthClient
@@ -30,19 +31,20 @@ type ServerOptions struct {
 }
 
 //New return configurated server with all handlers
-func New(opt *ServerOptions) (*Server, error) {
-	handlers, err := createHandler(opt)
-	if err != nil {
+func New(opt *Options) (serve *Server, err error) {
+	var handlers http.Handler
+	if handlers, err = createHandler(opt); err != nil {
 		return nil, err
 	}
-	return &Server{
+	serve = &Server{
 		options: opt,
 		Server: http.Server{
 			Addr:     fmt.Sprintf("0.0.0.0:%v", opt.Config.Port),
 			Handler:  handlers,
 			ErrorLog: slog.New(log.New().Writer(), "server", 0),
 		},
-	}, nil
+	}
+	return
 }
 
 //Start return http or https ListenServer
@@ -53,32 +55,26 @@ func (s *Server) Start() error {
 	return s.ListenAndServe()
 }
 
-func createHandler(opt *ServerOptions) (http.Handler, error) {
-	router := gin.New()
-	limiter := middle.CreateLimiter(opt.Config.Rate.Limit)
-	//Add middlewares
+func registreMiddlewares(router *gin.Engine, opt *Options, limiter *middle.Limiter) {
 	router.Use(gonic.Recovery(gatewayErrors.ErrInternal, cherrylog.NewLogrusAdapter(log.WithField("component", "gin_recovery"))))
 	router.Use(middle.Logger(opt.Metrics), middle.Cors())
 	router.Use(limiter.Limit())
 	router.Use(middle.SetHeaderFromQuery(), middle.ClearXHeaders(), middle.SetRequestID())
 	router.Use(middle.CheckUserClientHeader(), middle.SetMainUserXHeaders())
-	//Add routes
+}
+
+func createHandler(opt *Options) (http.Handler, error) {
+	router := gin.New()
+	registreMiddlewares(router, opt, middle.CreateLimiter(opt.Config.Rate.Limit))
 	for _, route := range opt.Routes.Routes {
-		if !route.Active {
-			continue
+		if route.Active {
+			if opt.Config.Auth.Enable {
+				router.Handle(route.Method, route.Listen, middle.SetRequestName(route.ID), middle.CheckAuth(route.Roles, opt.Auth), proxyHandler(route))
+			} else {
+				router.Handle(route.Method, route.Listen, middle.SetRequestName(route.ID), proxyHandler(route))
+			}
+			route.Entry().Info("Route added")
 		}
-		if opt.Config.Auth.Enable {
-			router.Handle(route.Method, route.Listen, middle.SetRequestName(route.ID), middle.CheckAuth(route.Roles, opt.Auth), proxyHandler(route))
-		} else {
-			router.Handle(route.Method, route.Listen, middle.SetRequestName(route.ID), proxyHandler(route))
-		}
-		log.WithFields(log.Fields{
-			"Route":    route.Name,
-			"Method":   route.Method,
-			"Upstream": route.Upstream,
-			"WS":       route.WS,
-			"Listen":   route.Listen,
-		}).Info("Add route")
 	}
 	return router, nil
 }

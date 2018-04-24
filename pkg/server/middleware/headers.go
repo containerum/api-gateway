@@ -7,27 +7,10 @@ import (
 	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/gonic"
 	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
 
+	h "git.containerum.net/ch/api-gateway/pkg/utils/headers"
+
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-)
-
-const (
-	requestIDXHeader      = "X-Request-ID"
-	requestNameXHeader    = "X-Request-Name"
-	userIDXHeader         = "X-User-ID"
-	userClientXHeader     = "X-User-Client"
-	userAgentXHeader      = "X-User-Agent"
-	userIPXHeader         = "X-Client-IP"
-	tokenIDXHeader        = "X-Token-ID"
-	userRoleXHeader       = "X-User-Role"
-	userNamespacesXHeader = "X-User-Namespace"
-	userVolumesXHeader    = "X-User-Volume"
-	userHideDataXHeader   = "X-User-Hide-Data"
-)
-
-const (
-	userClientHeader    = "User-Client"
-	authorizationHeader = "User-Token"
 )
 
 var (
@@ -39,9 +22,6 @@ var (
 //ClearXHeaders clear all request and response X-Headers
 func ClearXHeaders() gin.HandlerFunc {
 	return func(c *gin.Context) {
-
-		log.WithField("Headers", c.Request.Header).Debug("Header")
-
 		clearHeaders(&c.Request.Header, "request")
 		c.Next()
 	}
@@ -50,22 +30,22 @@ func ClearXHeaders() gin.HandlerFunc {
 //SetMainUserXHeaders write X-User-IP, X-User-Client, X-User-Agent for next services
 func SetMainUserXHeaders() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		setHeader(&c.Request.Header, userIPXHeader, c.ClientIP())
-		setHeader(&c.Request.Header, userClientXHeader, c.GetHeader(userClientHeader))
-		setHeader(&c.Request.Header, userAgentXHeader, c.Request.UserAgent())
+		setHeader(&c.Request.Header, h.UserIPXHeader, c.ClientIP())
+		setHeader(&c.Request.Header, h.UserClientXHeader, c.GetHeader(h.UserClientHeader))
+		setHeader(&c.Request.Header, h.UserAgentXHeader, c.Request.UserAgent())
 	}
 }
 
-//SetMainUserXHeaders write X-User-IP, X-User-Client, X-User-Agent for next services
+//SetHeaderFromQuery write X-User-IP, X-User-Client, X-User-Agent for next services
 func SetHeaderFromQuery() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userClient, _ := c.GetQuery(userClientHeader)
-		userToken, _ := c.GetQuery(authorizationHeader)
-		if c.GetHeader(userClientHeader) == "" && userClient != "" {
-			c.Request.Header.Add(userClientHeader, userClient)
+		userClient, _ := c.GetQuery(h.UserClientHeader)
+		userToken, _ := c.GetQuery(h.AuthorizationHeader)
+		if c.GetHeader(h.UserClientHeader) == "" && userClient != "" {
+			c.Request.Header.Add(h.UserClientHeader, userClient)
 		}
-		if c.GetHeader(authorizationHeader) == "" && userToken != "" {
-			c.Request.Header.Add(authorizationHeader, userToken)
+		if c.GetHeader(h.AuthorizationHeader) == "" && userToken != "" {
+			c.Request.Header.Add(h.AuthorizationHeader, userToken)
 		}
 	}
 }
@@ -73,16 +53,13 @@ func SetHeaderFromQuery() gin.HandlerFunc {
 //CheckUserClientHeader validate User-Client header
 func CheckUserClientHeader() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if c.GetHeader(userClientHeader) == "" {
-			gonic.Gonic(gatewayErrors.ErrHeaderNotProvided().AddDetailF("header %s required", userClientHeader), c)
+		if c.GetHeader(h.UserClientHeader) == "" {
+			gonic.Gonic(gatewayErrors.ErrHeaderNotProvided().AddDetailsErr(h.ErrHeaderRequired(h.UserClientHeader)), c)
 			return
 		}
-		if !userClientRegexp.MatchString(c.GetHeader(userClientHeader)) {
-			log.WithFields(log.Fields{
-				"Header": userClientHeader,
-				"Value":  c.GetHeader(userClientHeader),
-			}).Warnf("invalid header format")
-			gonic.Gonic(gatewayErrors.ErrInvalidformat().AddDetailF("header %s has invalid format", userClientHeader), c)
+		if !userClientRegexp.MatchString(c.GetHeader(h.UserClientHeader)) {
+			gonic.Gonic(gatewayErrors.ErrInvalidformat().AddDetailsErr(h.ErrInvalidFormat(h.UserClientHeader)), c)
+			HeaderEntry(h.UserClientHeader, c.GetHeader(h.UserClientHeader)).WithError(h.ErrInvalidFormat(h.UserClientHeader)).Warn("Invalid header")
 			return
 		}
 		c.Next()
@@ -91,20 +68,22 @@ func CheckUserClientHeader() gin.HandlerFunc {
 
 func setHeader(h *http.Header, key string, value string) {
 	h.Add(key, value)
-	log.WithFields(log.Fields{
-		"Header": key,
-		"Value":  value,
-	}).Debug("Header added")
+	HeaderEntry(key, value).Debug("Header added")
 }
 
 func clearHeaders(h *http.Header, source string) {
-	for k, v := range *h {
-		if XHeaderRegexp.MatchString(k) {
-			h.Del(k)
-			log.WithFields(log.Fields{
-				"Header": k,
-				"Value":  v,
-			}).Debug("Header deleted from " + source)
+	for key, value := range *h {
+		if XHeaderRegexp.MatchString(key) {
+			h.Del(key)
+			HeaderEntry(key, value).Debug("Header deleted from " + source)
 		}
 	}
+}
+
+//HeaderEntry return logrus Entry with Header and Value params
+func HeaderEntry(header string, value interface{}) *log.Entry {
+	return log.WithFields(log.Fields{
+		"Header": header,
+		"Value":  value,
+	})
 }

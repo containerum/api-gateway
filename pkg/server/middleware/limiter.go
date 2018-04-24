@@ -3,6 +3,7 @@ package middleware
 import (
 	"time"
 
+	h "git.containerum.net/ch/api-gateway/pkg/utils/headers"
 	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/gonic"
 	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
 	"github.com/didip/tollbooth"
@@ -19,7 +20,7 @@ type Limiter struct {
 //CreateLimiter return rate limiter for http
 func CreateLimiter(rate int) *Limiter {
 	limit := tollbooth.NewLimiter(float64(rate), &limiter.ExpirableOptions{DefaultExpirationTTL: time.Hour})
-	limit.SetIPLookups([]string{"X-Client-IP", "X-Forwarded-For", "X-Real-IP"})
+	limit.SetIPLookups([]string{h.UserIPXHeader})
 	return &Limiter{limit, rate}
 }
 
@@ -28,7 +29,7 @@ func (l *Limiter) Limit() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		httpError := tollbooth.LimitByKeys(l.Limiter, []string{c.ClientIP()})
 		if httpError != nil {
-			gonic.Gonic(gatewayErrors.ErrTooManyRequests().AddDetailF("max request count: %v", l.rate), c)
+			gonic.Gonic(gatewayErrors.ErrTooManyRequests().AddDetailF("Max request count: %v", l.rate), c)
 		} else {
 			c.Next()
 		}
