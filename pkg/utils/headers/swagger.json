@@ -54,6 +54,7 @@
         "user",
         "admin"
       ],
+      "in": "header",
       "required": true
     },
     "UserNamespacesHeader": {
