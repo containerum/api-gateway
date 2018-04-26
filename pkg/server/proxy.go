@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -88,28 +89,14 @@ func proxyHTTP(target *model.Route) *httputil.ReverseProxy {
 }
 
 func proxyWS(c *gin.Context, backend *url.URL) error {
-	deleteHeaders(&c.Request.Header, headersToDelete...)
 	conn, connBackend, err := makeWSconnections(c, backend)
 	if err != nil {
 		return err
 	}
 	errc := make(chan error, 2)
 	replicateWebsocketConn := func(dst, src *websocket.Conn, dstName, srcName string) {
-		var err error
-		var msgType int
-		var msg []byte
-		for {
-			msgType, msg, err = src.ReadMessage()
-			if err != nil {
-				log.Errorf("WebSocketProxy: Error when copying from %s to %s using ReadMessage: %v", srcName, dstName, err)
-				break
-			}
-			err = dst.WriteMessage(msgType, msg)
-			if err != nil {
-				log.Errorf("WebSocketProxy: Error when copying from %s to %s using WriteMessage: %v", srcName, dstName, err)
-				break
-			}
-		}
+		var buf [1024]byte
+		_, err := io.CopyBuffer(dst.UnderlyingConn(), src.UnderlyingConn(), buf[:])
 		errc <- err
 	}
 	go replicateWebsocketConn(conn, connBackend, "client", "backend")
@@ -123,6 +110,7 @@ func makeWSconnections(c *gin.Context, backend *url.URL) (conn, connBackend *web
 		log.WithError(err).Error("Unable to upgrade to WebSocket")
 		return
 	}
+	deleteHeaders(&c.Request.Header, headersToDelete...)
 	if connBackend, _, err = websocket.DefaultDialer.Dial(backend.String(), c.Request.Header); err != nil {
 		log.WithError(err).Error("Unable to dial to WebSocket")
 		return
