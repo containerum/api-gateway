@@ -97,6 +97,9 @@ func proxyWS(c *gin.Context, backend *url.URL) error {
 	replicateWebsocketConn := func(dst, src *websocket.Conn, dstName, srcName string) {
 		var buf [1024]byte
 		_, err := io.CopyBuffer(dst.UnderlyingConn(), src.UnderlyingConn(), buf[:])
+		if err != nil {
+			log.WithError(err).Errorf("websocket: replicate bytes from %s to %s failed", srcName, dstName)
+		}
 		errc <- err
 	}
 	go replicateWebsocketConn(conn, connBackend, "client", "backend")
