@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
-	h "git.containerum.net/ch/api-gateway/pkg/utils/headers"
+	h "github.com/containerum/utils/httputil"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"

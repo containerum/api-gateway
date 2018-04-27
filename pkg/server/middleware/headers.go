@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"regexp"
 
-	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
 	"github.com/containerum/cherry/adaptors/gonic"
+	"github.com/containerum/kube-client/pkg/cherry/api-gateway"
 
-	h "git.containerum.net/ch/api-gateway/pkg/utils/headers"
+	h "github.com/containerum/utils/httputil"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"

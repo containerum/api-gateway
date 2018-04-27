@@ -8,9 +8,9 @@ import (
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	middle "git.containerum.net/ch/api-gateway/pkg/server/middleware"
 	"git.containerum.net/ch/auth/proto"
-	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
 	"github.com/containerum/cherry/adaptors/cherrylog"
 	"github.com/containerum/cherry/adaptors/gonic"
+	"github.com/containerum/kube-client/pkg/cherry/api-gateway"
 	"github.com/gin-gonic/gin"
 
 	log "github.com/sirupsen/logrus"
