@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	h "git.containerum.net/ch/api-gateway/pkg/utils/headers"
+	h "github.com/containerum/utils/httputil"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 )
