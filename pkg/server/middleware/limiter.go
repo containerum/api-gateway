@@ -4,8 +4,8 @@ import (
 	"time"
 
 	h "git.containerum.net/ch/api-gateway/pkg/utils/headers"
-	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/gonic"
 	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
+	"github.com/containerum/cherry/adaptors/gonic"
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
 	"github.com/gin-gonic/gin"

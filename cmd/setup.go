@@ -9,8 +9,8 @@ import (
 	"git.containerum.net/ch/api-gateway/pkg/server"
 	toml "git.containerum.net/ch/api-gateway/pkg/utils/toml"
 	"git.containerum.net/ch/auth/proto"
-	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/cherrygrpc"
 	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
+	"github.com/containerum/cherry/adaptors/cherrygrpc"
 
 	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/go-grpc-middleware"

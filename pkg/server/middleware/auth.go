@@ -9,9 +9,9 @@ import (
 
 	h "git.containerum.net/ch/api-gateway/pkg/utils/headers"
 	"git.containerum.net/ch/auth/proto"
-	"git.containerum.net/ch/kube-client/pkg/cherry"
-	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/gonic"
 	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
+	"github.com/containerum/cherry"
+	"github.com/containerum/cherry/adaptors/gonic"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
