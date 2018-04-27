@@ -8,19 +8,6 @@
   revision = "ebda5563c0496e82523f17755cda8b73c33104da"
 
 [[projects]]
-  name = "git.containerum.net/ch/kube-client"
-  packages = [
-    "pkg/cherry",
-    "pkg/cherry/adaptors/cherrygrpc",
-    "pkg/cherry/adaptors/cherrylog",
-    "pkg/cherry/adaptors/gonic",
-    "pkg/cherry/api-gateway",
-    "pkg/cherry/auth"
-  ]
-  revision = "3eca5969b92e15876bef6f9e3d9c8a5b77df91c7"
-  version = "v0.2.5"
-
-[[projects]]
   name = "github.com/BurntSushi/toml"
   packages = ["."]
   revision = "b26d9c308763d68093482582cea63d69be07a0f0"
@@ -37,6 +24,29 @@
   name = "github.com/beorn7/perks"
   packages = ["quantile"]
   revision = "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9"
+
+[[projects]]
+  name = "github.com/containerum/cherry"
+  packages = [
+    ".",
+    "adaptors/cherrygrpc",
+    "adaptors/cherrylog",
+    "adaptors/gonic"
+  ]
+  revision = "3076e36aee79538b125d060e5b671649cbb2db4e"
+  version = "v1.0.1-rc2"
+
+[[projects]]
+  name = "github.com/containerum/kube-client"
+  packages = ["pkg/cherry/api-gateway"]
+  revision = "f5726b4cacfa4f7d1d53c651ca3606c5be518435"
+  version = "v0.11.0"
+
+[[projects]]
+  name = "github.com/containerum/utils"
+  packages = ["httputil"]
+  revision = "5e922affb542eaeb55ab395ff3c7161179df54b3"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/didip/tollbooth"
@@ -70,6 +80,21 @@
   ]
   revision = "d459835d2b077e44f7c9b453505ee29881d5d12d"
   version = "v1.2"
+
+[[projects]]
+  name = "github.com/go-playground/locales"
+  packages = [
+    ".",
+    "currency"
+  ]
+  revision = "f63010822830b6fe52288ee52d5a1151088ce039"
+  version = "v0.12.1"
+
+[[projects]]
+  name = "github.com/go-playground/universal-translator"
+  packages = ["."]
+  revision = "b32fa301c9fe55953584134cb6853a13c87ec0a1"
+  version = "v0.16.0"
 
 [[projects]]
   branch = "master"
@@ -180,8 +205,8 @@
 [[projects]]
   name = "github.com/sirupsen/logrus"
   packages = ["."]
-  revision = "d682213848ed68c0a260ca37d6dd5ace8423f5ba"
-  version = "v1.0.4"
+  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
+  version = "v1.0.5"
 
 [[projects]]
   name = "github.com/smartystreets/assertions"
@@ -234,12 +259,6 @@
     "trace"
   ]
   revision = "22ae77b79946ea320088417e4d50825671d82d57"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/sync"
-  packages = ["errgroup"]
-  revision = "fd80eb99c8f653c847d294a001bdf2a3a6f768f5"
 
 [[projects]]
   branch = "master"
@@ -310,14 +329,20 @@
     "tap",
     "transport"
   ]
-  revision = "8e4536a86ab602859c20df5ebfd0bd4228d08655"
-  version = "v1.10.0"
+  revision = "d11072e7ca9811b1100b80ca0269ac831f06d024"
+  version = "v1.11.3"
 
 [[projects]]
   name = "gopkg.in/go-playground/validator.v8"
   packages = ["."]
   revision = "5f1438d3fca68893a817e4a66806cea46a9e4ebf"
   version = "v8.18.2"
+
+[[projects]]
+  name = "gopkg.in/go-playground/validator.v9"
+  packages = ["."]
+  revision = "14984d91328f9612b58443cbdf4a077d4fd71091"
+  version = "v9.15.0"
 
 [[projects]]
   name = "gopkg.in/yaml.v2"
@@ -328,6 +353,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "30b089987457728914952737ba0322fec83250089026db4e5391169eaf22b27e"
+  inputs-digest = "cd9583fa24ab477fbfdc435ba5a910e1f15e33c5a8610e200211203225585894"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -3,6 +3,14 @@
     go-tests = true
     unused-packages = true
 
+    [[prune.project]]
+      name = "github.com/containerum/cherry"
+      non-go = false
+
+    [[prune.project]]
+      name = "github.com/containerum/kube-client"
+      non-go = false
+
 [[constraint]]
   name = "github.com/satori/go.uuid"
   version = "1.1.0"
@@ -12,9 +20,13 @@
   name = "git.containerum.net/ch/auth"
 
 [[constraint]]
-  name = "git.containerum.net/ch/kube-client"
-  version = "~0.2.0"
+  name = "github.com/containerum/kube-client"
+  version = "~0.11.0"
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  name = "github.com/containerum/cherry"
+  version = "~1.0.1-rc2"
+
+[[constraint]]
+  name = "github.com/containerum/utils"
+  version = "~1.0.0"
