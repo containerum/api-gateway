@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: "{{ template "name" . }}-{{ .Values.name }}"
 data:
-  {{- range $k, $v := .Values.routes }}
+  {{ range $k, $v := .Values.routes }}
   {{ $v.name }} : |-
-  {{- end }}
   {{ .Files.Get "env/routes/routes.toml" }}
+  {{ end }}
