@@ -5,5 +5,5 @@ metadata:
 data:
   {{ range $k, $v := .Values.routes }}
   {{ $v.name }} : |-
-  {{ .Files.Get "env/routes/routes.toml" }}
+    {{ $.Files.Get "env/routes/routes.toml" }}
   {{ end }}
