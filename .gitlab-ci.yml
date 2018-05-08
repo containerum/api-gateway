@@ -14,7 +14,7 @@ deploy sandbox:
     - develop
   before_script:
     - mkdir -p /etc/deploy/
-    - echo ${SANDBOX_KUBE_CONFIG} | base64 -d > ${KUBECONFIG}
+    - echo ${STAGING_KUBE_CONFIG} | base64 -d > ${KUBECONFIG}
     - helm init --client-only
     - helm repo update
   environment:
