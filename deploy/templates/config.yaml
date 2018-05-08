@@ -5,5 +5,5 @@ metadata:
 data:
   {{ range $k, $v := .Values.routes }}
   {{ $v.name }} : |-
-    {{ ($.Files.Get $v.path).AsSecrets | indent 2 }}
+    {{ $.Files.Get $v.path | indent 2 }}
   {{ end }}
