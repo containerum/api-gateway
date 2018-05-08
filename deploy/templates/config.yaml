@@ -1,10 +1,10 @@
 apiVersion: v1
-kinf: ConfigMap
+kind: ConfigMap
 metadata:
   name: "{{ template "name" . }}-{{ .Values.name }}"
 data:
   {{- $files := .Files }}
-  {{- range tuple "env/routes/routes.toml" }}
+  {{- range tuple .Values.routes.path }}
   {{ . }}: |-
     {{ $files.Get . }}
   {{- end }}
