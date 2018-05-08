@@ -21,4 +21,4 @@ deploy sandbox:
     name: develop
   script:
     - cd deploy
-    - helm upgrade --install ${CI_PROJECT_NAME} --namespace=${NAMESPACE} --set image.tag="develop-55ced2a80678bc484a30e802acc4450905b7f968" --values values.yaml .
+    - helm upgrade --install ${CI_PROJECT_NAME} --debug --dry-run --namespace=${NAMESPACE} --set image.tag="develop-55ced2a80678bc484a30e802acc4450905b7f968" --values values.yaml .

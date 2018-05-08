@@ -21,4 +21,4 @@ service:
 resources: {}
 
 routes:
-  path: "./env/routes/routes.toml"
+  path: "env/routes/routes.toml"
