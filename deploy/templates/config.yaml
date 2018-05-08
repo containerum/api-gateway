@@ -3,5 +3,8 @@ kinf: ConfigMap
 metadata:
   name: "{{ template "name" . }}-{{ .Values.name }}"
 data:
-  routes.toml: |
-    {{ Files.Get .Values.routes.path }}
+  {{- $files := .Files }}
+  {{- range tuple "env/routes/routes.toml" }}
+  {{ . }}: |-
+    {{ $files.Get . }}
+  {{- end }}
