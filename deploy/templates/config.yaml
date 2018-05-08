@@ -1,0 +1,7 @@
+apiVersion: v1
+kinf: ConfigMap
+metadata:
+  name: "{{ template "name" . }}-{{ .Values.name }}"
+data:
+  routes.toml: |
+    {{ Files.Get .Values.routes.path }}
