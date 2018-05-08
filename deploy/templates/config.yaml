@@ -4,4 +4,4 @@ metadata:
   name: "{{ template "name" . }}-{{ .Values.name }}"
 data:
   routes.toml: |
-    {{ .Files.Get .Values.routes.path | b64enc }}
+    {{ .Files.Get .Values.routes.path }}
