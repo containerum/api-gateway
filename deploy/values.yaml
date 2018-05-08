@@ -21,4 +21,7 @@ service:
 resources: {}
 
 routes:
-  path: "env/routes/routes.toml"
+  - name: routes
+    path: "env/routes/routes.toml"
+  - name: auth
+    path: "env/routes/auth.toml"
