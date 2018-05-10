@@ -11,10 +11,10 @@ deploy sandbox:
   image: exon/helm
   stage: deploy
   tags:
-    - staging
+    - develop
   before_script:
     - mkdir -p /etc/deploy/
-    - echo ${STAGING_KUBE_CONFIG} | base64 -d > ${KUBECONFIG}
+    - echo ${SANDBOX_KUBE_CONFIG} | base64 -d > ${KUBECONFIG}
     - helm init --client-only
     - helm repo update
   environment:
