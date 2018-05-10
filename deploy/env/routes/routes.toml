@@ -1,1 +1,11 @@
 [routes]
+
+#include "auth"
+
+#include "kube"
+
+#include "resource"
+
+#include "user"
+
+#include "bill"

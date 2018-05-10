@@ -21,7 +21,15 @@ service:
 resources: {}
 
 routes:
-  - name: routes
+  - name: routes.toml
     path: "env/routes/routes.toml"
   - name: auth
     path: "env/routes/auth.toml"
+  - name: kube
+    path: "env/routes/kube.toml"
+  - name: resource
+    path: "env/routes/resource.toml"
+  - name: user
+    path: "env/routes/user.toml"
+  - name: bill
+    path: "env/routes/bill.toml"
