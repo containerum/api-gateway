@@ -1,11 +1,11 @@
 [routes]
 
-#include "auth"
+#include "routes/auth"
 
-#include "kube"
+#include "routes/kube"
 
-#include "resource"
+#include "routes/resource"
 
-#include "user"
+#include "routes/user"
 
-#include "bill"
+#include "routes/bill"

@@ -38,9 +38,8 @@ spec:
           volumeMounts:
           - mountPath: /cert/
             name: cert
-          - mountPath: /routes.toml
+          - mountPath: /routes/
             name: routes
-            subPath: routes.toml
           - mountPath: /config.toml
             name: config
             subPath: config.toml
