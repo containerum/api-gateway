@@ -4,7 +4,7 @@ strategy:
   maxSurge: 1
   maxUnavailable: 1
 
-name: api-gateway
+name: api-gateway-test
 
 image:
   secret: gitlab-registry
@@ -13,10 +13,10 @@ image:
   pullPolicy: Always
 
 service:
-  name: api-gateway
-  externalPort: 8082
+  name: api-gateway-test
+  externalPort: 8087
   externalIP: 192.168.88.210
-  internalPort: 8082
+  internalPort: 8087
 
 resources: {}
 

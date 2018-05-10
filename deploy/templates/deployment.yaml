@@ -26,10 +26,10 @@ spec:
           name: ch-gateway
       - name: config
         configMap:
-          name: config
+          name: config-test
       - name: routes
         configMap:
-          name: routes
+          name: routes-test
       imagePullSecrets:
         - name: {{ .Values.image.secret }}
       containers:
