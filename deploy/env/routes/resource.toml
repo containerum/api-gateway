@@ -1,0 +1,199 @@
+[routes.namespace_access_get]
+active = true
+name = "Get Namespace Access"
+method = "GET"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespace/:namespace/access"
+strip = false
+group = "resource-service"
+
+[routes.namespace_access_change]
+active = true
+name = "Change Namespace Access"
+method = "PUT"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespace/:namespace/access"
+strip = false
+group = "resource-service"
+
+[routes.namespace_access_delete]
+active = true
+name = "Delete Namespace Access"
+method = "DELETE"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespace/:namespace/access"
+strip = false
+group = "resource-service"
+
+[routes.ingress_create]
+active = true
+name = "Create Ingress"
+method = "POST"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespace/:namespace/ingress"
+strip = false
+group = "resource-service"
+
+[routes.ingress_delete]
+active = true
+name = "Delete Ingress"
+method = "DELETE"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespace/:namespace/ingress/:ingress"
+strip = false
+group = "resource-service"
+
+[routes.namespace_create]
+active = true
+name = "Create Namespace"
+method = "POST"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/namespace"
+strip = false
+group = "resource-service"
+
+[routes.volume_create]
+active = true
+name = "Create volume"
+method = "POST"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/volume"
+strip = false
+group = "resource-service"
+
+[routes.volume_get]
+active = true
+name = "Get volume"
+method = "GET"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/volume/:volume"
+strip = false
+group = "resource-service"
+
+[routes.volumelist_get]
+active = true
+name = "Get volume list"
+method = "GET"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/volume"
+strip = false
+group = "resource-service"
+
+[routes.volume_delete]
+active = true
+name = "Delete volume"
+method = "DELETE"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/volume/:volume"
+strip = false
+group = "resource-service"
+
+[routes.ingress_update]
+active = true
+name = "Update Ingress"
+method = "PUT"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/namespace/:namespace/ingress/:ingress"
+strip = false
+group = "resource-service"
+
+[routes.resources_count_get]
+active = true
+name = "Get Resources Count"
+method = "GET"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/resources"
+strip = false
+group = "resource-service"
+
+[routes.namespace_resize]
+active = true
+name = "Resize Namespace"
+method = "PUT"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/namespace/:namespace"
+strip = false
+group = "resource-service"
+
+[routes.namespace_delete]
+active = true
+name = "Delete Namespace"
+method = "DELETE"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/namespace/:namespace"
+strip = false
+group = "resource-service"
+
+[routes.deployment_create]
+active = true
+name = "Create Deployment"
+method = "POST"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/namespace/:namespace/deployment"
+strip = false
+group = "resource-service"
+
+[routes.deployment_replace]
+active = true
+name = "Replace Deployment"
+method = "PUT"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/namespace/:namespace/deployment/:deployment"
+strip = false
+group = "resource-service"
+
+[routes.deployment_delete]
+active = true
+name = "Delete Deployment"
+method = "DELETE"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/namespace/:namespace/deployment/:deployment"
+strip = false
+group = "resource-service"
+
+[routes.service_create]
+active = true
+name = "Create Service"
+method = "POST"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/namespace/:namespace/service"
+strip = false
+group = "resource-service"
+
+[routes.service_replace]
+active = true
+name = "Replace Service"
+method = "PUT"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/namespace/:namespace/service/:service"
+strip = false
+group = "resource-service"
+
+[routes.service_delete]
+active = true
+name = "Delete Service"
+method = "DELETE"
+roles = ["*"]
+upstream = "http://resource-service.hosting.svc.cluster.local:1213"
+listen = "/namespace/:namespace/service/:service"
+strip = false
+group = "resource-service"

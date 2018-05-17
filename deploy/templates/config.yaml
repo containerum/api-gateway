@@ -1,0 +1,19 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "routes"
+data:
+  {{ range $k, $v := .Values.routes }}
+  {{ $v.name }} : |-
+{{ $.Files.Get $v.path | indent 4 }}
+  {{ end }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "config"
+data:
+  config.toml : |-
+{{ $.Files.Get .Values.config | indent 4 }}

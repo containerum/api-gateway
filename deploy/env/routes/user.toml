@@ -1,0 +1,93 @@
+[routes.login_basic]
+active = true
+name = "Login Basic"
+method = "POST"
+upstream = "http://user-manager:8111"
+listen = "/login/basic"
+strip = false
+group = "user"
+
+[routes.login_double]
+active = true
+name = "Login Double"
+method = "POST"
+upstream = "http://user-manager:8111"
+listen = "/login"
+strip = false
+group = "user"
+
+[routes.sign_up]
+active = true
+name = "Sign Up"
+method = "POST"
+upstream = "http://user-manager:8111"
+listen = "/user/sign_up"
+strip = false
+group = "user"
+
+[routes.activate]
+active = true
+name = "Activate"
+method = "POST"
+upstream = "http://user-manager:8111"
+listen = "/user/activation"
+strip = false
+group = "user"
+
+[routes.reset_password]
+active = true
+name = "Reset password"
+method = "POST"
+upstream = "http://user-manager:8111"
+listen = "/password/reset"
+strip = false
+group = "user"
+
+[routes.restore_password]
+active = true
+name = "Restore password"
+method = "POST"
+upstream = "http://user-manager:8111"
+listen = "/password/restore"
+strip = false
+group = "user"
+
+[routes.profile_change]
+active = true
+name = "Change profile"
+method = "PUT"
+roles = ["*"]
+upstream = "http://user-manager:8111"
+listen = "/user/info"
+strip = false
+group = "user"
+
+[routes.profile_get]
+active = true
+name = "Get Profile"
+method = "GET"
+roles = ["*"]
+upstream = "http://user-manager:8111"
+listen = "/user/info"
+strip = false
+group = "user"
+
+[routes.password_change]
+active = true
+name = "Password Change"
+method = "PUT"
+roles = ["*"]
+upstream = "http://user-manager:8111"
+listen = "/password/change"
+strip = false
+group = "user"
+
+[routes.user_delete]
+active = true
+name = "Delete user"
+method = "POST"
+roles = ["*"]
+upstream = "http://user-manager:8111"
+listen = "/user/delete/partial"
+strip = false
+group = "user"

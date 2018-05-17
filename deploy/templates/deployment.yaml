@@ -21,9 +21,12 @@ spec:
        chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     spec:
       volumes:
-      - name: config
+      - name: cert
         configMap:
           name: ch-gateway
+      - name: config
+        configMap:
+          name: config
       - name: routes
         configMap:
           name: routes
@@ -34,10 +37,12 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           volumeMounts:
           - mountPath: /cert/
-            name: config
-          - mountPath: /routes.toml
+            name: cert
+          - mountPath: /routes/
             name: routes
-            subPath: routes.toml
+          - mountPath: /config.toml
+            name: config
+            subPath: config.toml
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             {{- range $key, $val := .Values.env }}

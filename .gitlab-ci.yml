@@ -1,47 +1,15 @@
 stages:
-  - test
-  - dev-release
-  - dev-deploy
+  - deploy
 
 
 variables:
-  TAG_DEV: develop
-  TAG: production
   CONTAINER_IMAGE: ${CI_REGISTRY}/${CI_PROJECT_PATH}
-  DEVELOP_NAMESPACE: hosting
+  NAMESPACE: hosting
 
 
-test-build:
-  services:
-  image: docker:latest
-  stage: test
-  tags:
-    - build
-  script:
-    - docker build -t ${CONTAINER_IMAGE}:${TAG_DEV}-${CI_BUILD_REF} .
-    - docker rmi --force ${CONTAINER_IMAGE}:${TAG_DEV}-${CI_BUILD_REF}
-  except:
-    - develop
-    - master
-    - staging
-    - tags
-
-dev-release:
-  image: docker:latest
-  stage: dev-release
-  tags:
-    - build
-  script:
-    - docker login -u gitlab-ci-token -p ${CI_BUILD_TOKEN} ${CI_REGISTRY}
-    - docker build -t ${CONTAINER_IMAGE}:${TAG_DEV}-${CI_BUILD_REF}  .
-    - docker push ${CONTAINER_IMAGE}:${TAG_DEV}-${CI_BUILD_REF}
-    - docker rmi --force ${CONTAINER_IMAGE}:${TAG_DEV}-${CI_BUILD_REF}
-  only:
-    - develop
-
-dev-deploy:
+deploy sandbox:
   image: exon/helm
-  stage: dev-deploy
+  stage: deploy
   tags:
     - develop
   before_script:
@@ -53,6 +21,4 @@ dev-deploy:
     name: develop
   script:
     - cd deploy
-    - helm upgrade --install  --namespace=${DEVELOP_NAMESPACE} ${CI_PROJECT_NAME} --set image.tag=${TAG_DEV}-${CI_BUILD_REF} --set environment=develop --values values.yaml --values env/develop.yaml .
-  only:
-    - develop
+    - helm upgrade --install ${CI_PROJECT_NAME} --debug --namespace=${NAMESPACE} --set image.tag="develop-55ced2a80678bc484a30e802acc4450905b7f968" --values values.yaml --values env/develop.yaml .
