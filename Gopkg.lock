@@ -33,8 +33,8 @@
     "adaptors/cherrylog",
     "adaptors/gonic"
   ]
-  revision = "3076e36aee79538b125d060e5b671649cbb2db4e"
-  version = "v1.0.1-rc2"
+  revision = "34f7a2a139b36c20a34b93738dda33476efad47d"
+  version = "v1.0.1"
 
 [[projects]]
   name = "github.com/containerum/kube-client"
@@ -353,6 +353,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cd9583fa24ab477fbfdc435ba5a910e1f15e33c5a8610e200211203225585894"
+  inputs-digest = "2af3a24c53c3ecb716bc45f02f43800619dbf12574ffed47275c6701affc6e27"
   solver-name = "gps-cdcl"
   solver-version = 1

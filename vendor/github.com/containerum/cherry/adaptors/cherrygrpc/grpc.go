@@ -67,7 +67,7 @@ func UnaryServerInterceptor(defaultErr cherry.ErrConstruct) grpc.UnaryServerInte
 	}
 }
 
-func fromGRPC(errToCheck error) (ret *cherry.Err, ok bool) {
+func fromGRPC(errToCheck error) (ret cherry.Err, ok bool) {
 	grpcErr, ok := status.FromError(errToCheck)
 	if !ok {
 		return
@@ -78,7 +78,7 @@ func fromGRPC(errToCheck error) (ret *cherry.Err, ok bool) {
 }
 
 // UnaryClientInterceptor -- grpc client middleware to decode cherry error from grpc error.
-// If used with "github.com/grpc-ecosystem/go-grpc-middleware".ChainUnaryClient it must be first in chain to work correctly.
+// If used with "github.com/grpc-ecosystem/go-grpc-middleware".ChainUnaryClient it must be last in chain to work correctly.
 func UnaryClientInterceptor(defaultErr cherry.ErrConstruct) grpc.UnaryClientInterceptor {
 	return func(ctx context.Context, method string, req, reply interface{}, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 		err := invoker(ctx, method, req, reply, cc, opts...)
@@ -91,6 +91,6 @@ func UnaryClientInterceptor(defaultErr cherry.ErrConstruct) grpc.UnaryClientInte
 		if !ok {
 			return defaultErr().AddDetailsErr(err)
 		}
-		return cherryErr
+		return &cherryErr
 	}
 }
