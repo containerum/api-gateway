@@ -38,6 +38,16 @@ listen = "/namespaces"
 strip = false
 group = "permissions"
 
+[routes.namespacelist_get]
+active = true
+name = "Get Namespace List"
+method = "GET"
+roles = ["*"]
+upstream = "http://permissions:4242"
+listen = "/namespaces"
+strip = false
+group = "permissions"
+
 [routes.namespace_create_admin]
 active = true
 name = "Admin Create Namespace"

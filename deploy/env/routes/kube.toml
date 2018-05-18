@@ -48,13 +48,13 @@ listen = "/namespaces/:namespace/configmaps/:configmap"
 strip = false
 group = "kube-api"
 
-[routes.namespacelist_get]
+[routes.namespacelist_get_usage]
 active = true
 name = "Get Namespace List"
 method = "GET"
 roles = ["*"]
 upstream = "http://kube-api:1214/namespaces"
-listen = "/used/namespaces"
+listen = "/usage/namespaces"
 strip = true
 group = "kube-api"
 
