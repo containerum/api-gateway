@@ -139,16 +139,6 @@ listen = "/namespaces/:namespace/ingresses/:ingress"
 strip = false
 group = "kube-api"
 
-[routes.ingress_delete_old]
-active = true
-name = "Delete Ingress"
-method = "DELETE"
-roles = ["*"]
-upstream = "http://kube-api:1212"
-listen = "/namespaces/:namespace/ingresses/:ingress"
-strip = false
-group = "kube-api"
-
 [routes.ingresses_list_get]
 active = true
 name = "Get All User Ingresses List"
