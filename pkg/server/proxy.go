@@ -2,12 +2,16 @@ package server
 
 import (
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"regexp"
 	"strings"
+	"sync"
+	"syscall"
 	"time"
 
 	"git.containerum.net/ch/api-gateway/pkg/model"
@@ -88,27 +92,30 @@ func proxyHTTP(target *model.Route) *httputil.ReverseProxy {
 }
 
 func proxyWS(c *gin.Context, backend *url.URL) error {
-	deleteHeaders(&c.Request.Header, headersToDelete...)
 	conn, connBackend, err := makeWSconnections(c, backend)
 	if err != nil {
 		return err
 	}
 	errc := make(chan error, 2)
+	var once sync.Once
+
 	replicateWebsocketConn := func(dst, src *websocket.Conn, dstName, srcName string) {
-		var err error
-		var msgType int
-		var msg []byte
-		for {
-			msgType, msg, err = src.ReadMessage()
-			if err != nil {
-				log.Errorf("WebSocketProxy: Error when copying from %s to %s using ReadMessage: %v", srcName, dstName, err)
-				break
-			}
-			err = dst.WriteMessage(msgType, msg)
-			if err != nil {
-				log.Errorf("WebSocketProxy: Error when copying from %s to %s using WriteMessage: %v", srcName, dstName, err)
-				break
-			}
+		defer once.Do(func() {
+			dst.Close()
+			src.Close()
+		})
+
+		var buf [1024]byte
+		_, err := io.CopyBuffer(dst.UnderlyingConn(), src.UnderlyingConn(), buf[:])
+		switch {
+		case err == nil:
+			// pass
+		case isClose(err),
+			isBrokenPipe(err),
+			isNetTimeout(err):
+			// pass
+		default:
+			log.WithError(err).Errorf("websocket: replicate bytes from %s to %s failed", srcName, dstName)
 		}
 		errc <- err
 	}
@@ -123,6 +130,7 @@ func makeWSconnections(c *gin.Context, backend *url.URL) (conn, connBackend *web
 		log.WithError(err).Error("Unable to upgrade to WebSocket")
 		return
 	}
+	deleteHeaders(&c.Request.Header, headersToDelete...)
 	if connBackend, _, err = websocket.DefaultDialer.Dial(backend.String(), c.Request.Header); err != nil {
 		log.WithError(err).Error("Unable to dial to WebSocket")
 		return
@@ -179,4 +187,34 @@ func stripPath(requestPath, listenPath, upstreamPath string) string {
 
 func buildHostURL(u url.URL) string {
 	return u.Scheme + "://" + u.Host
+}
+
+//
+// Websocket-specific connection errors
+//
+
+func isNetTimeout(err error) bool {
+	netErr, ok := err.(net.Error)
+	return ok && netErr.Timeout()
+}
+
+func isBrokenPipe(err error) bool {
+	opErr, isOpErr := err.(*net.OpError)
+	if !isOpErr {
+		return false
+	}
+	syscallErr, ok := opErr.Err.(*os.SyscallError)
+	return ok && syscallErr.Err == syscall.EPIPE
+}
+
+func isClose(err error) bool {
+	_, isClose := err.(*websocket.CloseError)
+	if isClose {
+		return true
+	}
+	opErr, isOpErr := err.(*net.OpError)
+	if !isOpErr {
+		return false
+	}
+	return opErr.Err.Error() == "use of closed network connection"
 }

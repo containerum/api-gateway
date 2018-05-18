@@ -1,0 +1,35 @@
+# File for noice errors generation
+
+Name = "gatewayErrors"
+SID = "api-gateway"
+
+# errors
+[[error]]
+    Name = "UserPermissionDenied"
+    StatusHTTP = 401
+    Message = "user permission denied"
+    Kind = 1
+
+[[error]]
+    Name = "Internal"
+    StatusHTTP = 500
+    Message = "internal error"
+    Kind = 2
+
+[[error]]
+    Name = "TooManyRequests"
+    StatusHTTP = 429
+    Message = "too many requests"
+    Kind = 3
+
+[[error]]
+    Name = "HeaderNotProvided"
+    StatusHTTP = 400
+    Message = "header not provided"
+    Kind = 4
+
+[[error]]
+    Name = "Invalidformat"
+    StatusHTTP = 400
+    Message = "invalid request body format"
+    Kind = 5

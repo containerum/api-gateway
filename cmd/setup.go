@@ -9,9 +9,8 @@ import (
 	"git.containerum.net/ch/api-gateway/pkg/server"
 	toml "git.containerum.net/ch/api-gateway/pkg/utils/toml"
 	"git.containerum.net/ch/auth/proto"
-	"git.containerum.net/ch/kube-client/pkg/cherry/adaptors/cherrygrpc"
-	"git.containerum.net/ch/kube-client/pkg/cherry/api-gateway"
-
+	"github.com/containerum/cherry/adaptors/cherrygrpc"
+	"github.com/containerum/kube-client/pkg/cherry/api-gateway"
 	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
@@ -104,8 +103,8 @@ func setupAuth(c *cli.Context) (err error) {
 	}
 	opts := append([]grpc.DialOption{}, grpc.WithInsecure())
 	opts = append(opts, grpc.WithUnaryInterceptor(grpc_middleware.ChainUnaryClient(
-		cherrygrpc.UnaryClientInterceptor(gatewayErrors.ErrInternal),
 		grpc_logrus.UnaryClientInterceptor(log.WithField("component", "auth_client")),
+		cherrygrpc.UnaryClientInterceptor(gatewayErrors.ErrInternal),
 	)))
 	var con *grpc.ClientConn
 	addr := fmt.Sprintf("%s:%s", c.String(authAddr), c.String(authPort))
