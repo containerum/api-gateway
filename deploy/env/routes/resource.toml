@@ -58,6 +58,26 @@ listen = "/namespaces/:namespace/deployments/:deployment"
 strip = false
 group = "resource-service"
 
+[routes.deployment_set_image]
+active = true
+name = "Set Image Deployment"
+method = "PUT"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespaces/:namespace/deployments/:deployment/image"
+strip = false
+group = "resource-service"
+
+[routes.deployment_set_replicas]
+active = true
+name = "Set Replicas Deployment"
+method = "PUT"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespaces/:namespace/deployments/:deployment/replicas"
+strip = false
+group = "resource-service"
+
 [routes.deployment_delete]
 active = true
 name = "Delete Deployment"
