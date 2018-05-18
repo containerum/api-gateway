@@ -53,9 +53,9 @@ active = true
 name = "Get Namespace List"
 method = "GET"
 roles = ["*"]
-upstream = "http://kube-api:1214"
-listen = "/namespaces"
-strip = false
+upstream = "http://kube-api:1214/namespaces"
+listen = "/namespaces/used"
+strip = true
 group = "kube-api"
 
 [routes.deployments_get]
