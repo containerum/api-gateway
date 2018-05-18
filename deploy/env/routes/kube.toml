@@ -54,7 +54,7 @@ name = "Get Namespace List"
 method = "GET"
 roles = ["*"]
 upstream = "http://kube-api:1214/namespaces"
-listen = "/namespaces/used"
+listen = "/used/namespaces"
 strip = true
 group = "kube-api"
 
