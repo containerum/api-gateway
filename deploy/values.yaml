@@ -33,5 +33,7 @@ routes:
     path: "env/routes/user.toml"
   - name: bill
     path: "env/routes/bill.toml"
+  - name: permissions
+    path: "env/routes/permissions.toml"
 
 config: "env/config.toml"
