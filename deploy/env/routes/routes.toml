@@ -9,3 +9,6 @@
 #include "routes/user"
 
 #include "routes/bill"
+
+#include "routes/permissions"
+
