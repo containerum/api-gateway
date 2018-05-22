@@ -14,17 +14,17 @@ service:
 routes:
   - name: routes.toml
     path: "env/routes/routes.toml"
-  - name: auth
+  - name: auth.toml
     path: "env/routes/auth.toml"
-  - name: kube
+  - name: kube.toml
     path: "env/routes/kube.toml"
-  - name: resource
+  - name: resource.toml
     path: "env/routes/resource.toml"
-  - name: user
+  - name: user.toml
     path: "env/routes/user.toml"
-  - name: bill
+  - name: bill.toml
     path: "env/routes/bill.toml"
-  - name: permissions
+  - name: permissions.toml
     path: "env/routes/permissions.toml"
 
 config: "env/config.toml"
