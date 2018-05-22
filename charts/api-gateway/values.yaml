@@ -1,0 +1,39 @@
+replicaCount: 1
+
+image:
+  repository: containerum/gateway
+  tag: v1.0.0
+  pullPolicy: Always
+  secret:
+
+service:
+  externalPort: 8082
+  internalPort: 8082
+  externalIP:
+
+routes:
+  - name: routes.toml
+    path: "env/routes/routes.toml"
+  - name: auth.toml
+    path: "env/routes/auth.toml"
+  - name: kube.toml
+    path: "env/routes/kube.toml"
+  - name: resource.toml
+    path: "env/routes/resource.toml"
+  - name: user.toml
+    path: "env/routes/user.toml"
+  - name: bill.toml
+    path: "env/routes/bill.toml"
+  - name: permissions.toml
+    path: "env/routes/permissions.toml"
+
+config: "env/config.toml"
+
+env:
+  GATEWAY_DEBUG: true
+  GRPC_AUTH_ADDRESS: "ch-auth"
+  GRPC_AUTH_PORT: "1112"
+  CONFIG_FILE: "config.toml"
+  ROUTES_FILE: "/routes/routes.toml"
+  TLS_CERT: "/cert/tls.crt"
+  TLS_KEY: "/cert/tls.key"

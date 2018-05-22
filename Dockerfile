@@ -21,8 +21,8 @@ RUN openssl req -subj '/CN=containerum.io/O=Containerum/C=LV' -new -newkey rsa:2
 FROM alpine
 
 # Copy bin and migrations
-COPY --from=builder /go/src/git.containerum.net/ch/api-gateway/config.toml /
-COPY --from=builder /go/src/git.containerum.net/ch/api-gateway/routes.toml /
+COPY --from=builder /go/src/git.containerum.net/ch/api-gateway/charts/api-gateway/env/config.toml /
+COPY --from=builder /go/src/git.containerum.net/ch/api-gateway/charts/api-gateway/env/routes/ routes/
 COPY --from=builder /bin/ch-gateway /
 
 # Copy certs
@@ -30,10 +30,10 @@ COPY --from=generator /cert /cert
 
 # Set envs
 ENV GATEWAY_DEBUG=false \
-    GRPC_AUTH_ADDRESS="192.168.88.200" \
+    GRPC_AUTH_ADDRESS="127.0.0.1" \
     GRPC_AUTH_PORT="1112" \
     CONFIG_FILE="config.toml" \
-    ROUTES_FILE="routes.toml" \
+    ROUTES_FILE="/routes/routes.toml" \
     TLS_CERT="/cert/cert.pem" \
     TLS_KEY="/cert/key.pem"
 
