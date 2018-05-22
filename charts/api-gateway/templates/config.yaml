@@ -30,6 +30,6 @@ metadata:
     "helm.sh/hook": pre-install
 data:
   tls.crt: |
-  -----CERTIFICATE-----
+    Certificate
   tls.key: |
-  -----PRIVATE KEY-----
+    Certificate Key
