@@ -19,11 +19,6 @@ spec:
         app: {{ template "name" . }}
         release: {{ .Release.Name }}
     spec:
-      initContainers:
-      - name: generate-certs
-        image: frapsoft/openssl
-        command: ["/bin/sh"]
-        args: ["-c", "cat", "$TLS_CERT"]
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

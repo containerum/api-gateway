@@ -8,6 +8,8 @@ metadata:
     chart: {{ template "chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
+  annotations:
+    "helm.sh/hook": pre-install
 data:
   {{ range $k, $v := .Values.routes }}
   {{ $v.name }} : |-
