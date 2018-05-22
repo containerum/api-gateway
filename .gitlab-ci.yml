@@ -56,7 +56,7 @@ dev-deploy:
   environment:
     name: develop
   script:
-    - cd charts/api-gatewaygateway
+    - cd charts/api-gateway
     - helm upgrade --install --debug --namespace=${NAMESPACE} ${CI_PROJECT_NAME} --set image.tag=${CI_COMMIT_SHA:0:8} --set image.secret=${SECRET} --set image.repository=${REPOSITORY} --set service.externalIP=192.168.88.210 --values values.yaml .
   only:
     - develop
