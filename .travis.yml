@@ -1,0 +1,39 @@
+sudo: required
+
+language: go
+
+env:
+  global:
+  - OWNER=containerum
+  - NAME=api-gateway
+  - IMAGE_NAME=$OWNER/gateway
+  - HELM_URL=https://$OWNER.github.io/gateway/charts
+
+services:
+  - docker
+
+install:
+  - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
+  - helm init --client-only
+
+script:
+  - docker build -t "$IMAGE_NAME" .
+
+before_deploy:
+  - docker login -u="$DOCKER_LOGIN" -p="$DOCKER_PASSWORD"
+  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
+  - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_TAG}"
+  - helm package charts/$NAME --version="${TRAVIS_TAG}" --dependency-update --destination charts
+  - helm repo index --url $HELM_URL --merge charts/index.yaml charts
+
+deploy:
+  - provider: script
+    script: docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${TRAVIS_TAG}"
+    on:
+      tags: true
+  - provider: pages
+    skip-cleanup: true
+    github-token: $GITHUB_TOKEN
+    keep-history: true
+    on:
+      tags: true

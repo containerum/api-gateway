@@ -94,7 +94,6 @@ pub-github:
     - git remote rm github
   only:
     - develop
-  when: manual
 
 
 stage-release:
