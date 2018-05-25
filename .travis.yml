@@ -15,7 +15,7 @@ services:
 install:
   - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
   - helm init --client-only
-  - sudo apt-get install jq
+  - go get github.com/mikefarah/yq
 
 script:
   - docker build -t "$IMAGE_NAME" .
