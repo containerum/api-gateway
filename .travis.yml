@@ -16,6 +16,7 @@ install:
   - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get | bash
   - helm init --client-only
   - go get github.com/mikefarah/yq
+  - sudo apt-get install jq
 
 script:
   - docker build -t "$IMAGE_NAME" .
@@ -25,6 +26,12 @@ before_deploy:
   - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
   - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_TAG}"
   - yq write --inplace charts/api-gateway/values.yaml image.tag "${TRAVIS_TAG}"
+  - wget https://api.github.com/repos/containerum/gateway/releases
+  - cat releases | jq '.[].assets[].browser_download_url | select(. | test(".tgz")) | select(. | test("${NAME}"))' > download
+  - wget https://api.github.com/repos/containerum/gateway/releases/latest
+  - cat latest | jq '.assets[].browser_download_url | select(. | test("index.yaml"))' >> download
+  - xargs -i wget -P charts '{}' < download
+  - rm releases && rm latest && rm download
   - helm package charts/$NAME --version="${TRAVIS_TAG}" --dependency-update --destination charts
   - helm repo index --url $HELM_URL --merge charts/index.yaml charts
 
@@ -37,5 +44,13 @@ deploy:
     skip-cleanup: true
     github-token: $GITHUB_TOKEN
     keep-history: true
+    on:
+      tags: true
+  - provider: releases
+    api_key: $GITHUB_TOKEN
+    file:
+      - "charts/$NAME-${TRAVIS_TAG}.tgz"
+      - "charts/index.yaml"
+    skip_cleanup: true
     on:
       tags: true
