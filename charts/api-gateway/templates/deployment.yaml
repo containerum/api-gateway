@@ -32,9 +32,9 @@ spec:
           - mountPath: /cert/
             name: cert
           - mountPath: /routes/
-            name: gateway
+            name: routes
           - mountPath: /config.toml
-            name: gateway
+            name: config
             subPath: config.toml
       {{- with .Values.image.secret }}
       imagePullSecrets:
@@ -44,6 +44,9 @@ spec:
       - name: cert
         configMap:
           name: {{ template "fullname" . }}-cert
-      - name: gateway
+      - name: routes
         configMap:
-          name: {{ template "fullname" . }}
+          name: {{ template "fullname" . }}-routes
+      - name: config
+        configMap:
+          name: {{ template "fullname" . }}-config

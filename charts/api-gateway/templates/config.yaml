@@ -2,7 +2,23 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ template "fullname" . }}-routes
+  labels:
+    app: {{ template "name" . }}
+    chart: {{ template "chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  {{ range $k, $v := .Values.routes }}
+  {{ $v.name }} : |-
+{{ $.Files.Get $v.path | indent 4 }}
+  {{ end }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}-config
   labels:
     app: {{ template "name" . }}
     chart: {{ template "chart" . }}
@@ -11,10 +27,6 @@ metadata:
   annotations:
     "helm.sh/hook": pre-install
 data:
-  {{ range $k, $v := .Values.routes }}
-  {{ $v.name }} : |-
-{{ $.Files.Get $v.path | indent 4 }}
-  {{ end }}
   config.toml : |-
 {{ $.Files.Get .Values.config | indent 4 }}
 
