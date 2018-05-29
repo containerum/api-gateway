@@ -5,7 +5,7 @@
 ### Using Helm
 
 ```
-  helm repo add containerum https://containerum.github.io/gateway/charts
+  helm repo add containerum https://charts.containerim.io
   helm repo update
   helm install containerum/api-gateway
 ```

@@ -2,7 +2,7 @@ replicaCount: 1
 image:
   repository: containerum/gateway
   tag: v1.0.0
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   secret: null
 service:
   port: 8082
