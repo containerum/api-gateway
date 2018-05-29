@@ -26,6 +26,7 @@ before_deploy:
   - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
   - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_TAG}"
   - yq write --inplace charts/api-gateway/values.yaml image.tag "${TRAVIS_TAG}"
+  - mkdir -p /tmp/charts
   - helm package charts/$NAME --version="${TRAVIS_TAG}" --dependency-update --destination /tmp/charts
   - helm repo add chartmuseum https://charts.containerum.io
 
