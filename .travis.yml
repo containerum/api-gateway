@@ -36,7 +36,7 @@ deploy:
     on:
       tags: true
   - provider: script
-    script: helm push -u ${HELM_USER} -p ${HELM_PASSWORD} charts/$NAME chartmuseum
+    script: helm push -u ${HELM_USER} -p ${HELM_PASSWORD} charts/$NAME-${TRAVIS_TAG}.tgz chartmuseum
     on:
       tags: true
   - provider: releases
