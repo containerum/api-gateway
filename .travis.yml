@@ -7,7 +7,6 @@ env:
   - OWNER=containerum
   - NAME=api-gateway
   - IMAGE_NAME=$OWNER/gateway
-  - HELM_URL=https://$OWNER.github.io/gateway/charts
 
 services:
   - docker
@@ -27,23 +26,22 @@ before_deploy:
   - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:latest"
   - docker tag "$IMAGE_NAME" "${IMAGE_NAME}:${TRAVIS_TAG}"
   - yq write --inplace charts/api-gateway/values.yaml image.tag "${TRAVIS_TAG}"
-  - helm package charts/$NAME --version="${TRAVIS_TAG}" --dependency-update --destination charts
+  - helm package charts/$NAME --version="${TRAVIS_TAG}" --dependency-update --destination /tmp/charts
   - helm repo add chartmuseum https://charts.containerum.io
 
 deploy:
+  - provider: releases
+    api_key: $GITHUB_TOKEN
+    file:
+      - "/tmp/charts/$NAME-${TRAVIS_TAG}.tgz"
+    skip_cleanup: true
+    on:
+      tags: true
   - provider: script
     script: docker push "${IMAGE_NAME}:latest" && docker push "${IMAGE_NAME}:${TRAVIS_TAG}"
     on:
       tags: true
   - provider: script
-    script: helm push -u ${HELM_USER} -p ${HELM_PASSWORD} charts/$NAME-${TRAVIS_TAG}.tgz chartmuseum
-    on:
-      tags: true
-  - provider: releases
-    api_key: $GITHUB_TOKEN
-    file:
-      - "charts/$NAME-${TRAVIS_TAG}.tgz"
-      - "charts/index.yaml"
-    skip_cleanup: true
+    script: helm push -u ${HELM_USER} -p ${HELM_PASSWORD} "/tmp/charts/$NAME-${TRAVIS_TAG}.tgz" chartmuseum
     on:
       tags: true
