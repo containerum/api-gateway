@@ -14,8 +14,12 @@ import (
 	"syscall"
 	"time"
 
+	"git.containerum.net/ch/api-gateway/pkg/gatewayErrors"
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	"git.containerum.net/ch/api-gateway/pkg/server/middleware"
+	"git.containerum.net/ch/api-gateway/pkg/utils/wslimiter"
+	"github.com/containerum/cherry/adaptors/gonic"
+	h "github.com/containerum/utils/httputil"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
@@ -27,10 +31,11 @@ type proxyTransport struct {
 }
 
 const (
-	wsReadBuffer  = 1024
-	wsWriteBuffer = 1024
-	httpTimeout   = 15 * time.Second
-	httpKeepAlive = 30 * time.Second
+	wsReadBuffer          = 1024
+	wsWriteBuffer         = 1024
+	httpTimeout           = 15 * time.Second
+	httpKeepAlive         = 30 * time.Second
+	maxWSConnectionsPerIP = 100
 )
 
 var (
@@ -39,14 +44,16 @@ var (
 		Timeout:   httpTimeout,
 		KeepAlive: httpKeepAlive,
 	}
-	httpTransport = http.Transport{Dial: httpDialer.Dial}
-	wsUpgrader    = &websocket.Upgrader{
+	httpTransport = http.Transport{DialContext: httpDialer.DialContext}
+	wsUpgrader    = wslimiter.NewPerIPLimiter(maxWSConnectionsPerIP, &websocket.Upgrader{
 		ReadBufferSize:  wsReadBuffer,
 		WriteBufferSize: wsWriteBuffer,
 		CheckOrigin: func(r *http.Request) bool {
 			return true
 		},
-	}
+	}, func(r *http.Request) string {
+		return r.Header.Get(h.UserIPXHeader)
+	})
 )
 
 func (pt proxyTransport) RoundTrip(r *http.Request) (resp *http.Response, err error) {
@@ -70,10 +77,13 @@ func proxyHandler(route model.Route) gin.HandlerFunc {
 			request := c.Request.URL
 			target, _ := url.Parse(route.Upstream)
 			request.Scheme, request.Host = "ws", target.Host
-			if err := proxyWS(c, request); err != nil {
-				return
+			err := proxyWS(c, request)
+			switch err {
+			case nil:
+				// pass
+			case wslimiter.ErrLimitReached:
+				gonic.Gonic(gatewayErrors.ErrTooManyRequests().AddDetailF("websocket connections limit reached"), c)
 			}
-			proxyWS(c, request)
 		} else {
 			p := proxyHTTP(&route)
 			p.ServeHTTP(c.Writer, c.Request)
@@ -99,7 +109,7 @@ func proxyWS(c *gin.Context, backend *url.URL) error {
 	errc := make(chan error, 2)
 	var once sync.Once
 
-	replicateWebsocketConn := func(dst, src *websocket.Conn, dstName, srcName string) {
+	replicateConn := func(dst, src *wslimiter.Conn, dstName, srcName string) {
 		defer once.Do(func() {
 			dst.Close()
 			src.Close()
@@ -119,22 +129,24 @@ func proxyWS(c *gin.Context, backend *url.URL) error {
 		}
 		errc <- err
 	}
-	go replicateWebsocketConn(conn, connBackend, "client", "backend")
-	go replicateWebsocketConn(connBackend, conn, "backend", "client")
+	go replicateConn(conn, connBackend, "client", "backend")
+	go replicateConn(connBackend, conn, "backend", "client")
 	<-errc
 	return nil
 }
 
-func makeWSconnections(c *gin.Context, backend *url.URL) (conn, connBackend *websocket.Conn, err error) {
+func makeWSconnections(c *gin.Context, backend *url.URL) (conn, connBackend *wslimiter.Conn, err error) {
 	if conn, err = wsUpgrader.Upgrade(c.Writer, c.Request, nil); err != nil {
 		log.WithError(err).Error("Unable to upgrade to WebSocket")
 		return
 	}
 	deleteHeaders(&c.Request.Header, headersToDelete...)
-	if connBackend, _, err = websocket.DefaultDialer.Dial(backend.String(), c.Request.Header); err != nil {
+	_connBackend, _, err := websocket.DefaultDialer.Dial(backend.String(), c.Request.Header)
+	if err != nil {
 		log.WithError(err).Error("Unable to dial to WebSocket")
 		return
 	}
+	connBackend = &wslimiter.Conn{Conn: _connBackend}
 	return
 }
 

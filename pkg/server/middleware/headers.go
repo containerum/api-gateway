@@ -15,8 +15,8 @@ import (
 
 var (
 	//XHeaderRegexp keeps regexp for detecting X-Headers
-	XHeaderRegexp, _    = regexp.Compile("^X-[a-zA-Z0-9]+")
-	userClientRegexp, _ = regexp.Compile("^[a-f0-9]{32}$")
+	XHeaderRegexp    = regexp.MustCompile("^X-[a-zA-Z0-9]+")
+	userClientRegexp = regexp.MustCompile("^[a-f0-9]{32}$")
 )
 
 //ClearXHeaders clear all request and response X-Headers
