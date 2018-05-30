@@ -3,8 +3,8 @@ package middleware
 import (
 	"time"
 
+	"git.containerum.net/ch/api-gateway/pkg/gatewayErrors"
 	"github.com/containerum/cherry/adaptors/gonic"
-	"github.com/containerum/kube-client/pkg/cherry/api-gateway"
 	h "github.com/containerum/utils/httputil"
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"

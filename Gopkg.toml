@@ -20,10 +20,6 @@
   name = "git.containerum.net/ch/auth"
 
 [[constraint]]
-  name = "github.com/containerum/kube-client"
-  version = "~0.11.0"
-
-[[constraint]]
   name = "github.com/containerum/cherry"
   version = "~1.0.1"
 

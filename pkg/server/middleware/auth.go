@@ -7,10 +7,10 @@ import (
 	"errors"
 	"net/http"
 
+	"git.containerum.net/ch/api-gateway/pkg/gatewayErrors"
 	"git.containerum.net/ch/auth/proto"
 	"github.com/containerum/cherry"
 	"github.com/containerum/cherry/adaptors/gonic"
-	"github.com/containerum/kube-client/pkg/cherry/api-gateway"
 	h "github.com/containerum/utils/httputil"
 
 	"github.com/gin-gonic/gin"
