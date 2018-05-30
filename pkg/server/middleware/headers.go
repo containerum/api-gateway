@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"regexp"
 
+	"git.containerum.net/ch/api-gateway/pkg/gatewayErrors"
 	"github.com/containerum/cherry/adaptors/gonic"
-	"github.com/containerum/kube-client/pkg/cherry/api-gateway"
 
 	h "github.com/containerum/utils/httputil"
 

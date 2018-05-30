@@ -37,12 +37,6 @@
   version = "v1.0.1"
 
 [[projects]]
-  name = "github.com/containerum/kube-client"
-  packages = ["pkg/cherry/api-gateway"]
-  revision = "f5726b4cacfa4f7d1d53c651ca3606c5be518435"
-  version = "v0.11.0"
-
-[[projects]]
   name = "github.com/containerum/utils"
   packages = ["httputil"]
   revision = "5e922affb542eaeb55ab395ff3c7161179df54b3"
@@ -353,6 +347,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2af3a24c53c3ecb716bc45f02f43800619dbf12574ffed47275c6701affc6e27"
+  inputs-digest = "7620d24688f9bf8d7fc1063822146100217fd0e72457da337ade07749063eb44"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"os"
 
+	"git.containerum.net/ch/api-gateway/pkg/gatewayErrors"
 	"git.containerum.net/ch/api-gateway/pkg/model"
 	"git.containerum.net/ch/api-gateway/pkg/server"
 	toml "git.containerum.net/ch/api-gateway/pkg/utils/toml"
 	"git.containerum.net/ch/auth/proto"
 	"github.com/containerum/cherry/adaptors/cherrygrpc"
-	"github.com/containerum/kube-client/pkg/cherry/api-gateway"
 	"github.com/gin-gonic/gin"
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
