@@ -1,9 +1,13 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	slog "log"
 	"net/http"
+	"os"
+	"os/signal"
+	"time"
 
 	"git.containerum.net/ch/api-gateway/pkg/gatewayErrors"
 	"git.containerum.net/ch/api-gateway/pkg/model"
@@ -49,13 +53,27 @@ func New(opt *Options) (serve *Server, err error) {
 
 //Start return http or https ListenServer
 func (s *Server) Start() error {
-	if s.options.Config.TLS.Enable {
-		return s.Server.ListenAndServeTLS(s.options.Config.TLS.Cert, s.options.Config.TLS.Key)
+	errCh := make(chan error)
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt, os.Kill)
+	go func() {
+		if s.options.Config.TLS.Enable {
+			errCh <- s.Server.ListenAndServeTLS(s.options.Config.TLS.Cert, s.options.Config.TLS.Key)
+		}
+		errCh <- s.ListenAndServe()
+	}()
+
+	select {
+	case err := <-errCh:
+		return err
+	case <-quit:
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		return s.Server.Shutdown(ctx)
 	}
-	return s.ListenAndServe()
 }
 
-func registreMiddlewares(router *gin.Engine, opt *Options, limiter *middle.Limiter) {
+func registerMiddlewares(router *gin.Engine, opt *Options, limiter *middle.Limiter) {
 	router.Use(gonic.Recovery(gatewayErrors.ErrInternal, cherrylog.NewLogrusAdapter(log.WithField("component", "gin_recovery"))))
 	router.Use(middle.Logger(opt.Metrics), middle.Cors())
 	router.Use(limiter.Limit())
@@ -65,7 +83,7 @@ func registreMiddlewares(router *gin.Engine, opt *Options, limiter *middle.Limit
 
 func createHandler(opt *Options) (http.Handler, error) {
 	router := gin.New()
-	registreMiddlewares(router, opt, middle.CreateLimiter(opt.Config.Rate.Limit))
+	registerMiddlewares(router, opt, middle.CreateLimiter(opt.Config.Rate.Limit))
 	for _, route := range opt.Routes.Routes {
 		if route.Active {
 			if opt.Config.Auth.Enable {
