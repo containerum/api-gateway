@@ -54,7 +54,11 @@ func (p *PerIPLimitedUpgrader) Upgrade(w http.ResponseWriter, r *http.Request, r
 	if err != nil {
 		return nil, err
 	}
-	p.cache.IncrementUint(ip, 1)
+	if connections.(uint) == 0 {
+		p.cache.SetDefault(ip, uint(1))
+	} else {
+		p.cache.IncrementUint(ip, 1)
+	}
 
 	return &Conn{
 		Conn:     conn,
