@@ -98,16 +98,6 @@ listen = "/namespaces/:namespace/services/:service"
 strip = false
 group = "kube-api"
 
-[routes.namespace_get]
-active = true
-name = "Get Namespace"
-method = "GET"
-roles = ["*"]
-upstream = "http://kube-api:1214"
-listen = "/namespaces/:namespace"
-strip = false
-group = "kube-api"
-
 [routes.logs_get]
 active = true
 name = "Get Logs"
