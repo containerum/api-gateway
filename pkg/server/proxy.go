@@ -35,7 +35,7 @@ const (
 	wsWriteBuffer         = 1024
 	httpTimeout           = 15 * time.Second
 	httpKeepAlive         = 30 * time.Second
-	maxWSConnectionsPerIP = 100
+	maxWSConnectionsPerIP = 10
 )
 
 var (
