@@ -91,3 +91,73 @@ upstream = "http://user-manager:8111"
 listen = "/user/delete/partial"
 strip = false
 group = "user"
+
+[routes.group_create]
+active = true
+name = "Create group"
+method = "POST"
+roles = ["*"]
+upstream = "http://user-manager:8111"
+listen = "/groups"
+strip = false
+group = "user"
+
+[routes.group_list_get]
+active = true
+name = "Get group list"
+method = "GET"
+roles = ["*"]
+upstream = "http://user-manager:8111"
+listen = "/groups"
+strip = false
+group = "user"
+
+[routes.group_get]
+active = true
+name = "Get group"
+method = "GET"
+roles = ["*"]
+upstream = "http://user-manager:8111"
+listen = "/groups/:group"
+strip = false
+group = "user"
+
+[routes.group_members_add]
+active = true
+name = "Add group members"
+method = "POST"
+roles = ["*"]
+upstream = "http://user-manager:8111"
+listen = "/groups/:group/members"
+strip = false
+group = "user"
+
+[routes.group_member_access_change]
+active = true
+name = "Change access group member"
+method = "PUT"
+roles = ["*"]
+upstream = "http://user-manager:8111"
+listen = "/groups/:group/members/:member"
+strip = false
+group = "user"
+
+[routes.group_member_delete]
+active = true
+name = "Delete group member"
+method = "DELETE"
+roles = ["*"]
+upstream = "http://user-manager:8111"
+listen = "/groups/:group/members/:member"
+strip = false
+group = "user"
+
+[routes.group_delete]
+active = true
+name = "Delete group"
+method = "DELETE"
+roles = ["*"]
+upstream = "http://user-manager:8111"
+listen = "/groups/:group"
+strip = false
+group = "user"
