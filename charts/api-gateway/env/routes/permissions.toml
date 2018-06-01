@@ -14,7 +14,7 @@ name = "Change Namespace Access"
 method = "PUT"
 roles = ["*"]
 upstream = "http://permissions:4242"
-listen = "/namespaces/:namespace/accesses"
+listen = "/namespaces/:namespace/access"
 strip = false
 group = "permissions"
 
@@ -24,7 +24,7 @@ name = "Delete Namespace Access"
 method = "DELETE"
 roles = ["*"]
 upstream = "http://permissions:4242"
-listen = "/namespaces/:namespace/accesses"
+listen = "/namespaces/:namespace/access"
 strip = false
 group = "permissions"
 
@@ -58,7 +58,6 @@ listen = "/namespaces/:namespace"
 strip = false
 group = "permissions"
 
-
 [routes.namespace_create_admin]
 active = true
 name = "Admin Create Namespace"
@@ -69,43 +68,13 @@ listen = "/admin/namespaces"
 strip = false
 group = "permissions"
 
-[routes.volume_create]
+[routes.namespace_list_get_admin]
 active = true
-name = "Create volume"
-method = "POST"
-roles = ["*"]
-upstream = "http://permissions:4242"
-listen = "/volumes"
-strip = false
-group = "permissions"
-
-[routes.volume_get]
-active = true
-name = "Get volume"
+name = "Admin Get Namespace List"
 method = "GET"
 roles = ["*"]
 upstream = "http://permissions:4242"
-listen = "/volumes/:volume"
-strip = false
-group = "permissions"
-
-[routes.volumelist_get]
-active = true
-name = "Get volume list"
-method = "GET"
-roles = ["*"]
-upstream = "http://permissions:4242"
-listen = "/volumes"
-strip = false
-group = "permissions"
-
-[routes.volume_delete]
-active = true
-name = "Delete volume"
-method = "DELETE"
-roles = ["*"]
-upstream = "http://permissions:4242"
-listen = "/volumes/:volume"
+listen = "/admin/namespaces"
 strip = false
 group = "permissions"
 
