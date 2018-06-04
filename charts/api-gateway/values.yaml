@@ -23,6 +23,8 @@ routes:
   path: env/routes/bill.toml
 - name: permissions.toml
   path: env/routes/permissions.toml
+- name: volume.toml
+  path: env/routes/volume.toml
 config: env/config.toml
 env:
   GATEWAY_DEBUG: true

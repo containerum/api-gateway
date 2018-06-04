@@ -11,3 +11,5 @@
 #include "routes/bill.toml"
 
 #include "routes/permissions.toml"
+
+#include "routes/volume.toml"
