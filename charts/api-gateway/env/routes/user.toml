@@ -25,6 +25,51 @@ listen = "/user/sign_up"
 strip = false
 group = "user"
 
+[routes.admin_sign_up]
+active = true
+name = "Admin Sign Up"
+method = "POST"
+upstream = "http://user-manager:8111"
+listen = "/admin/user/sign_up"
+strip = false
+group = "user"
+
+[routes.admin_user_activation]
+active = true
+name = "Admin User Activation"
+method = "POST"
+upstream = "http://user-manager:8111"
+listen = "/admin/user/activation"
+strip = false
+group = "user"
+
+[routes.admin_user_deactivation]
+active = true
+name = "Admin User Deactivation"
+method = "POST"
+upstream = "http://user-manager:8111"
+listen = "/admin/user/deactivation"
+strip = false
+group = "user"
+
+[routes.admin_password_reset]
+active = true
+name = "Admin Reset Password"
+method = "POST"
+upstream = "http://user-manager:8111"
+listen = "/admin/password/reset"
+strip = false
+group = "user"
+
+[routes.admin_set]
+active = true
+name = "Admin Set admin"
+method = "POST"
+upstream = "http://user-manager:8111"
+listen = "/admin/user"
+strip = false
+group = "user"
+
 [routes.activate]
 active = true
 name = "Activate"
