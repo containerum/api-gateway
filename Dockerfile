@@ -36,7 +36,7 @@ ENV GATEWAY_DEBUG=false \
     ROUTES_FILE="/routes/routes.toml" \
     TLS_CERT="/cert/cert.pem" \
     TLS_KEY="/cert/key.pem" \
-    SERVICE_HOST_PREFIX="hello-helm"
+    SERVICE_HOST_PREFIX=""
 
 # run app
 ENTRYPOINT ["/ch-gateway"]

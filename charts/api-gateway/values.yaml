@@ -32,3 +32,4 @@ env:
   ROUTES_FILE: /routes/routes.toml
   TLS_CERT: /cert/tls.crt
   TLS_KEY: /cert/tls.key
+  SERVICE_HOST_PREFIX:
