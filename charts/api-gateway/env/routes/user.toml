@@ -92,6 +92,16 @@ listen = "/user/delete/partial"
 strip = false
 group = "user"
 
+[routes.user_list_get]
+active = true
+name = "Get user list"
+method = "GET"
+roles = ["*"]
+upstream = "http://user-manager:8111"
+listen = "/user/list"
+strip = false
+group = "user"
+
 [routes.group_create]
 active = true
 name = "Create group"
