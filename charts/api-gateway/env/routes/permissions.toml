@@ -58,6 +58,16 @@ listen = "/namespaces/:namespace"
 strip = false
 group = "permissions"
 
+[routes.namespace_rename]
+active = true
+name = "Rename Namespace"
+method = "PUT"
+roles = ["*"]
+upstream = "http://permissions:4242"
+listen = "/namespaces/:namespace/rename"
+strip = false
+group = "permissions"
+
 [routes.namespace_create_admin]
 active = true
 name = "Admin Create Namespace"
