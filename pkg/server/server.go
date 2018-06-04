@@ -94,5 +94,11 @@ func createHandler(opt *Options) (http.Handler, error) {
 			route.Entry().Info("Route added")
 		}
 	}
+	router.NoMethod(func(ctx *gin.Context) {
+		gonic.Gonic(gatewayErrors.ErrMethodNotAllowed(), ctx)
+	})
+	router.NoRoute(func(ctx *gin.Context) {
+		gonic.Gonic(gatewayErrors.ErrRouteNotFound(), ctx)
+	})
 	return router, nil
 }

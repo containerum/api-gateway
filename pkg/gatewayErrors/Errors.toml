@@ -33,3 +33,15 @@ SID = "api-gateway"
     StatusHTTP = 400
     Message = "invalid request body format"
     Kind = 5
+
+[[error]]
+    Name = "MethodNotAllowed"
+    StatusHTTP = 405
+    Message = "http method not allowed"
+    Kind = 6
+
+[[error]]
+    Name = "RouteNotFound"
+    StatusHTTP = 404
+    Message = "route not found"
+    Kind = 7
