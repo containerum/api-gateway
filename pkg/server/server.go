@@ -96,10 +96,16 @@ func (s *Server) createHandler() (http.Handler, error) {
 		}
 	}
 	router.NoMethod(func(ctx *gin.Context) {
-		gonic.Gonic(gatewayErrors.ErrMethodNotAllowed(), ctx)
+		gonic.Gonic(gatewayErrors.
+			ErrMethodNotAllowed().
+			AddDetailF("method %s not registered for route %s", ctx.Request.Method, ctx.Request.URL.Path),
+			ctx)
 	})
 	router.NoRoute(func(ctx *gin.Context) {
-		gonic.Gonic(gatewayErrors.ErrRouteNotFound(), ctx)
+		gonic.Gonic(gatewayErrors.
+			ErrRouteNotFound().
+			AddDetailF("route %s not registered", ctx.Request.URL.Path),
+			ctx)
 	})
 	return router, nil
 }
