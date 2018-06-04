@@ -14,7 +14,7 @@ name = "Change Namespace Access"
 method = "PUT"
 roles = ["*"]
 upstream = "http://permissions:4242"
-listen = "/namespaces/:namespace/access"
+listen = "/namespaces/:namespace/accesses"
 strip = false
 group = "permissions"
 
@@ -24,7 +24,7 @@ name = "Delete Namespace Access"
 method = "DELETE"
 roles = ["*"]
 upstream = "http://permissions:4242"
-listen = "/namespaces/:namespace/access"
+listen = "/namespaces/:namespace/accesses"
 strip = false
 group = "permissions"
 
