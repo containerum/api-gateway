@@ -71,13 +71,13 @@ func (pt proxyTransport) RoundTrip(r *http.Request) (resp *http.Response, err er
 	return resp, err
 }
 
-func proxyHandler(route model.Route) gin.HandlerFunc {
+func (s *Server) proxyHandler(route model.Route) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if route.WS {
 			request := c.Request.URL
 			target, _ := url.Parse(route.Upstream)
 			request.Scheme, request.Host = "ws", target.Host
-			err := proxyWS(c, request)
+			err := s.proxyWS(c, request)
 			switch err {
 			case nil:
 				// pass
@@ -85,14 +85,14 @@ func proxyHandler(route model.Route) gin.HandlerFunc {
 				gonic.Gonic(gatewayErrors.ErrTooManyRequests().AddDetailF("websocket connections limit reached"), c)
 			}
 		} else {
-			p := proxyHTTP(&route)
+			p := s.proxyHTTP(&route)
 			p.ServeHTTP(c.Writer, c.Request)
 		}
 	}
 }
 
-func proxyHTTP(target *model.Route) *httputil.ReverseProxy {
-	direct := createDirector(target)
+func (s *Server) proxyHTTP(target *model.Route) *httputil.ReverseProxy {
+	direct := s.createDirector(target)
 	return &httputil.ReverseProxy{
 		Director: direct,
 		Transport: proxyTransport{
@@ -101,8 +101,8 @@ func proxyHTTP(target *model.Route) *httputil.ReverseProxy {
 	}
 }
 
-func proxyWS(c *gin.Context, backend *url.URL) error {
-	conn, connBackend, err := makeWSconnections(c, backend)
+func (s *Server) proxyWS(c *gin.Context, backend *url.URL) error {
+	conn, connBackend, err := s.makeWSconnections(c, backend)
 	if err != nil {
 		return err
 	}
@@ -135,12 +135,12 @@ func proxyWS(c *gin.Context, backend *url.URL) error {
 	return nil
 }
 
-func makeWSconnections(c *gin.Context, backend *url.URL) (conn, connBackend *wslimiter.Conn, err error) {
+func (s *Server) makeWSconnections(c *gin.Context, backend *url.URL) (conn, connBackend *wslimiter.Conn, err error) {
 	if conn, err = wsUpgrader.Upgrade(c.Writer, c.Request, nil); err != nil {
 		log.WithError(err).Error("Unable to upgrade to WebSocket")
 		return
 	}
-	deleteHeaders(&c.Request.Header, headersToDelete...)
+	s.deleteHeaders(&c.Request.Header, headersToDelete...)
 	_connBackend, _, err := websocket.DefaultDialer.Dial(backend.String(), c.Request.Header)
 	if err != nil {
 		log.WithError(err).Error("Unable to dial to WebSocket")
@@ -150,20 +150,24 @@ func makeWSconnections(c *gin.Context, backend *url.URL) (conn, connBackend *wsl
 	return
 }
 
-func deleteHeaders(header *http.Header, keys ...string) {
+func (s *Server) deleteHeaders(header *http.Header, keys ...string) {
 	for _, key := range keys {
 		middleware.HeaderEntry(key, header.Get(key)).Debug("Header deleted")
 		header.Del(key)
 	}
 }
 
-func createDirector(target *model.Route) func(r *http.Request) {
+func (s *Server) createDirector(target *model.Route) func(r *http.Request) {
 	return func(r *http.Request) {
 		targetURL, _ := url.Parse(target.Upstream)
 		r.URL.Scheme = targetURL.Scheme
-		r.URL.Host = targetURL.Host
+		if s.options.ServiceHostPrefix == "" {
+			r.URL.Host = targetURL.Host
+		} else {
+			r.URL.Host = s.options.ServiceHostPrefix + "-" + targetURL.Host
+		}
 		if target.Strip {
-			strPath := stripPath(r.URL.Path, target.Listen, targetURL.Path)
+			strPath := s.stripPath(r.URL.Path, target.Listen, targetURL.Path)
 			r.URL.Path = singleJoiningSlash(buildHostURL(*targetURL), strPath)
 		} else {
 			r.URL.Path = singleJoiningSlash(targetURL.Path, r.URL.Path)
@@ -183,7 +187,7 @@ func singleJoiningSlash(a, b string) string {
 	return a + b
 }
 
-func stripPath(requestPath, listenPath, upstreamPath string) string {
+func (s *Server) stripPath(requestPath, listenPath, upstreamPath string) string {
 	rSlash, _ := regexp.Compile("/")
 	listenPath = rSlash.ReplaceAllString(listenPath, `\/`)
 

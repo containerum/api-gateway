@@ -32,22 +32,21 @@ type Options struct {
 	Config  *model.Config
 	Auth    *authProto.AuthClient
 	Metrics *model.Metrics
+
+	ServiceHostPrefix string
 }
 
 //New return configurated server with all handlers
-func New(opt *Options) (serve *Server, err error) {
-	var handlers http.Handler
-	if handlers, err = createHandler(opt); err != nil {
-		return nil, err
-	}
-	serve = &Server{
+func New(opt *Options) (server *Server, err error) {
+	server = &Server{
 		options: opt,
 		Server: http.Server{
 			Addr:     fmt.Sprintf("0.0.0.0:%v", opt.Config.Port),
-			Handler:  handlers,
 			ErrorLog: slog.New(log.New().Writer(), "server", 0),
 		},
 	}
+
+	server.Handler, err = server.createHandler()
 	return
 }
 
@@ -73,32 +72,40 @@ func (s *Server) Start() error {
 	}
 }
 
-func registerMiddlewares(router *gin.Engine, opt *Options, limiter *middle.Limiter) {
+func (s *Server) registerMiddlewares(router *gin.Engine) {
 	router.Use(gonic.Recovery(gatewayErrors.ErrInternal, cherrylog.NewLogrusAdapter(log.WithField("component", "gin_recovery"))))
-	router.Use(middle.Logger(opt.Metrics), middle.Cors())
-	router.Use(limiter.Limit())
+	router.Use(middle.Logger(s.options.Metrics), middle.Cors())
+	router.Use(middle.CreateLimiter(s.options.Config.Rate.Limit).Limit())
 	router.Use(middle.SetHeaderFromQuery(), middle.ClearXHeaders(), middle.SetRequestID())
 	router.Use(middle.CheckUserClientHeader(), middle.SetMainUserXHeaders())
 }
 
-func createHandler(opt *Options) (http.Handler, error) {
+func (s *Server) createHandler() (http.Handler, error) {
 	router := gin.New()
-	registerMiddlewares(router, opt, middle.CreateLimiter(opt.Config.Rate.Limit))
-	for _, route := range opt.Routes.Routes {
+	s.registerMiddlewares(router)
+	for _, route := range s.options.Routes.Routes {
 		if route.Active {
-			if opt.Config.Auth.Enable {
-				router.Handle(route.Method, route.Listen, middle.SetRequestName(route.ID), middle.CheckAuth(route.Roles, opt.Auth), proxyHandler(route))
-			} else {
-				router.Handle(route.Method, route.Listen, middle.SetRequestName(route.ID), proxyHandler(route))
+			handlers := []gin.HandlerFunc{middle.SetRequestName(route.ID)}
+			if s.options.Config.Auth.Enable {
+				handlers = append(handlers, middle.CheckAuth(route.Roles, s.options.Auth))
 			}
+			handlers = append(handlers, s.proxyHandler(route))
+
+			router.Handle(route.Method, route.Listen, handlers...)
 			route.Entry().Info("Route added")
 		}
 	}
 	router.NoMethod(func(ctx *gin.Context) {
-		gonic.Gonic(gatewayErrors.ErrMethodNotAllowed(), ctx)
+		gonic.Gonic(gatewayErrors.
+			ErrMethodNotAllowed().
+			AddDetailF("method %s not registered for route %s", ctx.Request.Method, ctx.Request.URL.Path),
+			ctx)
 	})
 	router.NoRoute(func(ctx *gin.Context) {
-		gonic.Gonic(gatewayErrors.ErrRouteNotFound(), ctx)
+		gonic.Gonic(gatewayErrors.
+			ErrRouteNotFound().
+			AddDetailF("route %s not registered", ctx.Request.URL.Path),
+			ctx)
 	})
 	return router, nil
 }

@@ -5,12 +5,13 @@ import "github.com/urfave/cli"
 const usageText = "Awesome Golang API Gateway."
 
 const (
-	authAddr    = "grpc-auth-address"
-	authPort    = "grpc-auth-port"
-	tlsCertPath = "tls-cert"
-	tlsKeyPath  = "tls-key"
-	routesPath  = "routes"
-	configPath  = "config"
+	authAddr          = "grpc-auth-address"
+	authPort          = "grpc-auth-port"
+	tlsCertPath       = "tls-cert"
+	tlsKeyPath        = "tls-key"
+	routesPath        = "routes"
+	configPath        = "config"
+	serviceHostPrefix = "service-host-prefix"
 )
 
 var flags = []cli.Flag{
@@ -54,5 +55,11 @@ var flags = []cli.Flag{
 		Name:   tlsKeyPath,
 		Usage:  "Key.pem for HTTPS",
 		Value:  "key.pem",
+	},
+	cli.StringFlag{
+		EnvVar: "SERVICE_HOST_PREFIX",
+		Name:   serviceHostPrefix,
+		Usage:  "Prefix for service hostname (needed for helm)",
+		Value:  "",
 	},
 }

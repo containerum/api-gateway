@@ -125,6 +125,8 @@ func setupServer(c *cli.Context) (*server.Server, error) {
 		Config:  &config,
 		Auth:    authClient,
 		Metrics: metrics,
+
+		ServiceHostPrefix: c.String(serviceHostPrefix),
 	}
 	return server.New(opt)
 }
