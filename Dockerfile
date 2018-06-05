@@ -27,15 +27,15 @@ COPY --from=builder /go/src/git.containerum.net/ch/api-gateway/charts/api-gatewa
 COPY --from=builder /bin/api-gateway /app
 
 # Copy certs
-COPY --from=generator /cert /cert
+COPY --from=generator /cert /app/cert
 
 # Set envs
 ENV GATEWAY_DEBUG=false \
     GRPC_AUTH_ADDRESS="127.0.0.1:1112" \
     CONFIG_FILE="config.toml" \
     ROUTES_FILE="routes/routes.toml" \
-    TLS_CERT="/cert/cert.pem" \
-    TLS_KEY="/cert/key.pem" \
+    TLS_CERT="cert/cert.pem" \
+    TLS_KEY="cert/key.pem" \
     SERVICE_HOST_PREFIX=""
 
 EXPOSE 8082 8282
