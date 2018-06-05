@@ -39,11 +39,10 @@ tls:
 env:
   global:
     GATEWAY_DEBUG: true
-    GRPC_AUTH_PORT: "1112"
     ROUTES_FILE: /routes/routes.toml
     CONFIG_FILE: config.toml
     TLS_CERT: /cert/tls.crt
     TLS_KEY: /cert/tls.key
   local:
-    GRPC_AUTH_ADDRESS: ch-auth
+    GRPC_AUTH_ADDRESS: "ch-auth:1112"
     SERVICE_HOST_PREFIX:

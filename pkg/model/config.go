@@ -1,9 +1,11 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
 
 	valid "github.com/asaskevich/govalidator"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -47,4 +49,15 @@ func (c *Config) Validate() []error {
 		errs = append(errs, ErrInvalidRateType)
 	}
 	return errs
+}
+
+func (c *Config) String() string {
+	var str []byte
+	switch logrus.StandardLogger().Formatter.(type) {
+	case *logrus.TextFormatter:
+		str, _ = json.MarshalIndent(c, "", "  ")
+	default:
+		str, _ = json.Marshal(c)
+	}
+	return string(str)
 }

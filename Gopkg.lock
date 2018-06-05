@@ -229,12 +229,6 @@
   version = "v1.1"
 
 [[projects]]
-  name = "github.com/urfave/cli"
-  packages = ["."]
-  revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
-  version = "v1.20.0"
-
-[[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
@@ -339,6 +333,12 @@
   version = "v9.15.0"
 
 [[projects]]
+  branch = "v2"
+  name = "gopkg.in/urfave/cli.v2"
+  packages = ["."]
+  revision = "d3ae77c26ac8db90639677e4831a728d33c36111"
+
+[[projects]]
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   revision = "7f97868eec74b32b0982dd158a51a446d1da7eb5"
@@ -347,6 +347,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dc0fc6be0f9a97632e1bfb7d8491d7e83bb3066190bf39439f00384655e9a1e8"
+  inputs-digest = "66f94f0cf224b25ed03e3e44e4cc642054e7b5f07826069236b4a21ff126f0f8"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -78,7 +78,7 @@ OPTIONS:
    {{end}}{{end}}
 `
 
-var helpCommand = Command{
+var helpCommand = &Command{
 	Name:      "help",
 	Aliases:   []string{"h"},
 	Usage:     "Shows a list of commands or help for one command",
@@ -94,7 +94,7 @@ var helpCommand = Command{
 	},
 }
 
-var helpSubcommand = Command{
+var helpSubcommand = &Command{
 	Name:      "help",
 	Aliases:   []string{"h"},
 	Usage:     "Shows a list of commands or help for one command",
@@ -189,7 +189,7 @@ func ShowCommandHelp(ctx *Context, command string) error {
 	}
 
 	if ctx.App.CommandNotFound == nil {
-		return NewExitError(fmt.Sprintf("No help topic for '%v'", command), 3)
+		return Exit(fmt.Sprintf("No help topic for '%v'", command), 3)
 	}
 
 	ctx.App.CommandNotFound(ctx, command)
@@ -198,7 +198,15 @@ func ShowCommandHelp(ctx *Context, command string) error {
 
 // ShowSubcommandHelp prints help for the given subcommand
 func ShowSubcommandHelp(c *Context) error {
-	return ShowCommandHelp(c, c.Command.Name)
+	if c == nil {
+		return nil
+	}
+
+	if c.Command != nil {
+		return ShowCommandHelp(c, c.Command.Name)
+	}
+
+	return ShowCommandHelp(c, "")
 }
 
 // ShowVersion prints the version number of the App
@@ -213,16 +221,16 @@ func printVersion(c *Context) {
 // ShowCompletions prints the lists of commands within a given context
 func ShowCompletions(c *Context) {
 	a := c.App
-	if a != nil && a.BashComplete != nil {
-		a.BashComplete(c)
+	if a != nil && a.ShellComplete != nil {
+		a.ShellComplete(c)
 	}
 }
 
 // ShowCommandCompletions prints the custom completions for a given command
 func ShowCommandCompletions(ctx *Context, command string) {
 	c := ctx.App.Command(command)
-	if c != nil && c.BashComplete != nil {
-		c.BashComplete(ctx)
+	if c != nil && c.ShellComplete != nil {
+		c.ShellComplete(ctx)
 	}
 }
 
@@ -238,15 +246,17 @@ func printHelpCustom(out io.Writer, templ string, data interface{}, customFunc m
 
 	w := tabwriter.NewWriter(out, 1, 8, 2, ' ', 0)
 	t := template.Must(template.New("help").Funcs(funcMap).Parse(templ))
+
+	errDebug := os.Getenv("CLI_TEMPLATE_ERROR_DEBUG") != ""
+
 	err := t.Execute(w, data)
 	if err != nil {
-		// If the writer is closed, t.Execute will fail, and there's nothing
-		// we can do to recover.
-		if os.Getenv("CLI_TEMPLATE_ERROR_DEBUG") != "" {
+		if errDebug {
 			fmt.Fprintf(ErrWriter, "CLI TEMPLATE ERROR: %#v\n", err)
 		}
 		return
 	}
+
 	w.Flush()
 }
 
@@ -256,24 +266,20 @@ func printHelp(out io.Writer, templ string, data interface{}) {
 
 func checkVersion(c *Context) bool {
 	found := false
-	if VersionFlag.GetName() != "" {
-		eachName(VersionFlag.GetName(), func(name string) {
-			if c.GlobalBool(name) || c.Bool(name) {
-				found = true
-			}
-		})
+	for _, name := range VersionFlag.Names() {
+		if c.Bool(name) {
+			found = true
+		}
 	}
 	return found
 }
 
 func checkHelp(c *Context) bool {
 	found := false
-	if HelpFlag.GetName() != "" {
-		eachName(HelpFlag.GetName(), func(name string) {
-			if c.GlobalBool(name) || c.Bool(name) {
-				found = true
-			}
-		})
+	for _, name := range HelpFlag.Names() {
+		if c.Bool(name) {
+			found = true
+		}
 	}
 	return found
 }
@@ -297,14 +303,14 @@ func checkSubcommandHelp(c *Context) bool {
 }
 
 func checkShellCompleteFlag(a *App, arguments []string) (bool, []string) {
-	if !a.EnableBashCompletion {
+	if !a.EnableShellCompletion {
 		return false, arguments
 	}
 
 	pos := len(arguments) - 1
 	lastArg := arguments[pos]
 
-	if lastArg != "--"+BashCompletionFlag.GetName() {
+	if lastArg != "--"+genCompName() {
 		return false, arguments
 	}
 
@@ -335,4 +341,42 @@ func checkCommandCompletions(c *Context, name string) bool {
 
 	ShowCommandCompletions(c, name)
 	return true
+}
+
+func checkInitCompletion(c *Context) (bool, error) {
+	if c.IsSet(InitCompletionFlag.Name) {
+		shell := c.String(InitCompletionFlag.Name)
+		progName := os.Args[0]
+		switch shell {
+		case "bash":
+			fmt.Print(bashCompletionCode(progName))
+			return true, nil
+		case "zsh":
+			fmt.Print(zshCompletionCode(progName))
+			return true, nil
+		default:
+			return false, fmt.Errorf("--init-completion value cannot be '%s'", shell)
+		}
+	}
+	return false, nil
+}
+
+func bashCompletionCode(progName string) string {
+	var template = `_cli_bash_autocomplete() {
+     local cur opts base;
+     COMPREPLY=();
+     cur="${COMP_WORDS[COMP_CWORD]}";
+     opts=$( ${COMP_WORDS[@]:0:$COMP_CWORD} --%s );
+     COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) );
+     return 0;
+};
+complete -F _cli_bash_autocomplete %s`
+	return fmt.Sprintf(template, genCompName(), progName)
+}
+
+func zshCompletionCode(progName string) string {
+	var template = `autoload -U compinit && compinit;
+autoload -U bashcompinit && bashcompinit;`
+
+	return template + "\n" + bashCompletionCode(progName)
 }

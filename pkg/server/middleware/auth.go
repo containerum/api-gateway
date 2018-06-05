@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -25,10 +24,9 @@ var (
 )
 
 //CheckAuth check user token and roles
-func CheckAuth(roles []string, authClient *authProto.AuthClient) gin.HandlerFunc {
+func CheckAuth(roles []string, authClient authProto.AuthClient) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if len(roles) == 0 {
-			c.Next()
 			return
 		}
 		if authClient == nil {
@@ -40,7 +38,7 @@ func CheckAuth(roles []string, authClient *authProto.AuthClient) gin.HandlerFunc
 		userAgent, userFinger := c.GetHeader(h.UserAgentXHeader), c.GetHeader(h.UserClientXHeader)
 		userIP := c.ClientIP()
 		getTokenEntry(accessToken, userAgent, userFinger, userIP).Debug("Check token")
-		token, err := (*authClient).CheckToken(context.Background(), &authProto.CheckTokenRequest{
+		token, err := authClient.CheckToken(c.Request.Context(), &authProto.CheckTokenRequest{
 			AccessToken: accessToken,
 			UserAgent:   userAgent,
 			FingerPrint: userFinger,

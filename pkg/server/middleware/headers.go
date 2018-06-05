@@ -23,7 +23,6 @@ var (
 func ClearXHeaders() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		clearHeaders(&c.Request.Header, "request")
-		c.Next()
 	}
 }
 
@@ -62,7 +61,6 @@ func CheckUserClientHeader() gin.HandlerFunc {
 			HeaderEntry(h.UserClientHeader, c.GetHeader(h.UserClientHeader)).WithError(h.ErrInvalidFormat(h.UserClientHeader)).Warn("Invalid header")
 			return
 		}
-		c.Next()
 	}
 }
 

@@ -15,29 +15,28 @@ import (
 	"github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/urfave/cli"
 	"google.golang.org/grpc"
+	"gopkg.in/urfave/cli.v2"
 
 	log "github.com/sirupsen/logrus"
 )
 
 type setupFunc func(c *cli.Context) error
 
-var (
-	config     model.Config
-	routes     model.Routes
-	cert, key  string
-	authClient *authProto.AuthClient
-	metrics    *model.Metrics
+const (
+	configKey     = "config"
+	routesKey     = "routes"
+	authClientKey = "auth"
+	metricsKey    = "metrics"
 )
 
 var (
-	errUnableReadConfig   = errors.New("Unable to read config file")
-	errUnableReadRoutes   = errors.New("Unable to read routes file")
-	errUnableOpenCertFile = errors.New("Unable to open cert.pem")
-	errUnableOpenKeyFile  = errors.New("Unable to open key.pem")
+	errUnableReadConfig   = errors.New("unable to read config file")
+	errUnableReadRoutes   = errors.New("unable to read routes file")
+	errUnableOpenCertFile = errors.New("unable to open cert.pem")
+	errUnableOpenKeyFile  = errors.New("unable to open key.pem")
 
-	errGrpcDialFailed = errors.New("Dial to auth grpc failed")
+	errGrpcDialFailed = errors.New("dial to auth grpc failed")
 )
 
 func setup(c *cli.Context, fns ...setupFunc) (err error) {
@@ -60,14 +59,18 @@ func setupLogs(c *cli.Context) (err error) {
 }
 
 func setupConfig(c *cli.Context) (err error) {
-	if err := toml.ReadToml(c.String(configPath), &config); err != nil {
+	cfg := &model.Config{}
+	if err := toml.ReadToml(c.String(ConfigPathFlag.Name), cfg); err != nil {
 		return fmt.Errorf("%v. %v", errUnableReadConfig, err)
 	}
+	log.Infof("Config setup:\n%v", cfg)
+	c.App.Metadata[configKey] = cfg
 	return
 }
 
 func setupRoutes(c *cli.Context) (err error) {
-	if err = toml.ReadToml(c.String(routesPath), &routes); err != nil {
+	routes := &model.Routes{}
+	if err = toml.ReadToml(c.String(RoutesPathFlag.Name), routes); err != nil {
 		return fmt.Errorf("%v. %v", errUnableReadRoutes, err)
 	}
 	for key := range routes.Routes {
@@ -76,29 +79,33 @@ func setupRoutes(c *cli.Context) (err error) {
 			routes.Routes[key] = route
 		}
 	}
+	c.App.Metadata[routesKey] = routes
 	return
 }
 
 func setupTLS(c *cli.Context) (err error) {
+	config := c.App.Metadata[configKey].(*model.Config)
 	if !config.TLS.Enable {
 		return
 	}
-	if _, e := os.Stat(c.String(tlsCertPath)); os.IsNotExist(e) {
+	cert, key := c.String(TLSCertPathFlag.Name), c.String(TLSKeyPathFlag.Name)
+	if _, e := os.Stat(cert); os.IsNotExist(e) {
 		log.WithError(e).Error(errUnableOpenCertFile)
 		return errUnableOpenCertFile
 	}
-	if _, e := os.Stat(c.String(tlsKeyPath)); os.IsNotExist(e) {
+	if _, e := os.Stat(key); os.IsNotExist(e) {
 		log.WithError(e).Error(errUnableOpenKeyFile)
 		return errUnableOpenKeyFile
 	}
-	cert, key = c.String(tlsCertPath), c.String(tlsKeyPath)
 	config.TLS.Cert, config.TLS.Key = cert, key
 	log.WithField("Key", key).WithField("Cert", cert).Debug("TLS")
 	return
 }
 
 func setupAuth(c *cli.Context) (err error) {
+	config := c.App.Metadata[configKey].(*model.Config)
 	if !config.Auth.Enable {
+		c.App.Metadata[authClientKey] = (authProto.AuthClient)(nil)
 		return
 	}
 	opts := append([]grpc.DialOption{}, grpc.WithInsecure())
@@ -107,34 +114,32 @@ func setupAuth(c *cli.Context) (err error) {
 		cherrygrpc.UnaryClientInterceptor(gatewayErrors.ErrInternal),
 	)))
 	var con *grpc.ClientConn
-	addr := fmt.Sprintf("%s:%s", c.String(authAddr), c.String(authPort))
-	if con, err = grpc.Dial(addr, opts...); err != nil {
-		log.WithFields(log.Fields{
-			"Err": err,
-		}).Error(errGrpcDialFailed)
+	if con, err = grpc.Dial(c.String(AuthAddrFlag.Name), opts...); err != nil {
+		log.WithError(err).Error(errGrpcDialFailed)
 		return errGrpcDialFailed
 	}
-	client := authProto.NewAuthClient(con)
-	authClient = &client
+	c.App.Metadata[authClientKey] = authProto.NewAuthClient(con)
 	return
 }
 
 func setupServer(c *cli.Context) (*server.Server, error) {
 	opt := &server.Options{
-		Routes:  &routes,
-		Config:  &config,
-		Auth:    authClient,
-		Metrics: metrics,
+		Routes:  c.App.Metadata[routesKey].(*model.Routes),
+		Config:  c.App.Metadata[configKey].(*model.Config),
+		Auth:    c.App.Metadata[authClientKey].(authProto.AuthClient),
+		Metrics: c.App.Metadata[metricsKey].(*model.Metrics),
 
-		ServiceHostPrefix: c.String(serviceHostPrefix),
+		ServiceHostPrefix: c.String(ServiceHostPrefixFlag.Name),
 	}
 	return server.New(opt)
 }
 
 func setupMetrics(c *cli.Context) (err error) {
+	config := c.App.Metadata[configKey].(*model.Config)
+	metrics := model.CreateMetrics()
 	if config.Prometheus.Enable {
-		metrics = model.CreateMetrics()
 		prometheus.MustRegister(metrics.RTotal, metrics.RUserIP, metrics.RRoute, metrics.RUserAgent)
 	}
+	c.App.Metadata[metricsKey] = metrics
 	return
 }
