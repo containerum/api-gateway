@@ -1,13 +1,16 @@
 replicaCount: 1
+
 image:
   repository: containerum/gateway
   tag: v1.0.0
   pullPolicy: IfNotPresent
   secret: null
+
 service:
   port: 8082
   targetPort: 8082
   externalIP: null
+
 routes:
 - name: routes.toml
   path: env/routes/routes.toml
@@ -25,13 +28,22 @@ routes:
   path: env/routes/permissions.toml
 - name: volume.toml
   path: env/routes/volume.toml
+
 config: env/config.toml
+
+tls:
+  enable: false
+  cert: QkFTRTY0X1RMU19DRVJUCg==
+  key: QkFTRTY0X1RMU19LRVkK
+
 env:
-  GATEWAY_DEBUG: true
-  GRPC_AUTH_ADDRESS: ch-auth
-  GRPC_AUTH_PORT: "1112"
-  CONFIG_FILE: config.toml
-  ROUTES_FILE: /routes/routes.toml
-  TLS_CERT: /cert/tls.crt
-  TLS_KEY: /cert/tls.key
-  SERVICE_HOST_PREFIX:
+  global:
+    GATEWAY_DEBUG: true
+    GRPC_AUTH_PORT: "1112"
+    ROUTES_FILE: /routes/routes.toml
+    CONFIG_FILE: config.toml
+    TLS_CERT: /cert/tls.crt
+    TLS_KEY: /cert/tls.key
+  local:
+    GRPC_AUTH_ADDRESS: ch-auth:1111
+    SERVICE_HOST_PREFIX:

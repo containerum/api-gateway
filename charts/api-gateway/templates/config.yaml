@@ -25,25 +25,26 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
   annotations:
-    "helm.sh/hook": pre-install, post-delete
+    "helm.sh/hook": pre-install,post-delete
 data:
   config.toml : |-
-{{ $.Files.Get .Values.config | indent 4 }}
+    port = 8082
 
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ template "fullname" . }}-cert
-  labels:
-    app: {{ template "name" . }}
-    chart: {{ template "chart" . }}
-    release: {{ .Release.Name }}
-    heritage: {{ .Release.Service }}
-  annotations:
-    "helm.sh/hook": pre-install, post-delete
-data:
-  tls.crt: |
-    Certificate
-  tls.key: |
-    Certificate Key
+    [tls]
+    {{ if .Values.tls.enable }}
+    enable = true
+    {{ else }}
+    enable = false
+    {{ end }}
+
+    [auth]
+    enable = true
+
+    [prometheus]
+    enable = true
+    port = 8282
+
+    [rate]
+    enable = true
+    limit = 10
+    type = "local"
