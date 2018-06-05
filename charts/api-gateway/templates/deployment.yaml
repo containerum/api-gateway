@@ -69,4 +69,4 @@ spec:
           name: {{ template "fullname" . }}-config
       - name: cert
         secret:
-          name: {{ template "fullname" . }}
+          secretName: {{ template "fullname" . }}
