@@ -40,7 +40,7 @@ env:
   global:
     GATEWAY_DEBUG: true
     ROUTES_FILE: /routes/routes.toml
-    CONFIG_FILE: config.toml
+    CONFIG_FILE: /config.toml
     TLS_CERT: /cert/tls.crt
     TLS_KEY: /cert/tls.key
   local:
