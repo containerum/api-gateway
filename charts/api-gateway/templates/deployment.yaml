@@ -34,7 +34,7 @@ spec:
               value: "{{ .Values.env.local.GRPC_AUTH_ADDRESS }}"
             {{- else }}
             - name: GRPC_AUTH_ADDRESS
-              value: "{{ .Release.Name }}-auth:1111"
+              value: "{{ .Release.Name }}-auth"
             {{- end }}
             {{ if .Values.env.local.SERVICE_HOST_PREFIX }}
               {{- if eq .Values.env.local.SERVICE_HOST_PREFIX "release-name" }}
@@ -67,6 +67,8 @@ spec:
       - name: config
         configMap:
           name: {{ template "fullname" . }}-config
+      {{ if .Values.tls.enable }}
       - name: cert
         secret:
           secretName: {{ template "fullname" . }}
+      {{ end }}
