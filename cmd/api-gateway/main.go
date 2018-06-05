@@ -23,7 +23,7 @@ func main() {
 			}
 			return Version
 		}(),
-		Usage: usageText,
+		Usage: "Awesome Golang API Gateway.",
 		Flags: []cli.Flag{
 			&DebugFlag,
 			&AuthAddrFlag,

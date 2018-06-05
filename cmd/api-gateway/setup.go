@@ -60,7 +60,7 @@ func setupLogs(c *cli.Context) (err error) {
 
 func setupConfig(c *cli.Context) (err error) {
 	cfg := &model.Config{}
-	if err := toml.ReadToml(c.String(configPath), cfg); err != nil {
+	if err := toml.ReadToml(c.String(ConfigPathFlag.Name), cfg); err != nil {
 		return fmt.Errorf("%v. %v", errUnableReadConfig, err)
 	}
 	log.Infof("Config setup:\n%v", cfg)
@@ -70,7 +70,7 @@ func setupConfig(c *cli.Context) (err error) {
 
 func setupRoutes(c *cli.Context) (err error) {
 	routes := &model.Routes{}
-	if err = toml.ReadToml(c.String(routesPath), routes); err != nil {
+	if err = toml.ReadToml(c.String(RoutesPathFlag.Name), routes); err != nil {
 		return fmt.Errorf("%v. %v", errUnableReadRoutes, err)
 	}
 	for key := range routes.Routes {
@@ -88,15 +88,15 @@ func setupTLS(c *cli.Context) (err error) {
 	if !config.TLS.Enable {
 		return
 	}
-	if _, e := os.Stat(c.String(tlsCertPath)); os.IsNotExist(e) {
+	cert, key := c.String(TLSCertPathFlag.Name), c.String(TLSKeyPathFlag.Name)
+	if _, e := os.Stat(cert); os.IsNotExist(e) {
 		log.WithError(e).Error(errUnableOpenCertFile)
 		return errUnableOpenCertFile
 	}
-	if _, e := os.Stat(c.String(tlsKeyPath)); os.IsNotExist(e) {
+	if _, e := os.Stat(key); os.IsNotExist(e) {
 		log.WithError(e).Error(errUnableOpenKeyFile)
 		return errUnableOpenKeyFile
 	}
-	cert, key := c.String(tlsCertPath), c.String(tlsKeyPath)
 	config.TLS.Cert, config.TLS.Key = cert, key
 	log.WithField("Key", key).WithField("Cert", cert).Debug("TLS")
 	return
@@ -114,7 +114,7 @@ func setupAuth(c *cli.Context) (err error) {
 		cherrygrpc.UnaryClientInterceptor(gatewayErrors.ErrInternal),
 	)))
 	var con *grpc.ClientConn
-	if con, err = grpc.Dial(c.String(authAddr), opts...); err != nil {
+	if con, err = grpc.Dial(c.String(AuthAddrFlag.Name), opts...); err != nil {
 		log.WithError(err).Error(errGrpcDialFailed)
 		return errGrpcDialFailed
 	}
@@ -129,7 +129,7 @@ func setupServer(c *cli.Context) (*server.Server, error) {
 		Auth:    c.App.Metadata[authClientKey].(authProto.AuthClient),
 		Metrics: c.App.Metadata[metricsKey].(*model.Metrics),
 
-		ServiceHostPrefix: c.String(serviceHostPrefix),
+		ServiceHostPrefix: c.String(ServiceHostPrefixFlag.Name),
 	}
 	return server.New(opt)
 }

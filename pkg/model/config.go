@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	valid "github.com/asaskevich/govalidator"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -51,6 +52,12 @@ func (c *Config) Validate() []error {
 }
 
 func (c *Config) String() string {
-	str, _ := json.MarshalIndent(c, "", "  ")
+	var str []byte
+	switch logrus.StandardLogger().Formatter.(type) {
+	case *logrus.TextFormatter:
+		str, _ = json.MarshalIndent(c, "", "  ")
+	default:
+		str, _ = json.Marshal(c)
+	}
 	return string(str)
 }
