@@ -44,5 +44,6 @@ env:
     TLS_CERT: /cert/tls.crt
     TLS_KEY: /cert/tls.key
   local:
-    GRPC_AUTH_ADDRESS: "ch-auth:1112"
+    GRPC_AUTH_ADDRESS: "auth:1112"
+    ## For helm use SERVICE_HOST_PREFIX: release-name
     SERVICE_HOST_PREFIX:
