@@ -67,8 +67,6 @@ spec:
       - name: config
         configMap:
           name: {{ template "fullname" . }}-config
-      {{ if .Values.tls.enable }}
       - name: cert
         secret:
           name: {{ template "fullname" . }}
-      {{ end }}
