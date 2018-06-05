@@ -36,7 +36,6 @@ spec:
             - name: GRPC_AUTH_ADDRESS
               value: "{{ .Release.Name }}-auth:1111"
             {{- end }}
-
             {{ if .Values.env.local.SERVICE_HOST_PREFIX }}
               {{- if eq .Values.env.local.SERVICE_HOST_PREFIX "release-name" }}
             - name: SERVICE_HOST_PREFIX
@@ -46,7 +45,6 @@ spec:
               value: "{{ .Values.env.local.SERVICE_HOST_PREFIX }}"
               {{- end }}
             {{ end }}
-            
           volumeMounts:
           - mountPath: /routes/
             name: routes
