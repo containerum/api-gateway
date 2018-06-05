@@ -31,11 +31,8 @@ data:
     port = 8082
 
     [tls]
-    {{ if .Values.tls.enable }}
-    enable = true
-    {{ else }}
-    enable = false
-    {{ end }}
+    {{ if .Values.tls.enable }}enable = true
+    {{ else }}enable = false{{ end }}
 
     [auth]
     enable = true
