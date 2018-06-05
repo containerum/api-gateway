@@ -30,7 +30,7 @@ type Server struct {
 type Options struct {
 	Routes  *model.Routes
 	Config  *model.Config
-	Auth    *authProto.AuthClient
+	Auth    authProto.AuthClient
 	Metrics *model.Metrics
 
 	ServiceHostPrefix string
@@ -73,11 +73,17 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) registerMiddlewares(router *gin.Engine) {
-	router.Use(gonic.Recovery(gatewayErrors.ErrInternal, cherrylog.NewLogrusAdapter(log.WithField("component", "gin_recovery"))))
-	router.Use(middle.Logger(s.options.Metrics), middle.Cors())
-	router.Use(middle.CreateLimiter(s.options.Config.Rate.Limit).Limit())
-	router.Use(middle.SetHeaderFromQuery(), middle.ClearXHeaders(), middle.SetRequestID())
-	router.Use(middle.CheckUserClientHeader(), middle.SetMainUserXHeaders())
+	router.Use(
+		gonic.Recovery(gatewayErrors.ErrInternal, cherrylog.NewLogrusAdapter(log.WithField("component", "gin_recovery"))),
+		middle.Logger(s.options.Metrics),
+		middle.Cors(),
+		middle.CreateLimiter(s.options.Config.Rate.Limit).Limit(),
+		middle.SetHeaderFromQuery(),
+		middle.ClearXHeaders(),
+		middle.SetRequestID(),
+		middle.CheckUserClientHeader(),
+		middle.SetMainUserXHeaders(),
+	)
 }
 
 func (s *Server) createHandler() (http.Handler, error) {

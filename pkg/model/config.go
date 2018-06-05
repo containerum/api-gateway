@@ -1,6 +1,7 @@
 package model
 
 import (
+	"encoding/json"
 	"fmt"
 
 	valid "github.com/asaskevich/govalidator"
@@ -47,4 +48,9 @@ func (c *Config) Validate() []error {
 		errs = append(errs, ErrInvalidRateType)
 	}
 	return errs
+}
+
+func (c *Config) String() string {
+	str, _ := json.MarshalIndent(c, "", "  ")
+	return string(str)
 }

@@ -11,7 +11,6 @@ func SetRequestID() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		id := uuid.NewV4()
 		setHeader(&c.Request.Header, h.RequestIDXHeader, id.String())
-		c.Next()
 	}
 }
 
@@ -19,6 +18,5 @@ func SetRequestID() gin.HandlerFunc {
 func SetRequestName(name string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		setHeader(&c.Request.Header, h.RequestNameXHeader, name)
-		c.Next()
 	}
 }

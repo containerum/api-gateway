@@ -4,21 +4,38 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"text/tabwriter"
 
+	"git.containerum.net/ch/api-gateway/pkg/model"
 	"git.containerum.net/ch/api-gateway/pkg/server"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/urfave/cli"
+	"gopkg.in/urfave/cli.v2"
 )
 
 var Version string
 
 func main() {
-	app := cli.NewApp()
-	app.Name = "ch-gateway"
-	app.Version = getVersion()
-	app.Flags = flags
-	app.Usage = usageText
-	app.Action = runServer
+	app := cli.App{
+		Name: "api-gateway",
+		Version: func() string {
+			if Version == "" {
+				return "1.0.0-dev"
+			}
+			return Version
+		}(),
+		Usage: usageText,
+		Flags: []cli.Flag{
+			&DebugFlag,
+			&AuthAddrFlag,
+			&ConfigPathFlag,
+			&RoutesPathFlag,
+			&TLSCertPathFlag,
+			&TLSKeyPathFlag,
+			&ServiceHostPrefixFlag,
+		},
+		Before: prettyPrintFlags,
+		Action: runServer,
+	}
 
 	if err := app.Run(os.Args); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -35,20 +52,24 @@ func runServer(c *cli.Context) error {
 	if serv, err = setupServer(c); err != nil {
 		return err
 	}
-	go startMetrics()
+	go startMetrics(c)
 	return serv.Start()
 }
 
-func getVersion() string {
-	if Version == "" {
-		return "1.0.0-dev"
-	}
-	return Version
-}
-
-func startMetrics() error {
+func startMetrics(c *cli.Context) error {
+	config := c.App.Metadata[configKey].(*model.Config)
 	if config.Prometheus.Enable {
 		return http.ListenAndServe(fmt.Sprintf(":%d", config.Prometheus.Port), promhttp.Handler())
 	}
 	return nil
+}
+
+func prettyPrintFlags(ctx *cli.Context) error {
+	fmt.Printf("Starting %v %v\n", ctx.App.Name, ctx.App.Version)
+
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', tabwriter.TabIndent|tabwriter.Debug)
+	for _, f := range ctx.App.VisibleFlags() {
+		fmt.Fprintf(w, "Flag: %s\t Value: %v\n", f.Names()[0], ctx.Generic(f.Names()[0]))
+	}
+	return w.Flush()
 }

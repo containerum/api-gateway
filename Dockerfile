@@ -30,8 +30,7 @@ COPY --from=generator /cert /cert
 
 # Set envs
 ENV GATEWAY_DEBUG=false \
-    GRPC_AUTH_ADDRESS="127.0.0.1" \
-    GRPC_AUTH_PORT="1112" \
+    GRPC_AUTH_ADDRESS="127.0.0.1:1112" \
     CONFIG_FILE="config.toml" \
     ROUTES_FILE="/routes/routes.toml" \
     TLS_CERT="/cert/cert.pem" \

@@ -30,8 +30,6 @@ func (l *Limiter) Limit() gin.HandlerFunc {
 		httpError := tollbooth.LimitByKeys(l.Limiter, []string{c.ClientIP()})
 		if httpError != nil {
 			gonic.Gonic(gatewayErrors.ErrTooManyRequests().AddDetailF("Max request count: %v", l.rate), c)
-		} else {
-			c.Next()
 		}
 	}
 }
