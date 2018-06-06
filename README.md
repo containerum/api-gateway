@@ -1,5 +1,5 @@
 # Gateway 
-Gatewai is an API service that provides routing for [Containerum](https://github.com/containerum/containerum) components.
+Gateway is an API service that provides routing for [Containerum](https://github.com/containerum/containerum) components.
 
 ## Prerequisites
 * Kubernetes
