@@ -48,6 +48,16 @@ listen = "/tariffs/namespace"
 strip = false
 group = "billing-manager"
 
+[routes.volume_tariffs_get]
+active = true
+name = "Get Volume Tariffs"
+method = "GET"
+roles = ["*"]
+upstream = "http://billing-manager.web.svc:5005"
+listen = "/tariffs/volume"
+strip = false
+group = "billing-manager"
+
 [routes.balance_get]
 active = true
 name = "Get Balance"
