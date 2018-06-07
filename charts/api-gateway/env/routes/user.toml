@@ -47,6 +47,7 @@ group = "user"
 active = true
 name = "Admin User Deactivation"
 method = "POST"
+roles = ["admin"]
 upstream = "http://user-manager:8111"
 listen = "/admin/user/deactivation"
 strip = false
