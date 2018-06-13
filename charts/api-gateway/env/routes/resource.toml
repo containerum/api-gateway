@@ -88,6 +88,76 @@ listen = "/namespaces/:namespace/deployments/:deployment"
 strip = false
 group = "resource-service"
 
+[routes.deployment_specific_version_get]
+active = true
+name = "Get Specific Deployment Version"
+method = "GET"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespaces/:namespace/deployments/:deployment/versions/:version"
+strip = false
+group = "resource-service"
+
+[routes.deployment_versions_get]
+active = true
+name = "Get Deployment Versions"
+method = "GET"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespaces/:namespace/deployments/:deployment/versions"
+strip = false
+group = "resource-service"
+
+[routes.deployment_prev_version_diff_get]
+active = true
+name = "Get Diff With Prev Deployment Version"
+method = "GET"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespaces/:namespace/deployments/:deployment/versions/:version/diff"
+strip = false
+group = "resource-service"
+
+[routes.deployment_rand_version_diff_get]
+active = true
+name = "Get Diff With Rand Deployment Version"
+method = "GET"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespaces/:namespace/deployments/:deployment/versions/:version/diff/:version2"
+strip = false
+group = "resource-service"
+
+[routes.deployment_specific_version_run]
+active = true
+name = "Run Specific Deployment Version"
+method = "POST"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespaces/:namespace/deployments/:deployment/versions/:version"
+strip = false
+group = "resource-service"
+
+[routes.deployment_version_rename]
+active = true
+name = "Rename Deployment Version"
+method = "PUT"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespaces/:namespace/deployments/:deployment/versions/:version"
+strip = false
+group = "resource-service"
+
+[routes.deployment_version_delete]
+active = true
+name = "Delete Deployment Version"
+method = "DELETE"
+roles = ["*"]
+upstream = "http://resource-service:1213"
+listen = "/namespaces/:namespace/deployments/:deployment/versions/:version"
+strip = false
+group = "resource-service"
+
 [routes.service_create]
 active = true
 name = "Create Service"
