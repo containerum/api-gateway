@@ -28,6 +28,8 @@ routes:
   path: env/routes/permissions.toml
 - name: volume.toml
   path: env/routes/volume.toml
+- name: solutions.toml
+  path: env/routes/solutions.toml
 
 config: env/config.toml
 
