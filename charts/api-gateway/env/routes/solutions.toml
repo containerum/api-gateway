@@ -28,6 +28,16 @@ listen = "/solutions"
 strip = false
 group = "solutions"
 
+[routes.solution_get]
+active = true
+name = "Get Solution"
+method = "GET"
+roles = ["*"]
+upstream = "http://solutions:6767"
+listen = "/solutions/:solution"
+strip = false
+group = "solutions"
+
 [routes.solutions_run]
 active = true
 name = "Run Solutions"
