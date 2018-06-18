@@ -24,6 +24,16 @@ name = "Get Solutions"
 method = "GET"
 roles = ["*"]
 upstream = "http://solutions:6767"
+listen = "/namespaces/:namespace/solutions"
+strip = false
+group = "solutions"
+
+[routes.solutions_user_delete]
+active = true
+name = "Delete All User Solutions"
+method = "DELETE"
+roles = ["*"]
+upstream = "http://solutions:6767"
 listen = "/solutions"
 strip = false
 group = "solutions"
@@ -34,7 +44,7 @@ name = "Get Solution"
 method = "GET"
 roles = ["*"]
 upstream = "http://solutions:6767"
-listen = "/solutions/:solution"
+listen = "/namespaces/:namespace/solutions/:solution"
 strip = false
 group = "solutions"
 
@@ -44,7 +54,7 @@ name = "Run Solutions"
 method = "POST"
 roles = ["*"]
 upstream = "http://solutions:6767"
-listen = "/solutions"
+listen = "/namespaces/:namespace/solutions"
 strip = false
 group = "solutions"
 
@@ -54,7 +64,7 @@ name = "Get Solution Deployments"
 method = "GET"
 roles = ["*"]
 upstream = "http://solutions:6767"
-listen = "/solutions/:solution/deployments"
+listen = "/namespaces/:namespace/solutions/:solution/deployments"
 strip = false
 group = "solutions"
 
@@ -64,7 +74,7 @@ name = "Get Solution Services"
 method = "GET"
 roles = ["*"]
 upstream = "http://solutions:6767"
-listen = "/solutions/:solution/services"
+listen = "/namespaces/:namespace/solutions/:solution/services"
 strip = false
 group = "solutions"
 
@@ -74,6 +84,16 @@ name = "Delete Solution"
 method = "DELETE"
 roles = ["*"]
 upstream = "http://solutions:6767"
-listen = "/solutions/:solution"
+listen = "/namespaces/:namespace/solutions/:solution"
+strip = false
+group = "solutions"
+
+[routes.solution_namespace_delete]
+active = true
+name = "Delete All Namespace Solutions"
+method = "DELETE"
+roles = ["*"]
+upstream = "http://solutions:6767"
+listen = "/namespaces/:namespace/solutions"
 strip = false
 group = "solutions"
