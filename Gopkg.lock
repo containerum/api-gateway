@@ -5,7 +5,7 @@
   branch = "develop"
   name = "git.containerum.net/ch/auth"
   packages = ["proto"]
-  revision = "ebda5563c0496e82523f17755cda8b73c33104da"
+  revision = "fedb35e2736478939249210ce458bf136fd1bdf5"
 
 [[projects]]
   name = "github.com/BurntSushi/toml"
@@ -26,6 +26,12 @@
   revision = "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9"
 
 [[projects]]
+  name = "github.com/blang/semver"
+  packages = ["."]
+  revision = "2ee87856327ba09384cabd113bc6b5d174e9ec0f"
+  version = "v3.5.1"
+
+[[projects]]
   name = "github.com/containerum/cherry"
   packages = [
     ".",
@@ -37,10 +43,16 @@
   version = "v1.0.1"
 
 [[projects]]
+  name = "github.com/containerum/kube-client"
+  packages = ["pkg/model"]
+  revision = "f2a038b8d89980f642671645b07eda421bd03e12"
+  version = "v0.25.0"
+
+[[projects]]
   name = "github.com/containerum/utils"
   packages = ["httputil"]
-  revision = "5e922affb542eaeb55ab395ff3c7161179df54b3"
-  version = "v1.0.0"
+  revision = "bb180470c4fcf71ec9060c90d2033852cafea3f8"
+  version = "v1.0.4"
 
 [[projects]]
   name = "github.com/didip/tollbooth"
@@ -52,6 +64,15 @@
   ]
   revision = "c95eaa3ddc98f635a91e218b48727fb2e06613ea"
   version = "v4.0.0"
+
+[[projects]]
+  name = "github.com/docker/distribution"
+  packages = [
+    "digest",
+    "reference"
+  ]
+  revision = "48294d928ced5dd9b378f7fd7c6f5da3ff3f2c89"
+  version = "v2.6.2"
 
 [[projects]]
   name = "github.com/gin-contrib/cors"
