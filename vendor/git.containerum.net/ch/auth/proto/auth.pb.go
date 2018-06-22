@@ -15,15 +15,13 @@ It has these top-level messages:
 	CheckTokenResponse
 	ExtendTokenRequest
 	ExtendTokenResponse
-	UpdateAccessRequestElement
-	UpdateAccessRequest
 	GetUserTokensRequest
 	GetUserTokensResponse
 	DeleteTokenRequest
 	DeleteUserTokensRequest
+	AccessTokenByIDRequest
+	AccessTokenByIDResponse
 	StoredToken
-	AccessObject
-	ResourcesAccess
 	StoredTokenForUser
 */
 package authProto
@@ -49,18 +47,16 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
+// swagger:ignore
 type CreateTokenRequest struct {
 	UserAgent   string `protobuf:"bytes,1,opt,name=user_agent,json=userAgent" json:"user_agent,omitempty"`
 	Fingerprint string `protobuf:"bytes,2,opt,name=fingerprint" json:"fingerprint,omitempty"`
 	// @inject_tag: binding:"uuid"
 	UserId string `protobuf:"bytes,3,opt,name=user_id,json=userId" json:"user_id,omitempty" binding:"uuid"`
 	// @inject_tag: binding:"ip"
-	UserIp   string           `protobuf:"bytes,4,opt,name=user_ip,json=userIp" json:"user_ip,omitempty" binding:"ip"`
-	UserRole string           `protobuf:"bytes,5,opt,name=user_role,json=userRole" json:"user_role,omitempty"`
-	RwAccess bool             `protobuf:"varint,6,opt,name=rw_access,json=rwAccess" json:"rw_access,omitempty"`
-	Access   *ResourcesAccess `protobuf:"bytes,7,opt,name=access" json:"access,omitempty"`
-	// @inject_tag: binding:"uuid"
-	PartTokenId string `protobuf:"bytes,8,opt,name=part_token_id,json=partTokenId" json:"part_token_id,omitempty" binding:"uuid"`
+	UserIp   string `protobuf:"bytes,4,opt,name=user_ip,json=userIp" json:"user_ip,omitempty" binding:"ip"`
+	UserRole string `protobuf:"bytes,5,opt,name=user_role,json=userRole" json:"user_role,omitempty"`
+	RwAccess bool   `protobuf:"varint,6,opt,name=rw_access,json=rwAccess" json:"rw_access,omitempty"`
 }
 
 func (m *CreateTokenRequest) Reset()                    { *m = CreateTokenRequest{} }
@@ -110,20 +106,9 @@ func (m *CreateTokenRequest) GetRwAccess() bool {
 	return false
 }
 
-func (m *CreateTokenRequest) GetAccess() *ResourcesAccess {
-	if m != nil {
-		return m.Access
-	}
-	return nil
-}
-
-func (m *CreateTokenRequest) GetPartTokenId() string {
-	if m != nil {
-		return m.PartTokenId
-	}
-	return ""
-}
-
+// CreateTokenResponse contains access and refresh token.
+//
+// swagger:model
 type CreateTokenResponse struct {
 	AccessToken  string `protobuf:"bytes,1,opt,name=access_token,json=accessToken" json:"access_token,omitempty"`
 	RefreshToken string `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken" json:"refresh_token,omitempty"`
@@ -148,6 +133,7 @@ func (m *CreateTokenResponse) GetRefreshToken() string {
 	return ""
 }
 
+// swagger:ignore
 type CheckTokenRequest struct {
 	AccessToken string `protobuf:"bytes,1,opt,name=access_token,json=accessToken" json:"access_token,omitempty"`
 	UserAgent   string `protobuf:"bytes,2,opt,name=user_agent,json=userAgent" json:"user_agent,omitempty"`
@@ -189,28 +175,22 @@ func (m *CheckTokenRequest) GetUserIp() string {
 	return ""
 }
 
+// swagger:ignore
 type CheckTokenResponse struct {
-	Access *ResourcesAccess `protobuf:"bytes,1,opt,name=access" json:"access,omitempty"`
+	// ResourcesAccess access = 1;
 	// @inject_tag: binding:"uuid"
 	UserId   string `protobuf:"bytes,2,opt,name=user_id,json=userId" json:"user_id,omitempty" binding:"uuid"`
 	UserRole string `protobuf:"bytes,3,opt,name=user_role,json=userRole" json:"user_role,omitempty"`
 	// @inject_tag: binding:"uuid"
 	TokenId string `protobuf:"bytes,4,opt,name=token_id,json=tokenId" json:"token_id,omitempty" binding:"uuid"`
-	// @inject_tag: binding:"uuid"
-	PartTokenId string `protobuf:"bytes,5,opt,name=part_token_id,json=partTokenId" json:"part_token_id,omitempty" binding:"uuid"`
+	// @inject_tag: binding:"omitempty,uuid"
+	PartTokenId string `protobuf:"bytes,5,opt,name=part_token_id,json=partTokenId" json:"part_token_id,omitempty" binding:"omitempty,uuid"`
 }
 
 func (m *CheckTokenResponse) Reset()                    { *m = CheckTokenResponse{} }
 func (m *CheckTokenResponse) String() string            { return proto.CompactTextString(m) }
 func (*CheckTokenResponse) ProtoMessage()               {}
 func (*CheckTokenResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{3} }
-
-func (m *CheckTokenResponse) GetAccess() *ResourcesAccess {
-	if m != nil {
-		return m.Access
-	}
-	return nil
-}
 
 func (m *CheckTokenResponse) GetUserId() string {
 	if m != nil {
@@ -240,6 +220,7 @@ func (m *CheckTokenResponse) GetPartTokenId() string {
 	return ""
 }
 
+// swagger:ignore
 type ExtendTokenRequest struct {
 	RefreshToken string `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken" json:"refresh_token,omitempty"`
 	Fingerprint  string `protobuf:"bytes,2,opt,name=fingerprint" json:"fingerprint,omitempty"`
@@ -264,6 +245,9 @@ func (m *ExtendTokenRequest) GetFingerprint() string {
 	return ""
 }
 
+// ExtendTokenResponse contains new access and refresh tokens
+//
+// swagger:model
 type ExtendTokenResponse struct {
 	AccessToken  string `protobuf:"bytes,1,opt,name=access_token,json=accessToken" json:"access_token,omitempty"`
 	RefreshToken string `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken" json:"refresh_token,omitempty"`
@@ -288,47 +272,7 @@ func (m *ExtendTokenResponse) GetRefreshToken() string {
 	return ""
 }
 
-type UpdateAccessRequestElement struct {
-	// @inject_tag: binding:"uuid"
-	UserId string           `protobuf:"bytes,1,opt,name=user_id,json=userId" json:"user_id,omitempty" binding:"uuid"`
-	Access *ResourcesAccess `protobuf:"bytes,2,opt,name=access" json:"access,omitempty"`
-}
-
-func (m *UpdateAccessRequestElement) Reset()                    { *m = UpdateAccessRequestElement{} }
-func (m *UpdateAccessRequestElement) String() string            { return proto.CompactTextString(m) }
-func (*UpdateAccessRequestElement) ProtoMessage()               {}
-func (*UpdateAccessRequestElement) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
-
-func (m *UpdateAccessRequestElement) GetUserId() string {
-	if m != nil {
-		return m.UserId
-	}
-	return ""
-}
-
-func (m *UpdateAccessRequestElement) GetAccess() *ResourcesAccess {
-	if m != nil {
-		return m.Access
-	}
-	return nil
-}
-
-type UpdateAccessRequest struct {
-	Users []*UpdateAccessRequestElement `protobuf:"bytes,1,rep,name=users" json:"users,omitempty"`
-}
-
-func (m *UpdateAccessRequest) Reset()                    { *m = UpdateAccessRequest{} }
-func (m *UpdateAccessRequest) String() string            { return proto.CompactTextString(m) }
-func (*UpdateAccessRequest) ProtoMessage()               {}
-func (*UpdateAccessRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
-
-func (m *UpdateAccessRequest) GetUsers() []*UpdateAccessRequestElement {
-	if m != nil {
-		return m.Users
-	}
-	return nil
-}
-
+// swagger:ignore
 type GetUserTokensRequest struct {
 	// @inject_tag: binding:"uuid"
 	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId" json:"user_id,omitempty" binding:"uuid"`
@@ -337,7 +281,7 @@ type GetUserTokensRequest struct {
 func (m *GetUserTokensRequest) Reset()                    { *m = GetUserTokensRequest{} }
 func (m *GetUserTokensRequest) String() string            { return proto.CompactTextString(m) }
 func (*GetUserTokensRequest) ProtoMessage()               {}
-func (*GetUserTokensRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
+func (*GetUserTokensRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{6} }
 
 func (m *GetUserTokensRequest) GetUserId() string {
 	if m != nil {
@@ -346,6 +290,9 @@ func (m *GetUserTokensRequest) GetUserId() string {
 	return ""
 }
 
+// GetUserTokensResponse contains user tokens
+//
+// swagger:model
 type GetUserTokensResponse struct {
 	Tokens []*StoredTokenForUser `protobuf:"bytes,1,rep,name=tokens" json:"tokens,omitempty"`
 }
@@ -353,7 +300,7 @@ type GetUserTokensResponse struct {
 func (m *GetUserTokensResponse) Reset()                    { *m = GetUserTokensResponse{} }
 func (m *GetUserTokensResponse) String() string            { return proto.CompactTextString(m) }
 func (*GetUserTokensResponse) ProtoMessage()               {}
-func (*GetUserTokensResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
+func (*GetUserTokensResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{7} }
 
 func (m *GetUserTokensResponse) GetTokens() []*StoredTokenForUser {
 	if m != nil {
@@ -362,6 +309,7 @@ func (m *GetUserTokensResponse) GetTokens() []*StoredTokenForUser {
 	return nil
 }
 
+// swagger:ignore
 type DeleteTokenRequest struct {
 	// @inject_tag: binding:"uuid"
 	TokenId string `protobuf:"bytes,1,opt,name=token_id,json=tokenId" json:"token_id,omitempty" binding:"uuid"`
@@ -372,7 +320,7 @@ type DeleteTokenRequest struct {
 func (m *DeleteTokenRequest) Reset()                    { *m = DeleteTokenRequest{} }
 func (m *DeleteTokenRequest) String() string            { return proto.CompactTextString(m) }
 func (*DeleteTokenRequest) ProtoMessage()               {}
-func (*DeleteTokenRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
+func (*DeleteTokenRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{8} }
 
 func (m *DeleteTokenRequest) GetTokenId() string {
 	if m != nil {
@@ -388,6 +336,7 @@ func (m *DeleteTokenRequest) GetUserId() string {
 	return ""
 }
 
+// swagger:ignore
 type DeleteUserTokensRequest struct {
 	// @inject_tag: binding:"uuid"
 	UserId string `protobuf:"bytes,1,opt,name=user_id,json=userId" json:"user_id,omitempty" binding:"uuid"`
@@ -396,11 +345,56 @@ type DeleteUserTokensRequest struct {
 func (m *DeleteUserTokensRequest) Reset()                    { *m = DeleteUserTokensRequest{} }
 func (m *DeleteUserTokensRequest) String() string            { return proto.CompactTextString(m) }
 func (*DeleteUserTokensRequest) ProtoMessage()               {}
-func (*DeleteUserTokensRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
+func (*DeleteUserTokensRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{9} }
 
 func (m *DeleteUserTokensRequest) GetUserId() string {
 	if m != nil {
 		return m.UserId
+	}
+	return ""
+}
+
+// swagger:ignore
+type AccessTokenByIDRequest struct {
+	// @inject_tag: binding:"uuid"
+	TokenId  string `protobuf:"bytes,1,opt,name=token_id,json=tokenId" json:"token_id,omitempty" binding:"uuid"`
+	UserRole string `protobuf:"bytes,2,opt,name=user_role,json=userRole" json:"user_role,omitempty"`
+}
+
+func (m *AccessTokenByIDRequest) Reset()                    { *m = AccessTokenByIDRequest{} }
+func (m *AccessTokenByIDRequest) String() string            { return proto.CompactTextString(m) }
+func (*AccessTokenByIDRequest) ProtoMessage()               {}
+func (*AccessTokenByIDRequest) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{10} }
+
+func (m *AccessTokenByIDRequest) GetTokenId() string {
+	if m != nil {
+		return m.TokenId
+	}
+	return ""
+}
+
+func (m *AccessTokenByIDRequest) GetUserRole() string {
+	if m != nil {
+		return m.UserRole
+	}
+	return ""
+}
+
+// AccessTokenByIDResponse contains access token get by ID.
+//
+// swagger:model
+type AccessTokenByIDResponse struct {
+	AccessToken string `protobuf:"bytes,1,opt,name=access_token,json=accessToken" json:"access_token,omitempty"`
+}
+
+func (m *AccessTokenByIDResponse) Reset()                    { *m = AccessTokenByIDResponse{} }
+func (m *AccessTokenByIDResponse) String() string            { return proto.CompactTextString(m) }
+func (*AccessTokenByIDResponse) ProtoMessage()               {}
+func (*AccessTokenByIDResponse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{11} }
+
+func (m *AccessTokenByIDResponse) GetAccessToken() string {
+	if m != nil {
+		return m.AccessToken
 	}
 	return ""
 }
@@ -412,12 +406,12 @@ func init() {
 	proto.RegisterType((*CheckTokenResponse)(nil), "CheckTokenResponse")
 	proto.RegisterType((*ExtendTokenRequest)(nil), "ExtendTokenRequest")
 	proto.RegisterType((*ExtendTokenResponse)(nil), "ExtendTokenResponse")
-	proto.RegisterType((*UpdateAccessRequestElement)(nil), "UpdateAccessRequestElement")
-	proto.RegisterType((*UpdateAccessRequest)(nil), "UpdateAccessRequest")
 	proto.RegisterType((*GetUserTokensRequest)(nil), "GetUserTokensRequest")
 	proto.RegisterType((*GetUserTokensResponse)(nil), "GetUserTokensResponse")
 	proto.RegisterType((*DeleteTokenRequest)(nil), "DeleteTokenRequest")
 	proto.RegisterType((*DeleteUserTokensRequest)(nil), "DeleteUserTokensRequest")
+	proto.RegisterType((*AccessTokenByIDRequest)(nil), "AccessTokenByIDRequest")
+	proto.RegisterType((*AccessTokenByIDResponse)(nil), "AccessTokenByIDResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -434,10 +428,10 @@ type AuthClient interface {
 	CreateToken(ctx context.Context, in *CreateTokenRequest, opts ...grpc.CallOption) (*CreateTokenResponse, error)
 	CheckToken(ctx context.Context, in *CheckTokenRequest, opts ...grpc.CallOption) (*CheckTokenResponse, error)
 	ExtendToken(ctx context.Context, in *ExtendTokenRequest, opts ...grpc.CallOption) (*ExtendTokenResponse, error)
-	UpdateAccess(ctx context.Context, in *UpdateAccessRequest, opts ...grpc.CallOption) (*google_protobuf2.Empty, error)
 	GetUserTokens(ctx context.Context, in *GetUserTokensRequest, opts ...grpc.CallOption) (*GetUserTokensResponse, error)
 	DeleteToken(ctx context.Context, in *DeleteTokenRequest, opts ...grpc.CallOption) (*google_protobuf2.Empty, error)
 	DeleteUserTokens(ctx context.Context, in *DeleteUserTokensRequest, opts ...grpc.CallOption) (*google_protobuf2.Empty, error)
+	AccessTokenByID(ctx context.Context, in *AccessTokenByIDRequest, opts ...grpc.CallOption) (*AccessTokenByIDResponse, error)
 }
 
 type authClient struct {
@@ -475,15 +469,6 @@ func (c *authClient) ExtendToken(ctx context.Context, in *ExtendTokenRequest, op
 	return out, nil
 }
 
-func (c *authClient) UpdateAccess(ctx context.Context, in *UpdateAccessRequest, opts ...grpc.CallOption) (*google_protobuf2.Empty, error) {
-	out := new(google_protobuf2.Empty)
-	err := grpc.Invoke(ctx, "/Auth/UpdateAccess", in, out, c.cc, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *authClient) GetUserTokens(ctx context.Context, in *GetUserTokensRequest, opts ...grpc.CallOption) (*GetUserTokensResponse, error) {
 	out := new(GetUserTokensResponse)
 	err := grpc.Invoke(ctx, "/Auth/GetUserTokens", in, out, c.cc, opts...)
@@ -511,16 +496,25 @@ func (c *authClient) DeleteUserTokens(ctx context.Context, in *DeleteUserTokensR
 	return out, nil
 }
 
+func (c *authClient) AccessTokenByID(ctx context.Context, in *AccessTokenByIDRequest, opts ...grpc.CallOption) (*AccessTokenByIDResponse, error) {
+	out := new(AccessTokenByIDResponse)
+	err := grpc.Invoke(ctx, "/Auth/AccessTokenByID", in, out, c.cc, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for Auth service
 
 type AuthServer interface {
 	CreateToken(context.Context, *CreateTokenRequest) (*CreateTokenResponse, error)
 	CheckToken(context.Context, *CheckTokenRequest) (*CheckTokenResponse, error)
 	ExtendToken(context.Context, *ExtendTokenRequest) (*ExtendTokenResponse, error)
-	UpdateAccess(context.Context, *UpdateAccessRequest) (*google_protobuf2.Empty, error)
 	GetUserTokens(context.Context, *GetUserTokensRequest) (*GetUserTokensResponse, error)
 	DeleteToken(context.Context, *DeleteTokenRequest) (*google_protobuf2.Empty, error)
 	DeleteUserTokens(context.Context, *DeleteUserTokensRequest) (*google_protobuf2.Empty, error)
+	AccessTokenByID(context.Context, *AccessTokenByIDRequest) (*AccessTokenByIDResponse, error)
 }
 
 func RegisterAuthServer(s *grpc.Server, srv AuthServer) {
@@ -581,24 +575,6 @@ func _Auth_ExtendToken_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Auth_UpdateAccess_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateAccessRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AuthServer).UpdateAccess(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/Auth/UpdateAccess",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServer).UpdateAccess(ctx, req.(*UpdateAccessRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Auth_GetUserTokens_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetUserTokensRequest)
 	if err := dec(in); err != nil {
@@ -653,6 +629,24 @@ func _Auth_DeleteUserTokens_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Auth_AccessTokenByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(AccessTokenByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServer).AccessTokenByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Auth/AccessTokenByID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServer).AccessTokenByID(ctx, req.(*AccessTokenByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Auth_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "Auth",
 	HandlerType: (*AuthServer)(nil),
@@ -670,10 +664,6 @@ var _Auth_serviceDesc = grpc.ServiceDesc{
 			Handler:    _Auth_ExtendToken_Handler,
 		},
 		{
-			MethodName: "UpdateAccess",
-			Handler:    _Auth_UpdateAccess_Handler,
-		},
-		{
 			MethodName: "GetUserTokens",
 			Handler:    _Auth_GetUserTokens_Handler,
 		},
@@ -685,6 +675,10 @@ var _Auth_serviceDesc = grpc.ServiceDesc{
 			MethodName: "DeleteUserTokens",
 			Handler:    _Auth_DeleteUserTokens_Handler,
 		},
+		{
+			MethodName: "AccessTokenByID",
+			Handler:    _Auth_AccessTokenByID_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "auth.proto",
@@ -693,46 +687,43 @@ var _Auth_serviceDesc = grpc.ServiceDesc{
 func init() { proto.RegisterFile("auth.proto", fileDescriptor0) }
 
 var fileDescriptor0 = []byte{
-	// 653 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x95, 0xcd, 0x4e, 0xdb, 0x40,
-	0x10, 0xc7, 0xe3, 0x04, 0x42, 0x18, 0x07, 0x89, 0x8e, 0x03, 0xb8, 0x46, 0x95, 0xc2, 0xf6, 0x12,
-	0xa9, 0xd2, 0xa2, 0xa6, 0x87, 0x4a, 0x55, 0x55, 0x95, 0xf2, 0x51, 0xb8, 0x21, 0xb7, 0x5c, 0x5a,
-	0x55, 0x56, 0x9a, 0x0c, 0x09, 0x22, 0xc4, 0xee, 0x7a, 0x23, 0xca, 0x53, 0x54, 0x7d, 0x96, 0x3e,
-	0x40, 0x5f, 0xad, 0xda, 0x5d, 0x43, 0xbc, 0xb1, 0x03, 0x1c, 0x7a, 0xb3, 0x67, 0x66, 0x67, 0x66,
-	0xff, 0xbf, 0xd9, 0x5d, 0x80, 0xde, 0x54, 0x8e, 0x78, 0x22, 0x62, 0x19, 0x07, 0xeb, 0xea, 0x3b,
-	0x92, 0x37, 0x09, 0xa5, 0x99, 0x65, 0x7b, 0x18, 0xc7, 0xc3, 0x31, 0xed, 0xea, 0xbf, 0xef, 0xd3,
-	0xf3, 0x5d, 0xba, 0x4a, 0xe4, 0x8d, 0x71, 0xb2, 0x5f, 0x55, 0xc0, 0x7d, 0x41, 0x3d, 0x49, 0x9f,
-	0xe3, 0x4b, 0x9a, 0x84, 0xf4, 0x63, 0x4a, 0xa9, 0xc4, 0x67, 0x00, 0xd3, 0x94, 0x44, 0xd4, 0x1b,
-	0xd2, 0x44, 0xfa, 0x4e, 0xdb, 0xe9, 0xac, 0x86, 0xab, 0xca, 0xb2, 0xa7, 0x0c, 0xd8, 0x06, 0xf7,
-	0xfc, 0x62, 0x32, 0x24, 0x91, 0x88, 0x8b, 0x89, 0xf4, 0xab, 0xda, 0x9f, 0x37, 0xe1, 0x16, 0xac,
-	0xe8, 0x04, 0x17, 0x03, 0xbf, 0xa6, 0xbd, 0x75, 0xf5, 0x7b, 0x32, 0x98, 0x39, 0x12, 0x7f, 0x29,
-	0xe7, 0x48, 0x70, 0x1b, 0x74, 0x81, 0x48, 0xc4, 0x63, 0xf2, 0x97, 0xb5, 0xab, 0xa1, 0x0c, 0x61,
-	0x3c, 0x26, 0xe5, 0x14, 0xd7, 0x51, 0xaf, 0xdf, 0xa7, 0x34, 0xf5, 0xeb, 0x6d, 0xa7, 0xd3, 0x08,
-	0x1b, 0xe2, 0x7a, 0x4f, 0xff, 0x63, 0x07, 0xea, 0x99, 0x67, 0xa5, 0xed, 0x74, 0xdc, 0xee, 0x3a,
-	0x0f, 0x29, 0x8d, 0xa7, 0xa2, 0x4f, 0xa9, 0x89, 0x08, 0x33, 0x3f, 0x32, 0x58, 0x4b, 0x7a, 0x42,
-	0x46, 0x52, 0xed, 0x55, 0xf5, 0xd6, 0x30, 0x9d, 0x2b, 0xa3, 0xde, 0xff, 0xc9, 0x80, 0x7d, 0x03,
-	0xcf, 0x12, 0x24, 0x4d, 0xe2, 0x49, 0x4a, 0xb8, 0x03, 0x4d, 0x93, 0xc4, 0x2c, 0xce, 0x34, 0x71,
-	0x8d, 0x4d, 0x87, 0xe2, 0x73, 0x58, 0x13, 0x74, 0x2e, 0x28, 0x1d, 0x65, 0x31, 0x46, 0x97, 0x66,
-	0x66, 0xd4, 0x41, 0xec, 0xb7, 0x03, 0x4f, 0xf6, 0x47, 0xd4, 0xbf, 0xb4, 0xf4, 0x7e, 0x44, 0x76,
-	0x1b, 0x49, 0x75, 0x1e, 0xc9, 0x0e, 0x34, 0x8d, 0xfe, 0x91, 0x61, 0x52, 0xcb, 0x33, 0x39, 0xb5,
-	0x99, 0xcc, 0x49, 0xcf, 0xfe, 0x38, 0x80, 0xf9, 0x9e, 0xb2, 0x2d, 0xcf, 0x74, 0x75, 0x1e, 0xd0,
-	0x35, 0x47, 0xbb, 0x6a, 0xd1, 0xb6, 0xa0, 0xd6, 0xe6, 0xa0, 0x3e, 0x85, 0xc6, 0x1d, 0x08, 0xd3,
-	0xd0, 0x8a, 0x34, 0x10, 0x8a, 0xa0, 0x96, 0x8b, 0xa0, 0xbe, 0x02, 0x1e, 0xfe, 0x94, 0x34, 0x19,
-	0x58, 0x4a, 0x16, 0x20, 0x38, 0x45, 0x08, 0x0f, 0xcf, 0xaf, 0x9a, 0x02, 0x2b, 0xf9, 0x7f, 0x9e,
-	0x82, 0x08, 0x82, 0xb3, 0x64, 0xd0, 0x93, 0x94, 0x09, 0x69, 0x9a, 0x3f, 0x1c, 0xd3, 0x15, 0xd9,
-	0x87, 0xc7, 0xb1, 0xe4, 0x9c, 0x11, 0xa9, 0xde, 0x4f, 0x84, 0x1d, 0x83, 0x57, 0x52, 0x00, 0x5f,
-	0xc2, 0xb2, 0x4a, 0xa5, 0x88, 0xd6, 0x3a, 0x6e, 0x77, 0x9b, 0x2f, 0xee, 0x22, 0x34, 0x91, 0x6c,
-	0x17, 0x5a, 0x1f, 0x49, 0x9e, 0xa5, 0x24, 0x74, 0xeb, 0x77, 0xa9, 0x16, 0x35, 0xc9, 0x0e, 0x60,
-	0x63, 0x6e, 0x41, 0x26, 0xde, 0x0b, 0xa8, 0x6b, 0x45, 0x6e, 0xab, 0x7b, 0xfc, 0x93, 0x8c, 0x05,
-	0x19, 0x89, 0x8f, 0x62, 0xa1, 0x96, 0x84, 0x59, 0x08, 0x3b, 0x06, 0x3c, 0xa0, 0x31, 0xcd, 0xdd,
-	0x4b, 0xf9, 0x91, 0x71, 0xec, 0x91, 0x59, 0x34, 0x83, 0xac, 0x0b, 0x5b, 0x26, 0xd3, 0xe3, 0xf7,
-	0xd0, 0xfd, 0x5b, 0x83, 0xa5, 0xbd, 0xa9, 0x1c, 0xe1, 0x1b, 0x70, 0x73, 0xb7, 0x01, 0x7a, 0xbc,
-	0x78, 0x59, 0x06, 0x2d, 0x5e, 0x72, 0x61, 0xb0, 0x0a, 0xbe, 0x06, 0x98, 0x9d, 0x2a, 0x44, 0x5e,
-	0x38, 0xf6, 0x81, 0xc7, 0x8b, 0xc7, 0x8e, 0x55, 0x54, 0xd1, 0xdc, 0xf0, 0xa1, 0xc7, 0x8b, 0x73,
-	0x1e, 0xb4, 0x78, 0xc9, 0x7c, 0xb2, 0x0a, 0xbe, 0x83, 0x66, 0x9e, 0x29, 0xb6, 0xca, 0x10, 0x07,
-	0x9b, 0xdc, 0x3c, 0x0a, 0xfc, 0xf6, 0x51, 0xe0, 0x87, 0xea, 0x51, 0x60, 0x15, 0x7c, 0x0f, 0x6b,
-	0x16, 0x3d, 0xdc, 0xe0, 0x65, 0xf8, 0x83, 0x4d, 0x5e, 0x0a, 0x99, 0x55, 0xf0, 0x2d, 0xb8, 0x39,
-	0x72, 0xe8, 0xf1, 0x22, 0xc7, 0x7b, 0xea, 0x1f, 0xc1, 0xfa, 0x3c, 0x2d, 0xf4, 0xf9, 0x02, 0x80,
-	0x8b, 0xf3, 0x7c, 0x70, 0xbf, 0xac, 0xaa, 0x97, 0xf0, 0x54, 0xdb, 0xeb, 0xda, 0xfd, 0xea, 0x5f,
-	0x00, 0x00, 0x00, 0xff, 0xff, 0xc9, 0x7b, 0xb8, 0x0a, 0x29, 0x07, 0x00, 0x00,
+	// 608 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xac, 0x55, 0xcd, 0x6e, 0xd3, 0x40,
+	0x10, 0xb6, 0x93, 0x92, 0xa6, 0xe3, 0x56, 0x94, 0x75, 0xdb, 0x18, 0x57, 0x48, 0xe9, 0x72, 0x89,
+	0x84, 0xb4, 0x91, 0xc2, 0x01, 0x09, 0xf5, 0x40, 0xda, 0xb4, 0x90, 0x5b, 0x14, 0xca, 0x05, 0x84,
+	0xac, 0x90, 0x4c, 0x7e, 0xd4, 0x60, 0x9b, 0xf5, 0x46, 0x25, 0x8f, 0xc0, 0x91, 0x47, 0xe2, 0xc4,
+	0x6b, 0xa1, 0xdd, 0x75, 0x89, 0xd7, 0x4e, 0x20, 0x48, 0xdc, 0xbc, 0x33, 0xb3, 0xf3, 0xf3, 0x7d,
+	0xdf, 0xac, 0x01, 0x06, 0x0b, 0x31, 0x65, 0x31, 0x8f, 0x44, 0xe4, 0x1f, 0xca, 0xef, 0x40, 0x2c,
+	0x63, 0x4c, 0x52, 0xcb, 0xe9, 0x24, 0x8a, 0x26, 0x73, 0x6c, 0xaa, 0xd3, 0xa7, 0xc5, 0xb8, 0x89,
+	0x9f, 0x63, 0xb1, 0xd4, 0x4e, 0xfa, 0xc3, 0x06, 0x72, 0xc9, 0x71, 0x20, 0xf0, 0x26, 0xba, 0xc5,
+	0xb0, 0x8f, 0x5f, 0x16, 0x98, 0x08, 0xf2, 0x04, 0x60, 0x91, 0x20, 0x0f, 0x06, 0x13, 0x0c, 0x85,
+	0x67, 0xd7, 0xed, 0xc6, 0x5e, 0x7f, 0x4f, 0x5a, 0xda, 0xd2, 0x40, 0xea, 0xe0, 0x8c, 0x67, 0xe1,
+	0x04, 0x79, 0xcc, 0x67, 0xa1, 0xf0, 0x4a, 0xca, 0x9f, 0x35, 0x91, 0x1a, 0xec, 0xaa, 0x04, 0xb3,
+	0x91, 0x57, 0x56, 0xde, 0x8a, 0x3c, 0x76, 0x47, 0x2b, 0x47, 0xec, 0xed, 0x64, 0x1c, 0x31, 0x39,
+	0x05, 0x55, 0x20, 0xe0, 0xd1, 0x1c, 0xbd, 0x07, 0xca, 0x55, 0x95, 0x86, 0x7e, 0x34, 0x47, 0xe9,
+	0xe4, 0x77, 0xc1, 0x60, 0x38, 0xc4, 0x24, 0xf1, 0x2a, 0x75, 0xbb, 0x51, 0xed, 0x57, 0xf9, 0x5d,
+	0x5b, 0x9d, 0xe9, 0x47, 0x70, 0x8d, 0x11, 0x92, 0x38, 0x0a, 0x13, 0x24, 0x67, 0xb0, 0xaf, 0x2f,
+	0x04, 0x42, 0xda, 0xd3, 0x29, 0x1c, 0x6d, 0x53, 0xa1, 0xe4, 0x29, 0x1c, 0x70, 0x1c, 0x73, 0x4c,
+	0xa6, 0x69, 0x8c, 0x9e, 0x64, 0x3f, 0x35, 0xaa, 0x20, 0xfa, 0xdd, 0x86, 0x47, 0x97, 0x53, 0x1c,
+	0xde, 0x1a, 0x08, 0x6d, 0x91, 0xdd, 0x04, 0xb1, 0x94, 0x07, 0xf1, 0x0c, 0xf6, 0x35, 0x62, 0x81,
+	0x46, 0xb1, 0x9c, 0x45, 0xb1, 0x67, 0xa2, 0x98, 0x03, 0x8b, 0x7e, 0x93, 0xb4, 0x65, 0x7a, 0x4a,
+	0x47, 0xce, 0xa0, 0x5e, 0x32, 0x50, 0x37, 0xc0, 0x2d, 0xe7, 0xc0, 0x7d, 0x0c, 0x55, 0x35, 0x83,
+	0xbc, 0xa6, 0xcb, 0xec, 0xaa, 0x73, 0x77, 0x44, 0x28, 0x1c, 0xc4, 0x03, 0x2e, 0x82, 0xdf, 0x7e,
+	0x4d, 0x8c, 0x23, 0x8d, 0x37, 0x3a, 0x86, 0x7e, 0x00, 0x72, 0xf5, 0x55, 0x60, 0x38, 0x32, 0xf0,
+	0x29, 0x40, 0x6b, 0x17, 0xa1, 0xfd, 0xbb, 0x8e, 0x24, 0xb7, 0x46, 0xf2, 0xff, 0xcc, 0x6d, 0x13,
+	0x8e, 0x5e, 0xa3, 0x78, 0x97, 0x20, 0x57, 0xe7, 0xe4, 0xbe, 0xfb, 0x0c, 0x90, 0x76, 0x16, 0x48,
+	0xda, 0x81, 0xe3, 0xdc, 0x85, 0xb4, 0xa3, 0x67, 0x50, 0x51, 0x65, 0x12, 0xcf, 0xae, 0x97, 0x1b,
+	0x4e, 0xcb, 0x65, 0x6f, 0x45, 0xc4, 0x51, 0xf7, 0x7d, 0x1d, 0x71, 0x79, 0xa5, 0x9f, 0x86, 0xd0,
+	0x37, 0x40, 0x3a, 0x38, 0xc7, 0xdc, 0xd2, 0x65, 0x79, 0xb0, 0x4d, 0x1e, 0x36, 0x11, 0x4b, 0x5b,
+	0x50, 0xd3, 0x99, 0xfe, 0x61, 0x86, 0x1e, 0x9c, 0xb4, 0x57, 0x40, 0x5d, 0x2c, 0xbb, 0x9d, 0x2d,
+	0x3a, 0x30, 0x14, 0x54, 0x32, 0x15, 0x44, 0xcf, 0xa1, 0x56, 0xc8, 0xb8, 0x35, 0x53, 0xad, 0x9f,
+	0x65, 0xd8, 0x69, 0x2f, 0xc4, 0x94, 0xbc, 0x04, 0x27, 0xb3, 0xc8, 0xc4, 0x65, 0xc5, 0x97, 0xc9,
+	0x3f, 0x62, 0x6b, 0x76, 0x9d, 0x5a, 0xe4, 0x05, 0xc0, 0x6a, 0x21, 0x08, 0x61, 0x85, 0x8d, 0xf5,
+	0x5d, 0x56, 0xdc, 0x18, 0x6a, 0xc9, 0xa2, 0x19, 0x85, 0x11, 0x97, 0x15, 0xc5, 0xec, 0x1f, 0xb1,
+	0x35, 0x22, 0xa4, 0x16, 0x79, 0x05, 0x07, 0x86, 0x1a, 0xc8, 0x31, 0x5b, 0x27, 0x27, 0xff, 0x84,
+	0xad, 0x15, 0x0d, 0xb5, 0xc8, 0x39, 0x38, 0x19, 0x25, 0x10, 0x97, 0x15, 0x75, 0xe1, 0x9f, 0x30,
+	0xfd, 0x82, 0xb3, 0xfb, 0x17, 0x9c, 0x5d, 0xc9, 0x17, 0x9c, 0x5a, 0xe4, 0x1a, 0x0e, 0xf3, 0xec,
+	0x13, 0x8f, 0x6d, 0x10, 0xc4, 0x1f, 0xf3, 0x3c, 0xcc, 0xf1, 0x47, 0x6a, 0x6c, 0xbd, 0x46, 0x7c,
+	0x8f, 0x6d, 0xa0, 0x9a, 0x5a, 0x17, 0xce, 0xfb, 0x3d, 0xf9, 0xfb, 0xe9, 0xa9, 0xfc, 0x15, 0x55,
+	0xe6, 0xf9, 0xaf, 0x00, 0x00, 0x00, 0xff, 0xff, 0x64, 0xcd, 0x7b, 0x38, 0x9e, 0x06, 0x00, 0x00,
 }

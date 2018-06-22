@@ -1,8 +1,6 @@
 package middleware
 
 import (
-	"encoding/base64"
-	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -63,17 +61,9 @@ func CheckAuth(roles []string, authClient authProto.AuthClient) gin.HandlerFunc 
 			gonic.Gonic(gatewayErrors.ErrUserPermissionDenied(), c)
 			return
 		}
-		ns, vol, err := encodeAccessToBase64(token.GetAccess())
-		if err != nil {
-			log.Error(err)
-			gonic.Gonic(gatewayErrors.ErrInternal(), c)
-			return
-		}
 		setHeader(&c.Request.Header, h.TokenIDXHeader, token.TokenId)
 		setHeader(&c.Request.Header, h.UserIDXHeader, token.UserId)
 		setHeader(&c.Request.Header, h.UserRoleXHeader, token.UserRole)
-		setHeader(&c.Request.Header, h.UserNamespacesXHeader, ns)
-		setHeader(&c.Request.Header, h.UserVolumesXHeader, vol)
 	}
 }
 
@@ -96,24 +86,6 @@ func checkUserRole(userRole string, roles []string) bool {
 		}
 	}
 	return false
-}
-
-func encodeAccessToBase64(access *authProto.ResourcesAccess) (ns string, vol string, err error) {
-	userNamespaces := access.GetNamespace()
-	userVolumes := access.GetVolume()
-	bNs, e := json.Marshal(userNamespaces)
-	if e != nil {
-		err = e
-		return
-	}
-	ns = base64.StdEncoding.EncodeToString(bNs)
-	bVol, e := json.Marshal(userVolumes)
-	if e != nil {
-		err = e
-		return
-	}
-	vol = base64.StdEncoding.EncodeToString(bVol)
-	return
 }
 
 func getTokenEntry(token, agent, finger, ip string) *log.Entry {
