@@ -15,3 +15,5 @@
 #include "routes/volume.toml"
 
 #include "routes/solutions.toml"
+
+#include "routes/mail.toml"

@@ -30,6 +30,8 @@ routes:
   path: env/routes/volume.toml
 - name: solutions.toml
   path: env/routes/solutions.toml
+- name: mail.toml
+  path: env/routes/mail.toml
 
 config: env/config.toml
 
