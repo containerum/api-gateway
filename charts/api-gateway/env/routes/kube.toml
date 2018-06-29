@@ -38,6 +38,16 @@ listen = "/namespaces/:namespace/configmaps/:configmap"
 strip = false
 group = "kube-api"
 
+[routes.configmap_replace]
+active = true
+name = "Replace configmap"
+method = "PUT"
+roles = ["*"]
+upstream = "http://kube-api:1214"
+listen = "/namespaces/:namespace/configmaps/:configmap"
+strip = false
+group = "kube-api"
+
 [routes.configmap_delete]
 active = true
 name = "Delete configmap"
@@ -123,6 +133,16 @@ group = "kube-api"
 active = true
 name = "Get Ingress"
 method = "GET"
+roles = ["*"]
+upstream = "http://kube-api:1214"
+listen = "/namespaces/:namespace/ingresses/:ingress"
+strip = false
+group = "kube-api"
+
+[routes.ingress_replace]
+active = true
+name = "Replace Ingress"
+method = "PUT"
 roles = ["*"]
 upstream = "http://kube-api:1214"
 listen = "/namespaces/:namespace/ingresses/:ingress"
