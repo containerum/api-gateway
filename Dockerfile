@@ -7,7 +7,7 @@ COPY . .
 RUN go build -v -ldflags="-w -s" -o /bin/api-gateway ./cmd/api-gateway
 
 #### Generate Cert Step ####
-FROM alpine as generator
+FROM alpine:3.7 as generator
 
 RUN apk update && \
   apk add --no-cache openssl && \
@@ -18,7 +18,7 @@ WORKDIR /cert
 RUN openssl req -subj '/CN=containerum.io/O=Containerum/C=LV' -new -newkey rsa:2048 -sha256 -days 365 -nodes -x509 -keyout key.pem -out cert.pem
 
 #### Run Step ####
-FROM alpine
+FROM alpine:3.7
 
 # Copy bin and migrations
 RUN mkdir -p /app
