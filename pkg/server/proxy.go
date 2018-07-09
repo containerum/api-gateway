@@ -19,7 +19,6 @@ import (
 	"git.containerum.net/ch/api-gateway/pkg/server/middleware"
 	"git.containerum.net/ch/api-gateway/pkg/utils/wslimiter"
 	"github.com/containerum/cherry/adaptors/gonic"
-	h "github.com/containerum/utils/httputil"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
@@ -45,15 +44,24 @@ var (
 		KeepAlive: httpKeepAlive,
 	}
 	httpTransport = http.Transport{DialContext: httpDialer.DialContext}
-	wsUpgrader    = wslimiter.NewPerIPLimiter(maxWSConnectionsPerIP, &websocket.Upgrader{
-		ReadBufferSize:  wsReadBuffer,
-		WriteBufferSize: wsWriteBuffer,
-		CheckOrigin: func(r *http.Request) bool {
-			return true
+	//wsUpgrader    = wslimiter.NewPerIPLimiter(maxWSConnectionsPerIP, &websocket.Upgrader{
+	//	ReadBufferSize:  wsReadBuffer,
+	//	WriteBufferSize: wsWriteBuffer,
+	//	CheckOrigin: func(r *http.Request) bool {
+	//		return true
+	//	},
+	//}, func(r *http.Request) string {
+	//	return r.Header.Get(h.UserIPXHeader)
+	//})
+	wsUpgrader = wslimiter.DummyLimiter{
+		Upgrader: &websocket.Upgrader{
+			ReadBufferSize:  wsReadBuffer,
+			WriteBufferSize: wsWriteBuffer,
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+			},
 		},
-	}, func(r *http.Request) string {
-		return r.Header.Get(h.UserIPXHeader)
-	})
+	}
 )
 
 func (pt proxyTransport) RoundTrip(r *http.Request) (resp *http.Response, err error) {
@@ -102,7 +110,11 @@ func (s *Server) proxyHTTP(target *model.Route) *httputil.ReverseProxy {
 }
 
 func (s *Server) proxyWS(c *gin.Context, backend *url.URL) error {
-	conn, connBackend, err := s.makeWSconnections(c, backend)
+	newUrl := *backend
+	if s.options.ServiceHostPrefix != "" {
+		newUrl.Host = s.options.ServiceHostPrefix + "-" + newUrl.Host
+	}
+	conn, connBackend, err := s.makeWSconnections(c, &newUrl)
 	if err != nil {
 		return err
 	}

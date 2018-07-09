@@ -38,6 +38,16 @@ listen = "/namespaces/:namespace/configmaps/:configmap"
 strip = false
 group = "kube-api"
 
+[routes.configmap_replace]
+active = true
+name = "Replace configmap"
+method = "PUT"
+roles = ["*"]
+upstream = "http://kube-api:1214"
+listen = "/namespaces/:namespace/configmaps/:configmap"
+strip = false
+group = "kube-api"
+
 [routes.configmap_delete]
 active = true
 name = "Delete configmap"
