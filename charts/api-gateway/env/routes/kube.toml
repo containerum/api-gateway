@@ -178,3 +178,13 @@ upstream = "http://kube-api:1214"
 listen = "/namespaces/:namespace/pods"
 strip = false
 group = "kube-api"
+
+[routes.deploypodlist_get]
+active = true
+name = "Get deployment pod list"
+method = "GET"
+roles = ["*"]
+upstream = "http://kube-api:1214"
+listen = "/namespaces/:namespace/deployments/:deployment/pods"
+strip = false
+group = "kube-api"
