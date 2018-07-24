@@ -117,3 +117,24 @@ upstream = "http://permissions:4242"
 listen = "/namespaces/:namespace"
 strip = false
 group = "permissions"
+
+[routes.project_group]
+active = true
+name = "Add group to namespace"
+method = "POST"
+roles = ["*"]
+upstream = "http://permissions:4242"
+listen = "/namespaces/:namespace/groups"
+strip = false
+group = "permissions"
+
+
+[routes.project_group]
+active = true
+name = "Get project groups"
+method = "GET"
+roles = ["*"]
+upstream = "http://permissions:4242"
+listen = "/namespaces/:namespace/groups"
+strip = false
+group = "permissions"
