@@ -15,7 +15,7 @@ Gateway is an API service that provides routing for [Containerum](https://github
 ```
 
 ## Contributions
-Please submit all contributions concerning Gateway component to this repository.
+Please submit all contributions concerning Gateway component to this repository. Contributing guidelines are available [here](https://github.com/containerum/containerum/blob/master/CONTRIBUTING.md).
 
 ## License
 Gateway project is licensed under the terms of the Apache License Version 2.0. Please see LICENSE in this repository for more details.
