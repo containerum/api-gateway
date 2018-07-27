@@ -18,3 +18,4 @@
 
 #include "routes/mail.toml"
 
+#include "routes/nodemetrics.toml"
