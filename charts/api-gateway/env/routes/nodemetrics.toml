@@ -1,0 +1,19 @@
+[routes.current_memory]
+active = true
+name = "Get current memory"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:7777"
+listen = "/memory/current"
+strip = false
+group = "nodemetrics"
+
+[routes.current_cpu]
+active = true
+name = "Get current cpu"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:7777"
+listen = "/cpu/current"
+strip = false
+group = "nodemetrics"

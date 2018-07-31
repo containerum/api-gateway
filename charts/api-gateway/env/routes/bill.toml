@@ -97,3 +97,13 @@ upstream = "http://billing-manager.web.svc:5005"
 listen = "/isp/coupon/apply"
 strip = false
 group = "billing-manager"
+
+[routes.paypal_payment]
+active = true
+name = "Paypal payment"
+method = "POST"
+roles = ["*"]
+upstream = "http://billing-manager.web.svc:5005"
+listen = "/isp/paypal"
+strip = false
+group = "billing-manager"

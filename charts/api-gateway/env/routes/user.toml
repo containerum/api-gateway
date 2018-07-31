@@ -61,7 +61,7 @@ name = "Admin Reset Password"
 method = "POST"
 roles = ["admin"]
 upstream = "http://user-manager:8111"
-listen = "/admin/password/reset"
+listen = "/admin/user/password/reset"
 strip = false
 group = "user"
 
@@ -69,6 +69,16 @@ group = "user"
 active = true
 name = "Admin Set admin"
 method = "POST"
+roles = ["admin"]
+upstream = "http://user-manager:8111"
+listen = "/admin/user"
+strip = false
+group = "user"
+
+[routes.admin_unset]
+active = true
+name = "Admin Unset admin"
+method = "DELETE"
 roles = ["admin"]
 upstream = "http://user-manager:8111"
 listen = "/admin/user"
@@ -122,6 +132,16 @@ listen = "/user/info"
 strip = false
 group = "user"
 
+[routes.profile_get_by_login]
+active = true
+name = "Get Profile by login"
+method = "GET"
+roles = ["admin"]
+upstream = "http://user-manager:8111"
+listen = "/user/info/login/:login"
+strip = false
+group = "user"
+
 [routes.password_change]
 active = true
 name = "Password Change"
@@ -139,6 +159,16 @@ method = "POST"
 roles = ["*"]
 upstream = "http://user-manager:8111"
 listen = "/user/delete/partial"
+strip = false
+group = "user"
+
+[routes.user_delete_admin]
+active = true
+name = "Admin delete user"
+method = "POST"
+roles = ["admin"]
+upstream = "http://user-manager:8111"
+listen = "/user/delete/complete"
 strip = false
 group = "user"
 
