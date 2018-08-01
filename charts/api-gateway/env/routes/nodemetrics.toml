@@ -8,6 +8,16 @@ listen = "/memory/current"
 strip = false
 group = "nodemetrics"
 
+[routes.history_memory]
+active = true
+name = "Get history memory"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:7777"
+listen = "/memory/history"
+strip = false
+group = "nodemetrics"
+
 [routes.current_cpu]
 active = true
 name = "Get current cpu"
@@ -17,3 +27,14 @@ upstream = "http://nodemetrics:7777"
 listen = "/cpu/current"
 strip = false
 group = "nodemetrics"
+
+[routes.history_cpu]
+active = true
+name = "Get history cpu"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:7777"
+listen = "/cpu/history"
+strip = false
+group = "nodemetrics"
+
