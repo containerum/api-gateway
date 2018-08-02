@@ -38,3 +38,12 @@ listen = "/cpu/history"
 strip = false
 group = "nodemetrics"
 
+[routes.current_storage]
+active = true
+name = "Get current storage"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:7777"
+listen = "/storage/current"
+strip = false
+group = "nodemetrics"
