@@ -3,8 +3,18 @@ active = true
 name = "Get current memory"
 method = "GET"
 roles = ["*"]
-upstream = "http://nodemetrics:7777"
+upstream = "http://nodemetrics:8090"
 listen = "/memory/current"
+strip = false
+group = "nodemetrics"
+
+[routes.history_memory]
+active = true
+name = "Get history memory"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:8090"
+listen = "/memory/history"
 strip = false
 group = "nodemetrics"
 
@@ -13,7 +23,27 @@ active = true
 name = "Get current cpu"
 method = "GET"
 roles = ["*"]
-upstream = "http://nodemetrics:7777"
+upstream = "http://nodemetrics:8090"
 listen = "/cpu/current"
+strip = false
+group = "nodemetrics"
+
+[routes.history_cpu]
+active = true
+name = "Get history cpu"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:8090"
+listen = "/cpu/history"
+strip = false
+group = "nodemetrics"
+
+[routes.current_storage]
+active = true
+name = "Get current storage"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:8090"
+listen = "/storage/current"
 strip = false
 group = "nodemetrics"
