@@ -8,6 +8,16 @@ listen = "/templates"
 strip = false
 group = "solutions"
 
+[routes.templates_add]
+active = true
+name = "Add Solution Template"
+method = "POST"
+roles = ["admin"]
+upstream = "http://solutions.hosting.svc:16767"
+listen = "/templates"
+strip = false
+group = "solutions"
+
 [routes.template_env_get]
 active = true
 name = "Get Solution Template Env"
