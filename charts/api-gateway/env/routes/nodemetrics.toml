@@ -18,6 +18,36 @@ listen = "/memory/history"
 strip = false
 group = "nodemetrics"
 
+[routes.history_memory_node]
+active = true
+name = "Get history memory by node"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:7777"
+listen = "/memory/history/nodes"
+strip = false
+group = "nodemetrics"
+
+[routes.history_memory_ws]
+active = true
+name = "Get history memory websockets"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:7777"
+listen = "/memory/history/ws"
+strip = false
+group = "nodemetrics"
+
+[routes.history_memory_node_ws]
+active = true
+name = "Get history memory by node websockets"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:7777"
+listen = "/memory/history/nodes/ws"
+strip = false
+group = "nodemetrics"
+
 [routes.current_cpu]
 active = true
 name = "Get current cpu"
@@ -35,6 +65,36 @@ method = "GET"
 roles = ["*"]
 upstream = "http://nodemetrics:8090"
 listen = "/cpu/history"
+strip = false
+group = "nodemetrics"
+
+[routes.history_cpu_node]
+active = true
+name = "Get history cpu by node"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:7777"
+listen = "/cpu/history/nodes"
+strip = false
+group = "nodemetrics"
+
+[routes.history_cpu_ws]
+active = true
+name = "Get history cpu websocket"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:7777"
+listen = "/cpu/history/ws"
+strip = false
+group = "nodemetrics"
+
+[routes.history_cpu_node_ws]
+active = true
+name = "Get history cpu by node websocket"
+method = "GET"
+roles = ["*"]
+upstream = "http://nodemetrics:7777"
+listen = "/cpu/history/nodes/ws"
 strip = false
 group = "nodemetrics"
 
