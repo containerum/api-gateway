@@ -28,6 +28,16 @@ listen = "/templates/:template/env"
 strip = false
 group = "solutions"
 
+[routes.template_deactivate]
+active = true
+name = "Deactivate template"
+method = "POST"
+roles = ["admin"]
+upstream = "http://solutions.hosting.svc:16767"
+listen = "/templates/:template/deactivate"
+strip = false
+group = "solutions"
+
 [routes.solutions_get]
 active = true
 name = "Get Solutions"
