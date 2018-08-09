@@ -8,6 +8,16 @@ listen = "/templates"
 strip = false
 group = "solutions"
 
+[routes.templates_add]
+active = true
+name = "Add Solution Template"
+method = "POST"
+roles = ["admin"]
+upstream = "http://solutions:6767"
+listen = "/templates"
+strip = false
+group = "solutions"
+
 [routes.template_env_get]
 active = true
 name = "Get Solution Template Env"
@@ -15,6 +25,16 @@ method = "GET"
 roles = ["*"]
 upstream = "http://solutions:6767"
 listen = "/templates/:template/env"
+strip = false
+group = "solutions"
+
+[routes.template_deactivate]
+active = true
+name = "Deactivate template"
+method = "POST"
+roles = ["admin"]
+upstream = "http://solutions:6767"
+listen = "/templates/:template/deactivate"
 strip = false
 group = "solutions"
 

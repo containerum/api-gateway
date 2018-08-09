@@ -188,3 +188,43 @@ upstream = "http://kube:1214"
 listen = "/namespaces/:namespace/deployments/:deployment/pods"
 strip = false
 group = "kube-api"
+
+[routes.secret_list]
+active = true
+name = "Get secret list"
+method = "GET"
+roles = ["*"]
+upstream = "http://kube:1214"
+listen = "/namespaces/:namespace/secrets"
+strip = false
+group = "kube-api"
+
+[routes.secret_get]
+active = true
+name = "Get secret"
+method = "GET"
+roles = ["admin"]
+upstream = "http://kube:1214"
+listen = "/namespaces/:namespace/secrets/:secret"
+strip = false
+group = "kube-api"
+
+[routes.secret_create]
+active = true
+name = "Create secret"
+method = "POST"
+roles = ["admin"]
+upstream = "http://kube:1214"
+listen = "/namespaces/:namespace/secrets/docker"
+strip = false
+group = "kube-api"
+
+[routes.secret_delete]
+active = true
+name = "Delete secret"
+method = "DELETE"
+roles = ["admin"]
+upstream = "http://kube:1214"
+listen = "/namespaces/:namespace/secrets/:secret"
+strip = false
+group = "kube-api"
