@@ -34,6 +34,7 @@ type Options struct {
 	Metrics *model.Metrics
 
 	ServiceHostPrefix string
+	Version           string // will be in status
 }
 
 //New return configurated server with all handlers
