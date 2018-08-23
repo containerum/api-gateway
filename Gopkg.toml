@@ -34,3 +34,7 @@
 [[constraint]]
   branch = "v2"
   name = "gopkg.in/urfave/cli.v2"
+
+[[constraint]]
+  name = "github.com/containerum/kube-client"
+  version = "~0.23.27"
