@@ -110,11 +110,7 @@ func (s *Server) proxyHTTP(target *model.Route) *httputil.ReverseProxy {
 }
 
 func (s *Server) proxyWS(c *gin.Context, backend *url.URL) error {
-	newUrl := *backend
-	if s.options.ServiceHostPrefix != "" {
-		newUrl.Host = s.options.ServiceHostPrefix + "-" + newUrl.Host
-	}
-	conn, connBackend, err := s.makeWSconnections(c, &newUrl)
+	conn, connBackend, err := s.makeWSconnections(c, s.addPrefixToBackendURL(backend))
 	if err != nil {
 		return err
 	}
