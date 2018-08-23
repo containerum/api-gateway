@@ -12,16 +12,16 @@ import (
 	"gopkg.in/urfave/cli.v2"
 )
 
-var Version string
+var version string
 
 func main() {
 	app := cli.App{
 		Name: "api-gateway",
 		Version: func() string {
-			if Version == "" {
+			if version == "" {
 				return "1.0.0-dev"
 			}
-			return Version
+			return version
 		}(),
 		Usage: "Awesome Golang API Gateway.",
 		Flags: []cli.Flag{

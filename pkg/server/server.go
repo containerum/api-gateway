@@ -5,6 +5,7 @@ import (
 	"fmt"
 	slog "log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"time"
@@ -34,6 +35,7 @@ type Options struct {
 	Metrics *model.Metrics
 
 	ServiceHostPrefix string
+	Version           string // will be in status
 }
 
 //New return configurated server with all handlers
@@ -48,6 +50,14 @@ func New(opt *Options) (server *Server, err error) {
 
 	server.Handler, err = server.createHandler()
 	return
+}
+
+func (s *Server) addPrefixToBackendURL(backend *url.URL) *url.URL {
+	newUrl := *backend
+	if s.options.ServiceHostPrefix != "" {
+		newUrl.Host = s.options.ServiceHostPrefix + "-" + newUrl.Host
+	}
+	return &newUrl
 }
 
 //Start return http or https ListenServer
@@ -101,6 +111,7 @@ func (s *Server) createHandler() (http.Handler, error) {
 			route.Entry().Info("Route added")
 		}
 	}
+	router.GET("/status", s.healthCheckHandler)
 	router.NoMethod(func(ctx *gin.Context) {
 		gonic.Gonic(gatewayErrors.
 			ErrMethodNotAllowed().
