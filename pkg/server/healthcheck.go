@@ -23,7 +23,7 @@ func statusWithError(serviceName string, err error) model.ServiceStatus {
 func (s *Server) getServiceStatus(backend *url.URL) model.ServiceStatus {
 	resp, err := http.Get(s.addPrefixToBackendURL(backend).String())
 	if err != nil {
-		statusWithError(backend.Hostname(), err)
+		return statusWithError(backend.Hostname(), err)
 	}
 	defer resp.Body.Close()
 
