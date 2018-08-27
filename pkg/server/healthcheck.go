@@ -32,7 +32,7 @@ func (s *Server) getServiceStatus(backend *url.URL) model.ServiceStatus {
 		if err := json.NewDecoder(resp.Body).Decode(&returnedErr); err != nil {
 			return statusWithError(backend.Hostname(), err)
 		}
-		return statusWithError(backend.Hostname(), err)
+		return statusWithError(backend.Hostname(), &returnedErr)
 	}
 
 	var returnedStatus model.ServiceStatus
