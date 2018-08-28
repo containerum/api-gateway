@@ -58,6 +58,16 @@ listen = "/tariffs/volume"
 strip = false
 group = "billing-manager"
 
+[routes.namespace_current_tariff_get]
+active = true
+name = "Get Namespace Current Tariff"
+method = "GET"
+roles = ["*"]
+upstream = "http://billing-manager:5005"
+listen = "/namespaces/:namespace/tariff"
+strip = false
+group = "billing-manager"
+
 [routes.balance_get]
 active = true
 name = "Get Balance"
