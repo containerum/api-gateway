@@ -31,10 +31,15 @@ func extractXHeaders(sourceHeaders http.Header) http.Header {
 	return ret
 }
 
-func (s *Server) getServiceStatus(backend *url.URL) model.ServiceStatus {
-	resp, err := http.Get(s.addPrefixToBackendURL(backend).String())
+func (s *Server) getServiceStatus(backend *url.URL, requestHeaders http.Header) model.ServiceStatus {
+	req := http.Request{
+		Method: http.MethodGet,
+		Header: extractXHeaders(requestHeaders),
+		URL:    s.addPrefixToBackendURL(backend),
+	}
+	resp, err := http.DefaultClient.Do(&req)
 	if err != nil {
-		statusWithError(backend.Hostname(), err)
+		return statusWithError(backend.Hostname(), err)
 	}
 	defer resp.Body.Close()
 
