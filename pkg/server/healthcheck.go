@@ -43,16 +43,12 @@ func (s *Server) getServiceStatus(backend *url.URL, requestHeaders http.Header) 
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	var returnedStatus model.ServiceStatus
+	if err := json.NewDecoder(resp.Body).Decode(&returnedStatus); err != nil {
 		var returnedErr cherry.Err
 		if err := json.NewDecoder(resp.Body).Decode(&returnedErr); err != nil {
 			return statusWithError(backend.Hostname(), err)
 		}
-		return statusWithError(backend.Hostname(), &returnedErr)
-	}
-
-	var returnedStatus model.ServiceStatus
-	if err := json.NewDecoder(resp.Body).Decode(&returnedStatus); err != nil {
 		return statusWithError(backend.Hostname(), err)
 	}
 	return returnedStatus
