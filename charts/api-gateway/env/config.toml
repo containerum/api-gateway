@@ -10,7 +10,8 @@ urls = [
   "http://resource:1213/status",
   "http://solutions:6767/status",
   "http://user-manager:8111/status",
-  "http://volume:4343/status"
+  "http://volume:4343/status",
+  "http://kube-importer:1666/status"
 ]
 
 [tls]
