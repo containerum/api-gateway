@@ -36,16 +36,16 @@ data:
 
     [healthcheck]
     urls = [
-      "http://{{ .Release.Name }}-auth:1111/status",
-      "http://{{ .Release.Name }}-kube:1214/status",
-      "http://{{ .Release.Name }}-mail:7070/status",
-      "http://{{ .Release.Name }}-nodemetrics:8090/status",
-      "http://{{ .Release.Name }}-permissions:4242/status",
-      "http://{{ .Release.Name }}-resource:1213/status",
-      "http://{{ .Release.Name }}-solutions:6767/status",
-      "http://{{ .Release.Name }}-user-manager:8111/status",
-      "http://{{ .Release.Name }}-volume:4343/status",
-      "http://{{ .Release.Name }}-kube-importer:1666/status"
+      "http://auth:1111/status",
+      "http://kube:1214/status",
+      "http://mail:7070/status",
+      "http://nodemetrics:8090/status",
+      "http://permissions:4242/status",
+      "http://resource:1213/status",
+      "http://solutions:6767/status",
+      "http://user-manager:8111/status",
+      "http://volume:4343/status",
+      "http://kube-importer:1666/status"
     ]
 
     [auth]
