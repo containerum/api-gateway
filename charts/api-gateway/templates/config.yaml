@@ -34,6 +34,20 @@ data:
     {{ if .Values.tls.enable }}enable = true
     {{ else }}enable = false{{ end }}
 
+    [healthcheck]
+    urls = [
+      "http://{{ .Release.Name }}-auth:1111/status",
+      "http://{{ .Release.Name }}-kube:1214/status",
+      "http://{{ .Release.Name }}-mail:7070/status",
+      "http://{{ .Release.Name }}-nodemetrics:8090/status",
+      "http://{{ .Release.Name }}-permissions:4242/status",
+      "http://{{ .Release.Name }}-resource:1213/status",
+      "http://{{ .Release.Name }}-solutions:6767/status",
+      "http://{{ .Release.Name }}-user-manager:8111/status",
+      "http://{{ .Release.Name }}-volume:4343/status",
+      "http://{{ .Release.Name }}-kube-importer:1666/status"
+    ]
+
     [auth]
     enable = true
 
