@@ -1,20 +1,21 @@
 PHONY: build test clean release single_release
 
 CMD_DIR:=cmd/api-gateway
-CLI_DIR:=cmd/api-gateway
-#get current package, assuming it`s in GOPATH sources
-PACKAGE := $(shell go list -f '{{.ImportPath}}' ./$(CLI_DIR))
-PACKAGE := $(PACKAGE:%/$(CLI_DIR)=%)
 
 # make directory and store path to variable
 BUILDS_DIR:=$(PWD)/build
-EXECUTABLE:=kube-api
-LDFLAGS=-X 'main.version=$(VERSION)'
+EXECUTABLE:=api-gateway
+LDFLAGS=-X 'main.version=$(VERSION)' -w -s -extldflags '-static'
 
 # go has build artifacts caching so soruce tracking not needed
 build:
-	@echo "Building kube-api for current OS/architecture"
-	@go build -v -ldflags="$(LDFLAGS)" -o $(BUILDS_DIR)/$(EXECUTABLE) ./$(CMD_DIR)
+	@echo "Building mail-templater for current OS/architecture"
+	@echo $(LDFLAGS)
+	@CGO_ENABLED=0 go build -v -ldflags="$(LDFLAGS)" -tags="jsoniter" -o $(BUILDS_DIR)/$(EXECUTABLE) ./$(CMD_DIR)
+
+build-for-docker:
+	@echo $(LDFLAGS)
+	@CGO_ENABLED=0 go build -v -ldflags="$(LDFLAGS)" -tags="jsoniter" -o  /tmp/$(EXECUTABLE) ./$(CMD_DIR)
 
 test:
 	@echo "Running tests"
@@ -64,5 +65,4 @@ single_release:
 
 dev:
 	@echo building $(VERSION)
-	@echo $(PACKAGE)
 	go build -v --tags="dev" --ldflags="$(LDFLAGS)" ./$(CMD_DIR)

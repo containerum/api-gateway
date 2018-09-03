@@ -18,9 +18,6 @@ func main() {
 	app := cli.App{
 		Name: "api-gateway",
 		Version: func() string {
-			if version == "" {
-				return "1.0.0-dev"
-			}
 			return version
 		}(),
 		Usage: "Awesome Golang API Gateway.",
