@@ -130,6 +130,7 @@ func setupServer(c *cli.Context) (*server.Server, error) {
 		Metrics: c.App.Metadata[metricsKey].(*model.Metrics),
 
 		ServiceHostPrefix: c.String(ServiceHostPrefixFlag.Name),
+		Version:           c.App.Version,
 	}
 	return server.New(opt)
 }

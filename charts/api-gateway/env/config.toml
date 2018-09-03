@@ -1,5 +1,19 @@
 port = 8082
 
+[healthcheck]
+urls = [
+  "http://auth:1111/status",
+  "http://kube:1214/status",
+  "http://mail:7070/status",
+  "http://nodemetrics:8090/status",
+  "http://permissions:4242/status",
+  "http://resource:1213/status",
+  "http://solutions:6767/status",
+  "http://user-manager:8111/status",
+  "http://volume:4343/status",
+  "http://kube-importer:1666/status"
+]
+
 [tls]
 enable = false
 

@@ -1,0 +1,20 @@
+[routes.import_all]
+active = true
+name = "Import all resources"
+method = "POST"
+roles = ["admin"]
+upstream = "http://kube-importer:1666"
+listen = "/all"
+strip = false
+group = "kube-importer"
+
+[routes.import_all_ws]
+active = true
+name = "Import all resources ws"
+method = "GET"
+roles = ["admin"]
+upstream = "http://kube-importer:1666"
+listen = "/all/ws"
+strip = false
+group = "kube-importer"
+ws = true

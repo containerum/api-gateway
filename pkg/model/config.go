@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 
 	valid "github.com/asaskevich/govalidator"
 	"github.com/sirupsen/logrus"
@@ -16,9 +17,25 @@ var (
 
 type Enable bool
 
+type tomlURL struct {
+	*url.URL
+}
+
+func (t *tomlURL) UnmarshalText(b []byte) error {
+	addr, err := url.Parse(string(b))
+	if err != nil {
+		return err
+	}
+	t.URL = addr
+	return nil
+}
+
 type Config struct {
-	Port int
-	TLS  struct {
+	Port        int
+	HealthCheck struct {
+		URLs []tomlURL `toml:"urls"`
+	} `toml:"healthcheck"`
+	TLS struct {
 		Enable
 		Key  string `toml:"-"`
 		Cert string `toml:"-"`

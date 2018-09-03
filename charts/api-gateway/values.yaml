@@ -34,6 +34,8 @@ routes:
   path: env/routes/mail.toml
 - name: nodemetrics.toml
   path: env/routes/nodemetrics.toml
+- name: kube-importer.toml
+  path: env/routes/kube-importer.toml
 
 config: env/config.toml
 

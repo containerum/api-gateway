@@ -26,6 +26,12 @@
   revision = "4c0e84591b9aa9e6dcfdf3e020114cd81f89d5f9"
 
 [[projects]]
+  name = "github.com/blang/semver"
+  packages = ["."]
+  revision = "2ee87856327ba09384cabd113bc6b5d174e9ec0f"
+  version = "v3.5.1"
+
+[[projects]]
   name = "github.com/containerum/cherry"
   packages = [
     ".",
@@ -35,6 +41,12 @@
   ]
   revision = "34f7a2a139b36c20a34b93738dda33476efad47d"
   version = "v1.0.1"
+
+[[projects]]
+  name = "github.com/containerum/kube-client"
+  packages = ["pkg/model"]
+  revision = "d9a1865782bb10b027248a9770a42a53ed11a423"
+  version = "v0.23.27"
 
 [[projects]]
   name = "github.com/containerum/utils"
@@ -52,6 +64,15 @@
   ]
   revision = "c95eaa3ddc98f635a91e218b48727fb2e06613ea"
   version = "v4.0.0"
+
+[[projects]]
+  name = "github.com/docker/distribution"
+  packages = [
+    "digest",
+    "reference"
+  ]
+  revision = "48294d928ced5dd9b378f7fd7c6f5da3ff3f2c89"
+  version = "v2.6.2"
 
 [[projects]]
   name = "github.com/gin-contrib/cors"
@@ -147,6 +168,12 @@
   packages = ["pbutil"]
   revision = "3247c84500bff8d9fb6d579d800f20b3e091582c"
   version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/ninedraft/boxofstuff"
+  packages = ["strset"]
+  revision = "2b74bc874f1a8ee6911d655378be9025aeaf6021"
+  version = "v0.3.7"
 
 [[projects]]
   name = "github.com/patrickmn/go-cache"
@@ -347,6 +374,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "66f94f0cf224b25ed03e3e44e4cc642054e7b5f07826069236b4a21ff126f0f8"
+  inputs-digest = "89b09fecc5b967bd21a1fc54460f6760cf626f5f7c587b5a4c0640ebff49af74"
   solver-name = "gps-cdcl"
   solver-version = 1
