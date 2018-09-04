@@ -1,10 +1,9 @@
 #### Build Step ####
 FROM golang:1.10-alpine as builder
-
-WORKDIR src/git.containerum.net/ch/api-gateway
+RUN apk add --update make git
+WORKDIR /go/src/git.containerum.net/ch/api-gateway
 COPY . .
-
-RUN go build -v -ldflags="-w -s" -o /bin/api-gateway ./cmd/api-gateway
+RUN VERSION=$(git describe --abbrev=0 --tags) make build-for-docker
 
 #### Generate Cert Step ####
 FROM alpine:3.7 as generator
@@ -21,13 +20,12 @@ RUN openssl req -subj '/CN=containerum.io/O=Containerum/C=LV' -new -newkey rsa:2
 FROM alpine:3.7
 
 # Copy bin and migrations
-RUN mkdir -p /app
-COPY --from=builder /go/src/git.containerum.net/ch/api-gateway/charts/api-gateway/env/config.toml /app
-COPY --from=builder /go/src/git.containerum.net/ch/api-gateway/charts/api-gateway/env/routes /app/routes
-COPY --from=builder /bin/api-gateway /app
+COPY --from=builder /go/src/git.containerum.net/ch/api-gateway/charts/api-gateway/env/config.toml /
+COPY --from=builder /go/src/git.containerum.net/ch/api-gateway/charts/api-gateway/env/routes /routes
+COPY --from=builder /tmp/api-gateway /
 
 # Copy certs
-COPY --from=generator /cert /app/cert
+COPY --from=generator /cert /cert
 
 # Set envs
 ENV GATEWAY_DEBUG=false \
@@ -41,5 +39,5 @@ ENV GATEWAY_DEBUG=false \
 EXPOSE 8082 8282
 
 # run app
-WORKDIR "/app"
+WORKDIR "/"
 CMD "./api-gateway"
