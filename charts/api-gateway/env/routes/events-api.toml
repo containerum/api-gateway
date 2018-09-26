@@ -1,0 +1,43 @@
+[routes.import_all_events]
+active = true
+name = "Get all events for all resources"
+method = "GET"
+roles = ["*"]
+upstream = "http://events-api:1667/all"
+listen = "/events/all"
+strip = true
+group = "events-api"
+ws = true
+
+[routes.import_selected_events]
+active = true
+name = "Get selected events for all resources"
+method = "GET"
+roles = ["*"]
+upstream = "http://events-api:1667"
+listen = "/events/selected"
+strip = true
+group = "events-api"
+ws = true
+
+[routes.import_selected_events]
+active = true
+name = "Get selected events for all resources"
+method = "GET"
+roles = ["*"]
+upstream = "http://events-api:1667/namespaces/:namespace/all"
+listen = "/events/namespaces/:namespace/all"
+strip = true
+group = "events-api"
+ws = true
+
+[routes.import_selected_events]
+active = true
+name = "Get selected events for all resources"
+method = "GET"
+roles = ["*"]
+upstream = "http://events-api:1667/namespaces/:namespace/selected"
+listen = "/events/namespaces/:namespace/selected"
+strip = true
+group = "events-api"
+ws = true

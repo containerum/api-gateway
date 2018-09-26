@@ -36,6 +36,8 @@ routes:
   path: env/routes/nodemetrics.toml
 - name: kube-importer.toml
   path: env/routes/kube-importer.toml
+- name: events-api.toml
+  path: env/routes/events-api.toml
 
 config: env/config.toml
 
