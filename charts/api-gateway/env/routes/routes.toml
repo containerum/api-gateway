@@ -22,3 +22,5 @@
 
 #include "routes/kube-importer.toml"
 
+#include "routes/events-api.toml"
+
