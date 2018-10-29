@@ -41,3 +41,13 @@ listen = "/events/namespaces/:namespace/selected"
 strip = false
 group = "events-api"
 ws = true
+
+[routes.get_events_by_page]
+active = true
+name = "Get events by page"
+method = "GET"
+roles = ["*"]
+upstream = "http://events-api:1667"
+listen = "/events/"
+strip = false
+group = "events-api"
